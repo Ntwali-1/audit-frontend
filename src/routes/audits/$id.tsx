@@ -35,7 +35,7 @@ const SEV_COLORS: Record<Severity, string> = {
 };
 
 function AuditDetail() {
-  const audit = Route.useLoaderData();
+  const audit = Route.useLoaderData() as Audit;
   const [open, setOpen] = React.useState(false);
   const [submitting, setSubmitting] = React.useState(false);
   const [severity, setSeverity] = React.useState<Severity>("medium");
