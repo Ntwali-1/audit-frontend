@@ -1,7 +1,7 @@
 import * as React from "react";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { AppShell } from "@/components/app-shell";
-import { AUDITS, STATUS_LABEL, SEVERITY_LABEL, Severity } from "@/lib/audit-data";
+import { AUDITS, STATUS_LABEL, SEVERITY_LABEL, Severity, Audit } from "@/lib/audit-data";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
