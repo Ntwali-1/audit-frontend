@@ -19,7 +19,7 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/audits/$id")({
   head: ({ params }) => ({ meta: [{ title: `${params.id} · Auditly` }] }),
-  loader: ({ params }) => {
+  loader: ({ params }): Audit => {
     const audit = AUDITS.find((a) => a.id === params.id);
     if (!audit) throw notFound();
     return audit;
