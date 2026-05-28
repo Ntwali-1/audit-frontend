@@ -75,7 +75,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary/60 opacity-75" />
                 <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-primary" />
               </span>
-              <span className="font-mono">{now.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit", second: "2-digit" })}</span>
+              <span className="font-mono">{now ? now.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "--:--:--"}</span>
             </div>
             <button className="relative flex h-9 w-9 items-center justify-center rounded-full border border-border/60 bg-background/60 transition-colors hover:bg-accent">
               <Bell className="h-4 w-4" />
@@ -97,7 +97,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <footer className="border-t border-border/40 px-6 py-4 text-[11px] text-muted-foreground">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <span>Crafted in-house · all data is local to this browser session</span>
-            <span className="font-mono">build · {now.toISOString().slice(0, 10)}</span>
+            <span className="font-mono">build · {(now ?? new Date(0)).toISOString().slice(0, 10)}</span>
           </div>
         </footer>
       </main>
