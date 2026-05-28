@@ -123,9 +123,56 @@
   * {
     border-color: var(--color-border);
   }
-  body {
+  html, body {
     background-color: var(--color-background);
     color: var(--color-foreground);
-    font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
 }
+
+/* Custom slim scrollbar */
+.scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+.scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+.scrollbar-thin::-webkit-scrollbar-thumb { background: color-mix(in oklab, var(--foreground) 18%, transparent); border-radius: 999px; }
+.scrollbar-thin::-webkit-scrollbar-thumb:hover { background: color-mix(in oklab, var(--foreground) 32%, transparent); }
+
+/* Reusable shimmering gradient border */
+.gradient-border {
+  position: relative;
+  isolation: isolate;
+}
+.gradient-border::before {
+  content: "";
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, var(--chart-2), transparent 40%, var(--chart-4) 80%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Soft glow used on stat cards */
+.glow-card {
+  box-shadow: 0 1px 0 0 rgba(255,255,255,0.4) inset, 0 12px 40px -16px color-mix(in oklab, var(--primary) 30%, transparent);
+}
+
+/* Floating bob keyframe for accents */
+@keyframes float-y { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+.animate-float { animation: float-y 6s ease-in-out infinite; }
+
+@keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+.shimmer-text {
+  background: linear-gradient(90deg, var(--foreground) 0%, var(--primary) 30%, var(--foreground) 60%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: shimmer 6s linear infinite;
+}
+
+/* Animate-in helpers if not in tw-animate */
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slide-up { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.fade-in { animation: fade-in 0.4s ease-out both; }
+.slide-up { animation: slide-up 0.5s cubic-bezier(.2,.8,.2,1) both; }
