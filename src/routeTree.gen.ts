@@ -9,13 +9,35 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as VendorsRouteImport } from './routes/vendors'
+import { Route as UsersRouteImport } from './routes/users'
+import { Route as TeamsRouteImport } from './routes/teams'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ReportsRouteImport } from './routes/reports'
+import { Route as NotificationsRouteImport } from './routes/notifications'
+import { Route as FindingsRouteImport } from './routes/findings'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as AssistantRouteImport } from './routes/assistant'
+import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuditsIndexRouteImport } from './routes/audits/index'
 import { Route as AuditsIdRouteImport } from './routes/audits/$id'
 
+const VendorsRoute = VendorsRouteImport.update({
+  id: '/vendors',
+  path: '/vendors',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UsersRoute = UsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TeamsRoute = TeamsRouteImport.update({
+  id: '/teams',
+  path: '/teams',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -26,9 +48,29 @@ const ReportsRoute = ReportsRouteImport.update({
   path: '/reports',
   getParentRoute: () => rootRouteImport,
 } as any)
+const NotificationsRoute = NotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FindingsRoute = FindingsRouteImport.update({
+  id: '/findings',
+  path: '/findings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AssistantRoute = AssistantRouteImport.update({
+  id: '/assistant',
+  path: '/assistant',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnalyticsRoute = AnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -49,26 +91,47 @@ const AuditsIdRoute = AuditsIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/analytics': typeof AnalyticsRoute
+  '/assistant': typeof AssistantRoute
   '/dashboard': typeof DashboardRoute
+  '/findings': typeof FindingsRoute
+  '/notifications': typeof NotificationsRoute
   '/reports': typeof ReportsRoute
   '/settings': typeof SettingsRoute
+  '/teams': typeof TeamsRoute
+  '/users': typeof UsersRoute
+  '/vendors': typeof VendorsRoute
   '/audits/$id': typeof AuditsIdRoute
   '/audits/': typeof AuditsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/analytics': typeof AnalyticsRoute
+  '/assistant': typeof AssistantRoute
   '/dashboard': typeof DashboardRoute
+  '/findings': typeof FindingsRoute
+  '/notifications': typeof NotificationsRoute
   '/reports': typeof ReportsRoute
   '/settings': typeof SettingsRoute
+  '/teams': typeof TeamsRoute
+  '/users': typeof UsersRoute
+  '/vendors': typeof VendorsRoute
   '/audits/$id': typeof AuditsIdRoute
   '/audits': typeof AuditsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/analytics': typeof AnalyticsRoute
+  '/assistant': typeof AssistantRoute
   '/dashboard': typeof DashboardRoute
+  '/findings': typeof FindingsRoute
+  '/notifications': typeof NotificationsRoute
   '/reports': typeof ReportsRoute
   '/settings': typeof SettingsRoute
+  '/teams': typeof TeamsRoute
+  '/users': typeof UsersRoute
+  '/vendors': typeof VendorsRoute
   '/audits/$id': typeof AuditsIdRoute
   '/audits/': typeof AuditsIndexRoute
 }
@@ -76,34 +139,89 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/analytics'
+    | '/assistant'
     | '/dashboard'
+    | '/findings'
+    | '/notifications'
     | '/reports'
     | '/settings'
+    | '/teams'
+    | '/users'
+    | '/vendors'
     | '/audits/$id'
     | '/audits/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/reports' | '/settings' | '/audits/$id' | '/audits'
+  to:
+    | '/'
+    | '/analytics'
+    | '/assistant'
+    | '/dashboard'
+    | '/findings'
+    | '/notifications'
+    | '/reports'
+    | '/settings'
+    | '/teams'
+    | '/users'
+    | '/vendors'
+    | '/audits/$id'
+    | '/audits'
   id:
     | '__root__'
     | '/'
+    | '/analytics'
+    | '/assistant'
     | '/dashboard'
+    | '/findings'
+    | '/notifications'
     | '/reports'
     | '/settings'
+    | '/teams'
+    | '/users'
+    | '/vendors'
     | '/audits/$id'
     | '/audits/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AnalyticsRoute: typeof AnalyticsRoute
+  AssistantRoute: typeof AssistantRoute
   DashboardRoute: typeof DashboardRoute
+  FindingsRoute: typeof FindingsRoute
+  NotificationsRoute: typeof NotificationsRoute
   ReportsRoute: typeof ReportsRoute
   SettingsRoute: typeof SettingsRoute
+  TeamsRoute: typeof TeamsRoute
+  UsersRoute: typeof UsersRoute
+  VendorsRoute: typeof VendorsRoute
   AuditsIdRoute: typeof AuditsIdRoute
   AuditsIndexRoute: typeof AuditsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/vendors': {
+      id: '/vendors'
+      path: '/vendors'
+      fullPath: '/vendors'
+      preLoaderRoute: typeof VendorsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/users': {
+      id: '/users'
+      path: '/users'
+      fullPath: '/users'
+      preLoaderRoute: typeof UsersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/teams': {
+      id: '/teams'
+      path: '/teams'
+      fullPath: '/teams'
+      preLoaderRoute: typeof TeamsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/settings': {
       id: '/settings'
       path: '/settings'
@@ -118,11 +236,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReportsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/notifications': {
+      id: '/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof NotificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/findings': {
+      id: '/findings'
+      path: '/findings'
+      fullPath: '/findings'
+      preLoaderRoute: typeof FindingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/assistant': {
+      id: '/assistant'
+      path: '/assistant'
+      fullPath: '/assistant'
+      preLoaderRoute: typeof AssistantRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/analytics': {
+      id: '/analytics'
+      path: '/analytics'
+      fullPath: '/analytics'
+      preLoaderRoute: typeof AnalyticsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -151,9 +297,16 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AnalyticsRoute: AnalyticsRoute,
+  AssistantRoute: AssistantRoute,
   DashboardRoute: DashboardRoute,
+  FindingsRoute: FindingsRoute,
+  NotificationsRoute: NotificationsRoute,
   ReportsRoute: ReportsRoute,
   SettingsRoute: SettingsRoute,
+  TeamsRoute: TeamsRoute,
+  UsersRoute: UsersRoute,
+  VendorsRoute: VendorsRoute,
   AuditsIdRoute: AuditsIdRoute,
   AuditsIndexRoute: AuditsIndexRoute,
 }
