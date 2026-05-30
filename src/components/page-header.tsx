@@ -17,14 +17,18 @@ export function PageHeader({
   return (
     <div className={cn("flex flex-wrap items-end justify-between gap-4 pb-6", className)}>
       <div className="min-w-0">
-        {eyebrow && (
-          <span className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/60 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
-            <span className="h-1 w-1 rounded-full bg-primary" />
-            {eyebrow}
-          </span>
+        {eyebrow && <div className="data-label mb-2">{eyebrow}</div>}
+        <h1
+          className="text-[24px] font-medium leading-tight tracking-tight"
+          style={{ color: "var(--brown-800)" }}
+        >
+          {title}
+        </h1>
+        {description && (
+          <p className="mt-1.5 max-w-2xl text-[13px]" style={{ color: "var(--text-muted)" }}>
+            {description}
+          </p>
         )}
-        <h2 className="mt-2 text-2xl font-semibold tracking-tight shimmer-text">{title}</h2>
-        {description && <p className="mt-1 max-w-2xl text-sm text-muted-foreground">{description}</p>}
       </div>
       {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
     </div>
@@ -32,27 +36,65 @@ export function PageHeader({
 }
 
 export function StatTile({
-  label, value, hint, icon: Icon, tone = 1,
+  label, value, hint, icon: Icon, trend,
 }: {
-  label: string; value: React.ReactNode; hint?: string;
-  icon: React.ComponentType<{ className?: string }>; tone?: 1 | 2 | 3 | 4 | 5;
+  label: string;
+  value: React.ReactNode;
+  hint?: string;
+  icon: React.ComponentType<any>;
+  trend?: { value: string; positive?: boolean };
+  tone?: number;
 }) {
   return (
-    <div className="glow-card relative overflow-hidden rounded-2xl border border-border/60 bg-card/70 p-5 backdrop-blur-xl">
+    <div
+      className="group relative overflow-hidden rounded-2xl p-5 transition-all duration-150 hover:-translate-y-0.5"
+      style={{
+        backgroundColor: "var(--brown-50)",
+        boxShadow: "var(--shadow-card)",
+      }}
+    >
+      {/* right decorative stripe */}
       <span
         aria-hidden
-        className="absolute -right-8 -top-8 h-28 w-28 rounded-full opacity-70"
-        style={{ background: `radial-gradient(circle, var(--chart-${tone}) 0%, transparent 70%)` }}
+        className="absolute inset-y-0 right-0 w-1"
+        style={{
+          backgroundColor: "var(--brown-200)",
+          borderRadius: "0 16px 16px 0",
+        }}
       />
-      <div className="relative flex items-start justify-between">
-        <div>
-          <p className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground">{label}</p>
-          <p className="mt-2 text-3xl font-semibold tracking-tight">{value}</p>
-          {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <div className="data-label">{label}</div>
+          <div
+            className="mt-2 text-[28px] font-semibold leading-none tracking-tight"
+            style={{ color: "var(--brown-800)" }}
+          >
+            {value}
+          </div>
+          {hint && (
+            <div className="mt-2 text-[13px]" style={{ color: "var(--brown-400)" }}>
+              {hint}
+            </div>
+          )}
+          {trend && (
+            <span
+              className="mt-3 inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium"
+              style={
+                trend.positive
+                  ? { backgroundColor: "#E6F4ED", color: "#1A6638" }
+                  : { backgroundColor: "#FDEDED", color: "#9B2020" }
+              }
+            >
+              {trend.positive ? "▲" : "▼"} {trend.value}
+            </span>
+          )}
         </div>
-        <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-secondary text-secondary-foreground shadow-sm">
+        <div
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
+          style={{ backgroundColor: "var(--brown-100)", color: "var(--brown-600)" }}
+        >
           <Icon className="h-5 w-5" />
-        </span>
+        </div>
       </div>
     </div>
   );
