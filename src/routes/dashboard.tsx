@@ -1,15 +1,20 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppShell } from "@/components/app-shell";
+import { PageHeader, StatTile } from "@/components/page-header";
 import { AUDITS, STATUS_LABEL } from "@/lib/audit-data";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { ClipboardList, AlertTriangle, CheckCircle2, Clock } from "lucide-react";
+import { ClipboardList, AlertTriangle, CheckCircle2, Clock, ArrowUpRight } from "lucide-react";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard · Auditly" }] }),
   component: Dashboard,
 });
+
+const STATUS_BAR: Record<string, string> = {
+  completed: "#1A6638",
+  in_progress: "#C8861D",
+  review: "#A0652A",
+  draft: "#B09880",
+};
 
 function Dashboard() {
   const total = AUDITS.length;
@@ -17,73 +22,147 @@ function Dashboard() {
   const openFindings = AUDITS.flatMap((a) => a.findings).filter((f) => f.status === "open").length;
   const completed = AUDITS.filter((a) => a.status === "completed").length;
 
-  const stats = [
-    { label: "Total audits", value: total, icon: ClipboardList },
-    { label: "In flight", value: open, icon: Clock },
-    { label: "Open findings", value: openFindings, icon: AlertTriangle },
-    { label: "Completed", value: completed, icon: CheckCircle2 },
-  ];
-
   return (
     <AppShell>
-      <div className="space-y-6">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {stats.map((s, i) => {
-            const Icon = s.icon;
-            return (
-              <Card key={s.label} className="relative overflow-hidden bg-card/70 backdrop-blur">
-                <span
-                  className="absolute -right-6 -top-6 h-20 w-20 rounded-full opacity-60"
-                  style={{ background: `radial-gradient(circle, var(--chart-${(i % 4) + 1}) 0%, transparent 70%)` }}
-                />
-                <CardContent className="relative flex items-center justify-between p-5">
-                  <div>
-                    <p className="text-xs uppercase tracking-wider text-muted-foreground">{s.label}</p>
-                    <p className="mt-1 text-3xl font-semibold tracking-tight">{s.value}</p>
-                  </div>
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary text-secondary-foreground">
-                    <Icon className="h-5 w-5" />
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
+      <PageHeader
+        eyebrow="Workspace"
+        title="Good afternoon, Sarah"
+        description="Here's what's moving in your engagement portfolio today."
+      />
 
-        <Card className="bg-card/70 backdrop-blur">
-          <CardHeader>
-            <CardTitle className="text-base">Active audits</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {AUDITS.slice(0, 4).map((a) => (
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <StatTile label="Total audits" value={total} icon={ClipboardList} trend={{ value: "+12%", positive: true }} />
+        <StatTile label="In flight" value={open} icon={Clock} hint="across 6 teams" />
+        <StatTile label="Open findings" value={openFindings} icon={AlertTriangle} trend={{ value: "-3", positive: true }} />
+        <StatTile label="Completed" value={completed} icon={CheckCircle2} hint="this quarter" />
+      </div>
+
+      <div className="mt-6 grid gap-6 lg:grid-cols-3">
+        {/* Active audits — 2/3 */}
+        <section
+          className="rounded-2xl border bg-white p-6 lg:col-span-2"
+          style={{ borderColor: "var(--border-subtle)", boxShadow: "var(--shadow-card)" }}
+        >
+          <div className="mb-5 flex items-center justify-between">
+            <div>
+              <div className="data-label">Active</div>
+              <h2 className="mt-1 text-[16px] font-medium" style={{ color: "var(--brown-600)" }}>
+                Audits in progress
+              </h2>
+            </div>
+            <Link
+              to="/audits"
+              className="inline-flex items-center gap-1 text-[13px] font-medium hover:underline"
+              style={{ color: "var(--brown-400)" }}
+            >
+              View all <ArrowUpRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+
+          <div className="space-y-3">
+            {AUDITS.slice(0, 5).map((a) => (
               <Link
                 key={a.id}
                 to="/audits/$id"
                 params={{ id: a.id }}
-                className="block rounded-lg border border-border/70 bg-background/50 p-4 transition-colors hover:bg-accent"
+                className="group relative flex items-center gap-4 overflow-hidden rounded-xl border bg-white p-4 transition-all duration-150 hover:-translate-y-px hover:shadow-card-hover"
+                style={{ borderColor: "var(--border-subtle)" }}
               >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-mono text-muted-foreground">{a.id}</span>
-                      <Badge variant="secondary">{STATUS_LABEL[a.status]}</Badge>
-                    </div>
-                    <p className="mt-1 truncate font-medium">{a.name}</p>
-                    <p className="text-sm text-muted-foreground">{a.client} · Owner {a.owner}</p>
+                {/* Left status bar */}
+                <span
+                  aria-hidden
+                  className="absolute inset-y-0 left-0 w-1 transition-all duration-150 group-hover:w-1.5"
+                  style={{ backgroundColor: STATUS_BAR[a.status] ?? "var(--brown-200)" }}
+                />
+                <div className="ml-2 min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-[11px]" style={{ color: "var(--text-hint)" }}>
+                      {a.id}
+                    </span>
+                    <StatusPill status={a.status as keyof typeof STATUS_LABEL} />
                   </div>
-                  <div className="w-40 shrink-0">
-                    <div className="flex justify-between text-xs text-muted-foreground">
-                      <span>Progress</span>
-                      <span>{a.progress}%</span>
-                    </div>
-                    <Progress value={a.progress} className="mt-1 h-2" />
+                  <div className="mt-1 truncate text-[14px] font-medium" style={{ color: "var(--brown-800)" }}>
+                    {a.name}
+                  </div>
+                  <div className="text-[13px]" style={{ color: "var(--text-muted)" }}>
+                    {a.client} · {a.owner}
+                  </div>
+                </div>
+                <div className="hidden w-44 shrink-0 sm:block">
+                  <div className="mb-1 flex justify-between text-[11px]" style={{ color: "var(--text-muted)" }}>
+                    <span>Progress</span>
+                    <span className="font-medium" style={{ color: "var(--brown-600)" }}>
+                      {a.progress}%
+                    </span>
+                  </div>
+                  <div className="h-1.5 overflow-hidden rounded-full" style={{ backgroundColor: "var(--brown-50)" }}>
+                    <div
+                      className="h-full rounded-full transition-all"
+                      style={{ width: `${a.progress}%`, backgroundColor: "var(--brown-400)" }}
+                    />
                   </div>
                 </div>
               </Link>
             ))}
-          </CardContent>
-        </Card>
+          </div>
+        </section>
+
+        {/* Right sidebar — 1/3 */}
+        <aside className="space-y-6">
+          <div
+            className="rounded-2xl border bg-white p-6"
+            style={{ borderColor: "var(--border-subtle)", boxShadow: "var(--shadow-card)" }}
+          >
+            <div className="data-label">Activity</div>
+            <h3 className="mt-1 text-[16px] font-medium" style={{ color: "var(--brown-600)" }}>
+              Recent updates
+            </h3>
+            <ul className="mt-4 space-y-4">
+              {[
+                { who: "Jordan T.", what: "logged a high-severity finding", when: "12m ago" },
+                { who: "Maya R.", what: "completed Stage 3 controls review", when: "1h ago" },
+                { who: "Sarah C.", what: "approved Q2 ITGC report", when: "3h ago" },
+                { who: "Devon P.", what: "added 4 new evidence files", when: "yesterday" },
+              ].map((e, i) => (
+                <li key={i} className="flex gap-3">
+                  <div
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold"
+                    style={{ backgroundColor: "var(--brown-100)", color: "var(--brown-800)" }}
+                  >
+                    {e.who.split(" ").map((p) => p[0]).join("")}
+                  </div>
+                  <div className="min-w-0 flex-1 text-[13px]">
+                    <div style={{ color: "var(--text-primary)" }}>
+                      <span className="font-medium">{e.who}</span>{" "}
+                      <span style={{ color: "var(--text-muted)" }}>{e.what}</span>
+                    </div>
+                    <div className="mt-0.5 text-[11px]" style={{ color: "var(--text-hint)" }}>
+                      {e.when}
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </aside>
       </div>
     </AppShell>
+  );
+}
+
+function StatusPill({ status }: { status: keyof typeof STATUS_LABEL }) {
+  const styles: Record<string, React.CSSProperties> = {
+    completed: { backgroundColor: "#E6F4ED", color: "#1A6638", border: "0.5px solid #A8D5BA" },
+    in_progress: { backgroundColor: "#FEF3E2", color: "#854F0B", border: "0.5px solid #F0C97A" },
+    review: { backgroundColor: "#F5EDE0", color: "#6B3F15", border: "0.5px solid #E8D5B7" },
+    draft: { backgroundColor: "#F5EDE0", color: "#A0652A", border: "0.5px solid #E8D5B7" },
+  };
+  return (
+    <span
+      className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium"
+      style={styles[status]}
+    >
+      {STATUS_LABEL[status]}
+    </span>
   );
 }
