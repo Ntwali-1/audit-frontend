@@ -41,8 +41,9 @@ export function StatTile({
   label: string;
   value: React.ReactNode;
   hint?: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: React.ComponentType<any>;
   trend?: { value: string; positive?: boolean };
+  tone?: number;
 }) {
   return (
     <div

@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 export type NavItem = {
   to: string;
   label: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: React.ComponentType<any>;
   badge?: string | number;
 };
 
