@@ -10,10 +10,10 @@ export const Route = createFileRoute("/dashboard")({
 });
 
 const STATUS_BAR: Record<string, string> = {
-  completed: "#1A6638",
-  in_progress: "#C8861D",
-  review: "#A0652A",
-  draft: "#B09880",
+  completed: "#0A0A0A",
+  in_progress: "#52525B",
+  review: "#A1A1A6",
+  draft: "#D4D4D8",
 };
 
 function Dashboard() {
@@ -152,10 +152,10 @@ function Dashboard() {
 
 function StatusPill({ status }: { status: keyof typeof STATUS_LABEL }) {
   const styles: Record<string, React.CSSProperties> = {
-    completed: { backgroundColor: "#E6F4ED", color: "#1A6638", border: "0.5px solid #A8D5BA" },
-    in_progress: { backgroundColor: "#FEF3E2", color: "#854F0B", border: "0.5px solid #F0C97A" },
-    review: { backgroundColor: "#F5EDE0", color: "#6B3F15", border: "0.5px solid #E8D5B7" },
-    draft: { backgroundColor: "#F5EDE0", color: "#A0652A", border: "0.5px solid #E8D5B7" },
+    completed: { backgroundColor: "#0A0A0A", color: "#FFFFFF", border: "0.5px solid #0A0A0A" },
+    in_progress: { backgroundColor: "#F4F4F5", color: "#27272A", border: "0.5px solid #D4D4D8" },
+    review: { backgroundColor: "#FFFFFF", color: "#52525B", border: "0.5px solid #D4D4D8" },
+    draft: { backgroundColor: "#FAFAFA", color: "#71717A", border: "0.5px solid #E4E4E7" },
   };
   return (
     <span

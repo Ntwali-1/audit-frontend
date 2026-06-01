@@ -47,42 +47,44 @@ export function StatTile({
 }) {
   return (
     <div
-      className="group relative overflow-hidden rounded-2xl p-5 transition-all duration-150 hover:-translate-y-0.5"
-      style={{
-        backgroundColor: "var(--brown-50)",
-        boxShadow: "var(--shadow-card)",
-      }}
+      className="group card-elevated overflow-hidden p-5"
     >
-      {/* right decorative stripe */}
+      {/* subtle radial glow on hover */}
       <span
         aria-hidden
-        className="absolute inset-y-0 right-0 w-1"
+        className="pointer-events-none absolute -right-12 -top-12 h-32 w-32 rounded-full opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+        style={{ background: "radial-gradient(closest-side, rgba(0,0,0,0.06), transparent)" }}
+      />
+      {/* right decorative ink stripe */}
+      <span
+        aria-hidden
+        className="absolute inset-y-0 right-0 w-[3px]"
         style={{
-          backgroundColor: "var(--brown-200)",
-          borderRadius: "0 16px 16px 0",
+          background: "linear-gradient(180deg, transparent, var(--brown-800) 30%, var(--brown-800) 70%, transparent)",
+          opacity: 0.85,
         }}
       />
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <div className="data-label">{label}</div>
           <div
-            className="mt-2 text-[28px] font-semibold leading-none tracking-tight"
+            className="mt-2 text-[28px] font-semibold leading-none tracking-tight tabular-nums"
             style={{ color: "var(--brown-800)" }}
           >
             {value}
           </div>
           {hint && (
-            <div className="mt-2 text-[13px]" style={{ color: "var(--brown-400)" }}>
+            <div className="mt-2 text-[13px]" style={{ color: "var(--text-muted)" }}>
               {hint}
             </div>
           )}
           {trend && (
             <span
-              className="mt-3 inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium"
+              className="mt-3 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium"
               style={
                 trend.positive
-                  ? { backgroundColor: "#E6F4ED", color: "#1A6638" }
-                  : { backgroundColor: "#FDEDED", color: "#9B2020" }
+                  ? { backgroundColor: "#ECFDF3", color: "#067647", border: "0.5px solid #ABEFC6" }
+                  : { backgroundColor: "#FEF3F2", color: "#B42318", border: "0.5px solid #FECDCA" }
               }
             >
               {trend.positive ? "▲" : "▼"} {trend.value}
@@ -90,10 +92,10 @@ export function StatTile({
           )}
         </div>
         <div
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
-          style={{ backgroundColor: "var(--brown-100)", color: "var(--brown-600)" }}
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ring-1 ring-black/5 transition-transform duration-200 group-hover:scale-105"
+          style={{ backgroundColor: "var(--brown-800)", color: "#FFFFFF" }}
         >
-          <Icon className="h-5 w-5" />
+          <Icon className="h-[18px] w-[18px]" strokeWidth={1.75} />
         </div>
       </div>
     </div>
