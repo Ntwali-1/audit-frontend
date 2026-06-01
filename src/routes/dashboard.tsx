@@ -10,10 +10,10 @@ export const Route = createFileRoute("/dashboard")({
 });
 
 const STATUS_BAR: Record<string, string> = {
-  completed: "#1A6638",
-  in_progress: "#C8861D",
-  review: "#A0652A",
-  draft: "#B09880",
+  completed: "#0A0A0A",
+  in_progress: "#52525B",
+  review: "#A1A1A6",
+  draft: "#D4D4D8",
 };
 
 function Dashboard() {
