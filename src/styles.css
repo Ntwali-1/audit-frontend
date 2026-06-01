@@ -197,6 +197,20 @@
   border-radius: 6px 6px 0 0;
   pointer-events: none;
 }
+/* Inner hairline frame — architectural double-border effect */
+.card-elevated::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border: 1px solid rgba(0,0,0,0.04);
+  border-radius: 3px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+.card-elevated:hover::after {
+  opacity: 1;
+}
 
 
 /* Card shadows */
