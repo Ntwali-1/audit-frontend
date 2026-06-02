@@ -1,8 +1,9 @@
 import * as React from "react";
 import { useRouterState, Link } from "@tanstack/react-router";
-import { Search, Bell, AlertOctagon, ClipboardList, FileBarChart, Settings as SettingsIcon, User, LogOut, UserCircle2, ChevronRight } from "lucide-react";
+import { Search, Bell, AlertOctagon, ClipboardList, FileBarChart, Settings as SettingsIcon, User, LogOut, UserCircle2, ChevronRight, Menu } from "lucide-react";
 import { OrbitalSidebar, NAV_SECTIONS, useSidebarState } from "@/components/orbital-sidebar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { NOTIFICATIONS } from "@/lib/audit-data";
 import { cn } from "@/lib/utils";
 
