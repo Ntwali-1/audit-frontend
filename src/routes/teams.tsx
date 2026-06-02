@@ -26,7 +26,7 @@ function TeamsPage() {
       </div>
 
       <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {TEAMS.map((t, i) => {
+        {TEAMS.map((t) => {
           const memberSample = USERS.filter((u) => u.team === t.name).slice(0, 4);
           return (
             <div key={t.id} className="card-elevated group relative overflow-hidden p-5">
