@@ -180,18 +180,40 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       <main className="flex min-w-0 flex-1 flex-col">
         <header
-          className="sticky top-0 z-20 flex h-14 items-center justify-between gap-4 border-b bg-white/90 px-6 backdrop-blur"
+          className="sticky top-0 z-20 flex h-14 items-center justify-between gap-3 border-b bg-white/90 px-4 backdrop-blur md:px-6"
           style={{ borderColor: "var(--border-subtle)" }}
         >
-          <div className="flex min-w-0 items-center gap-2 text-[13px]">
-            <span style={{ color: "var(--text-muted)" }}>{active?.section.label ?? "Auditly"}</span>
-            <span style={{ color: "var(--text-hint)" }}>/</span>
-            <span className="font-medium" style={{ color: "var(--brown-800)" }}>
+          <div className="flex min-w-0 items-center gap-2">
+            {/* Mobile menu */}
+            <Sheet>
+              <SheetTrigger asChild>
+                <button
+                  className="flex h-9 w-9 items-center justify-center rounded-lg border bg-white md:hidden"
+                  style={{ borderColor: "var(--border-subtle)", color: "var(--brown-600)" }}
+                  aria-label="Open menu"
+                >
+                  <Menu className="h-[16px] w-[16px]" strokeWidth={1.75} />
+                </button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-[280px] p-0 border-0" style={{ backgroundColor: "var(--brown-800)" }}>
+                <SheetTitle className="sr-only">Navigation</SheetTitle>
+                <MobileNav pathname={location.pathname} />
+              </SheetContent>
+            </Sheet>
+
+            <div className="hidden min-w-0 items-center gap-2 text-[13px] sm:flex">
+              <span style={{ color: "var(--text-muted)" }}>{active?.section.label ?? "Auditly"}</span>
+              <span style={{ color: "var(--text-hint)" }}>/</span>
+              <span className="font-medium truncate" style={{ color: "var(--brown-800)" }}>
+                {active?.item.label ?? "Overview"}
+              </span>
+            </div>
+            <span className="font-medium text-[13px] truncate sm:hidden" style={{ color: "var(--brown-800)" }}>
               {active?.item.label ?? "Overview"}
             </span>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 md:gap-3">
             <div
               className="hidden h-9 w-72 items-center gap-2 rounded-lg border bg-[color:var(--surface)] px-3 text-[13px] lg:flex"
               style={{ borderColor: "var(--border-subtle)", color: "var(--text-hint)" }}
@@ -203,15 +225,66 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 style={{ backgroundColor: "var(--brown-50)", color: "var(--brown-600)" }}
               >⌘K</kbd>
             </div>
+            <button
+              className="flex h-9 w-9 items-center justify-center rounded-lg border bg-white lg:hidden"
+              style={{ borderColor: "var(--border-subtle)", color: "var(--brown-600)" }}
+              aria-label="Search"
+            >
+              <Search className="h-[16px] w-[16px]" strokeWidth={1.75} />
+            </button>
             <NotificationsPopover />
             <UserPopover />
           </div>
         </header>
 
         <div className="flex-1 bg-dot-grid">
-          <div className="mx-auto max-w-[1280px] p-6 fade-in">{children}</div>
+          <div className="mx-auto max-w-[1280px] p-4 md:p-6 fade-in">{children}</div>
         </div>
       </main>
     </div>
+  );
+}
+
+function MobileNav({ pathname }: { pathname: string }) {
+  return (
+    <nav className="scrollbar-thin flex h-full flex-col overflow-y-auto bg-linen px-3 py-4">
+      <div className="px-3 pb-4 text-[15px] font-semibold tracking-tight text-white font-display">Auditly</div>
+      {NAV_SECTIONS.map((section, idx) => (
+        <div key={section.id} className={cn(idx > 0 && "mt-4")}>
+          <div className="px-3 pb-2 pt-1 text-[10px] font-medium uppercase" style={{ letterSpacing: "0.12em", color: "rgba(255,255,255,0.35)" }}>
+            {section.label}
+          </div>
+          <ul className="space-y-0.5">
+            {section.items.map((item) => {
+              const isActive = pathname === item.to || pathname.startsWith(item.to + "/");
+              const Icon = item.icon;
+              return (
+                <li key={item.to}>
+                  <Link
+                    to={item.to}
+                    className={cn(
+                      "flex h-11 items-center gap-3 rounded-lg px-3 text-[14px] font-medium transition-colors",
+                      isActive ? "text-white" : "text-white/65 hover:bg-white/[0.08] hover:text-white",
+                    )}
+                    style={isActive ? { backgroundColor: "var(--brown-600)" } : undefined}
+                  >
+                    <Icon className="h-[18px] w-[18px]" strokeWidth={1.75} />
+                    <span className="flex-1 truncate">{item.label}</span>
+                    {item.badge != null && (
+                      <span
+                        className="flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[10px] font-semibold"
+                        style={{ backgroundColor: "var(--brown-200)", color: "var(--brown-800)" }}
+                      >
+                        {item.badge}
+                      </span>
+                    )}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ))}
+    </nav>
   );
 }
