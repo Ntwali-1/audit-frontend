@@ -158,6 +158,10 @@
     text-rendering: optimizeLegibility;
     font-feature-settings: 'cv11', 'ss01', 'ss03';
   }
+  h1, h2, h3, h4, h5, h6, .font-display {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+  }
 }
 
 /* Dot-grid page background (premium notebook feel) */
