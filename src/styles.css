@@ -55,6 +55,8 @@
   --color-brown-400: var(--brown-400);
   --color-brown-600: var(--brown-600);
   --color-brown-800: var(--brown-800);
+  --font-sans: var(--font-sans);
+  --font-display: var(--font-display);
 }
 
 :root {
