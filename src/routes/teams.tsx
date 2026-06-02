@@ -26,16 +26,12 @@ function TeamsPage() {
       </div>
 
       <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {TEAMS.map((t, i) => {
+        {TEAMS.map((t) => {
           const memberSample = USERS.filter((u) => u.team === t.name).slice(0, 4);
           return (
-            <div key={t.id} className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card/70 p-5 backdrop-blur-xl transition-transform hover:-translate-y-0.5">
-              <span
-                aria-hidden
-                className="absolute -right-10 -top-10 h-32 w-32 rounded-full opacity-60 transition-transform group-hover:scale-110"
-                style={{ background: `radial-gradient(circle, var(--chart-${(i % 4) + 1}) 0%, transparent 70%)` }}
-              />
+            <div key={t.id} className="card-elevated group relative overflow-hidden p-5">
               <div className="relative">
+
                 <p className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground">{t.id}</p>
                 <h3 className="mt-1 text-lg font-semibold">{t.name}</h3>
                 <p className="mt-1 text-sm text-muted-foreground">{t.description}</p>
