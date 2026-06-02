@@ -35,13 +35,14 @@ function NotificationsPopover() {
           <Bell className="h-[16px] w-[16px]" strokeWidth={1.75} />
           {unread > 0 && (
             <span
-              className="absolute right-1.5 top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[9px] font-semibold text-white ring-2 ring-white"
+              className="absolute -right-1 -top-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full px-1 text-[10px] font-semibold text-white ring-2 ring-white"
               style={{ backgroundColor: "var(--brown-800)" }}
             >
-              {unread}
+              {unread > 9 ? "9+" : unread}
             </span>
           )}
         </button>
+
       </PopoverTrigger>
       <PopoverContent
         align="end"
