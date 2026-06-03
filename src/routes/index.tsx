@@ -5,6 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 import { ShieldCheck } from "lucide-react";
+import { useAuth } from "@/lib/auth-context";
+import { authApi } from "@/lib/api";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -18,12 +21,26 @@ export const Route = createFileRoute("/")({
 
 function SignIn() {
   const navigate = useNavigate();
+  const { setAuth } = useAuth();
   const [loading, setLoading] = React.useState(false);
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [error, setError] = React.useState<string | null>(null);
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => navigate({ to: "/dashboard" }), 600);
+    setError(null);
+    try {
+      const data = await authApi.login(email, password);
+      setAuth(data.accessToken, data.refreshToken, data.user);
+      navigate({ to: "/dashboard" });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Login failed");
+      toast.error("Sign in failed", { description: err instanceof Error ? err.message : "Check your credentials" });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -51,23 +68,9 @@ function SignIn() {
           <p className="max-w-md text-[14px] leading-relaxed text-white/65">
             Manage engagements, evidence, findings, and reports — all in one warm, focused workspace.
           </p>
-          <div className="flex items-center gap-6 text-[12px] text-white/55">
-            <div className="flex items-center gap-2">
-              <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: "var(--brown-200)" }} />
-              SOC 2 ready
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: "var(--brown-200)" }} />
-              ISO 27001
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: "var(--brown-200)" }} />
-              GDPR
-            </div>
-          </div>
         </div>
 
-        <p className="relative z-10 text-[11px] text-white/40">© 2026 Auditly</p>
+        <p className="relative z-10 text-[11px] text-white/40">© 2026 Auditly · Nema Technologies</p>
       </div>
 
       {/* Right — form */}
@@ -81,7 +84,7 @@ function SignIn() {
             Sign in to Auditly
           </h2>
           <p className="mt-2 text-[13px]" style={{ color: "var(--text-muted)" }}>
-            Use any email and password — this is a frontend demo.
+            Enter your credentials to access your workspace.
           </p>
           <span
             className="mt-5 block h-[3px] w-16 rounded-sm"
@@ -93,23 +96,37 @@ function SignIn() {
               <Label htmlFor="email" className="mb-1 block text-[12px] font-medium" style={{ color: "var(--brown-600)" }}>
                 Email
               </Label>
-              <Input id="email" type="email" placeholder="you@company.com" defaultValue="sarah@auditly.io" />
+              <Input
+                id="email"
+                type="email"
+                placeholder="you@company.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
             </div>
             <div>
               <Label htmlFor="password" className="mb-1 block text-[12px] font-medium" style={{ color: "var(--brown-600)" }}>
                 Password
               </Label>
-              <Input id="password" type="password" placeholder="••••••••" defaultValue="demo1234" />
+              <Input
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
             </div>
+
+            {error && (
+              <p className="text-[12px] text-red-600">{error}</p>
+            )}
+
             <Button type="submit" className="h-[42px] w-full rounded-[10px]" disabled={loading}>
               {loading ? <Spinner size={16} invert /> : "Sign in"}
             </Button>
           </form>
-
-          <p className="mt-6 text-center text-[13px]" style={{ color: "var(--text-muted)" }}>
-            Don't have an account?{" "}
-            <span className="font-medium" style={{ color: "var(--brown-600)" }}>Request access</span>
-          </p>
         </div>
       </div>
     </div>

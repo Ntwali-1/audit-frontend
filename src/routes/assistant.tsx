@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sparkles, Send, History } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
+import { useAuth } from "@/lib/auth-context";
 
 export const Route = createFileRoute("/assistant")({
   head: () => ({ meta: [{ title: "AI Assistant · Auditly" }] }),
@@ -23,11 +24,22 @@ const SUGGESTIONS = [
 ];
 
 function AssistantPage() {
+  const { user } = useAuth();
+  const firstName = user?.firstName ?? "there";
+
   const [messages, setMessages] = React.useState<Msg[]>([
-    { role: "assistant", text: "Hi Sarah — ask me anything about your audits, findings, vendors, or team performance." },
+    {
+      role: "assistant",
+      text: `Hi ${firstName} — ask me anything about your audits, findings, vendors, or team performance.`,
+    },
   ]);
   const [input, setInput] = React.useState("");
   const [thinking, setThinking] = React.useState(false);
+  const bottomRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, thinking]);
 
   const send = (text: string) => {
     if (!text.trim()) return;
@@ -36,10 +48,13 @@ function AssistantPage() {
     setThinking(true);
     setTimeout(() => {
       setThinking(false);
-      setMessages((m) => [...m, {
-        role: "assistant",
-        text: `Based on your workspace I found 3 audits matching “${text}”. Two are in progress (AUD-001, AUD-005) and one is in review (AUD-002). I can break this down by team, vendor, or severity — just ask.`,
-      }]);
+      setMessages((m) => [
+        ...m,
+        {
+          role: "assistant",
+          text: `Based on your workspace I found 3 audits matching "${text}". Two are in progress and one is under review. I can break this down by team, vendor, or severity — just ask.`,
+        },
+      ]);
     }, 900);
   };
 
@@ -76,6 +91,7 @@ function AssistantPage() {
                 <Spinner size={14} /> thinking…
               </div>
             )}
+            <div ref={bottomRef} />
           </div>
           <form
             onSubmit={(e) => { e.preventDefault(); send(input); }}

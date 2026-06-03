@@ -5,7 +5,10 @@ import {
   Users, UsersRound, Building2, AlertOctagon, Sparkles, Bell, ChartPie,
   ChevronsLeft, ChevronsRight, ChevronDown,
 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/lib/auth-context";
+import { findingsApi, getUserInitials, getUserDisplayName } from "@/lib/api";
 
 export type NavItem = {
   to: string;
@@ -23,7 +26,7 @@ export const NAV_SECTIONS: NavSection[] = [
     items: [
       { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
       { to: "/analytics", label: "Analytics", icon: ChartPie },
-      { to: "/notifications", label: "Inbox", icon: Bell, badge: 3 },
+      { to: "/notifications", label: "Inbox", icon: Bell },
     ],
   },
   {
@@ -31,7 +34,7 @@ export const NAV_SECTIONS: NavSection[] = [
     label: "Operations",
     items: [
       { to: "/audits", label: "Audits", icon: ClipboardList },
-      { to: "/findings", label: "Findings", icon: AlertOctagon, badge: 12 },
+      { to: "/findings", label: "Findings", icon: AlertOctagon },
       { to: "/reports", label: "Reports", icon: FileBarChart },
     ],
   },
@@ -54,6 +57,59 @@ export const NAV_SECTIONS: NavSection[] = [
   },
 ];
 
+const SEEN_KEY = "auditly:seen_findings";
+const SEEN_EVENT = "auditly:seen-changed";
+
+export function getSeenIds(): Set<string> {
+  try {
+    const raw = localStorage.getItem(SEEN_KEY);
+    return new Set(JSON.parse(raw || "[]"));
+  } catch {
+    return new Set();
+  }
+}
+
+function persistSeen(ids: string[]) {
+  try {
+    localStorage.setItem(SEEN_KEY, JSON.stringify(ids));
+    window.dispatchEvent(new Event(SEEN_EVENT));
+  } catch {}
+}
+
+export function markAllSeen(ids: string[]) {
+  persistSeen(ids);
+}
+
+export function markOneSeen(id: string) {
+  const seen = getSeenIds();
+  if (!seen.has(id)) {
+    seen.add(id);
+    persistSeen(Array.from(seen));
+  }
+}
+
+export function useNavBadges() {
+  const { data: openFindings } = useQuery({
+    queryKey: ["findings", "open"],
+    queryFn: () => findingsApi.getAll({ status: "OPEN", take: 100 }),
+    staleTime: 30_000,
+  });
+
+  const [seenIds, setSeenIds] = React.useState<Set<string>>(() => getSeenIds());
+
+  React.useEffect(() => {
+    const handler = () => setSeenIds(getSeenIds());
+    window.addEventListener(SEEN_EVENT, handler);
+    return () => window.removeEventListener(SEEN_EVENT, handler);
+  }, []);
+
+  const openCount = openFindings?.total ?? 0;
+  const findings = openFindings?.data ?? [];
+  const unreadCount = findings.filter((f) => !seenIds.has(f.id)).length;
+
+  return { openCount, unreadCount, findings, seenIds };
+}
+
 const STORAGE_KEY = "auditly:sidebar:collapsed";
 
 export function useSidebarState() {
@@ -73,6 +129,25 @@ export function OrbitalSidebar({
 }: { collapsed: boolean; onToggle: () => void }) {
   const { location } = useRouterState();
   const navigate = useNavigate();
+  const { user, clearAuth } = useAuth();
+  const { openCount, unreadCount } = useNavBadges();
+
+  const badgeFor = (to: string): number | undefined => {
+    if (to === "/notifications") return unreadCount > 0 ? unreadCount : undefined;
+    if (to === "/findings") return openCount > 0 ? openCount : undefined;
+    return undefined;
+  };
+
+  const handleSignOut = () => {
+    clearAuth();
+    navigate({ to: "/" });
+  };
+
+  const initials = getUserInitials(user ?? undefined);
+  const displayName = getUserDisplayName(user ?? undefined);
+  const roleLabel = user?.role
+    ? user.role.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
+    : "";
 
   return (
     <aside
@@ -94,7 +169,7 @@ export function OrbitalSidebar({
         {collapsed ? <ChevronsRight className="h-3 w-3" /> : <ChevronsLeft className="h-3 w-3" />}
       </button>
 
-      {/* Logo area — 64px */}
+      {/* Logo area */}
       <div
         className={cn(
           "flex h-16 items-center gap-3 px-4 border-b",
@@ -131,6 +206,7 @@ export function OrbitalSidebar({
               {section.items.map((item) => {
                 const isActive = location.pathname === item.to || location.pathname.startsWith(item.to + "/");
                 const Icon = item.icon;
+                const badge = badgeFor(item.to);
                 return (
                   <li key={item.to}>
                     <Link
@@ -156,17 +232,17 @@ export function OrbitalSidebar({
                       {!collapsed && (
                         <>
                           <span className="flex-1 truncate">{item.label}</span>
-                          {item.badge != null && (
+                          {badge != null && (
                             <span
                               className="ml-2 flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[10px] font-semibold"
                               style={{ backgroundColor: "var(--brown-200)", color: "var(--brown-800)" }}
                             >
-                              {item.badge}
+                              {badge > 99 ? "99+" : badge}
                             </span>
                           )}
                         </>
                       )}
-                      {collapsed && item.badge != null && (
+                      {collapsed && badge != null && (
                         <span
                           className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full"
                           style={{ backgroundColor: "var(--brown-200)" }}
@@ -192,7 +268,7 @@ export function OrbitalSidebar({
             className="flex h-8 w-8 items-center justify-center rounded-full text-[12px] font-semibold"
             style={{ backgroundColor: "var(--brown-200)", color: "var(--brown-800)" }}
           >
-            SC
+            {initials}
           </button>
         ) : (
           <button
@@ -203,18 +279,18 @@ export function OrbitalSidebar({
               className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[12px] font-semibold"
               style={{ backgroundColor: "var(--brown-200)", color: "var(--brown-800)" }}
             >
-              SC
+              {initials}
             </div>
             <div className="min-w-0 flex-1">
-              <div className="truncate text-[13px] font-medium text-white/90">Sarah Chen</div>
-              <div className="truncate text-[11px] text-white/45">Lead Auditor</div>
+              <div className="truncate text-[13px] font-medium text-white/90">{displayName}</div>
+              <div className="truncate text-[11px] text-white/45">{roleLabel}</div>
             </div>
             <ChevronDown className="h-4 w-4 text-white/45" />
           </button>
         )}
         {!collapsed && (
           <button
-            onClick={() => navigate({ to: "/" })}
+            onClick={handleSignOut}
             className="mt-2 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-[13px] text-white/55 hover:bg-white/[0.06] hover:text-white/85"
           >
             <LogOut className="h-[16px] w-[16px]" strokeWidth={1.75} />

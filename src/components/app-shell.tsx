@@ -1,10 +1,11 @@
 import * as React from "react";
-import { useRouterState, Link } from "@tanstack/react-router";
+import { useRouterState, Link, useNavigate } from "@tanstack/react-router";
 import { Search, Bell, AlertOctagon, ClipboardList, FileBarChart, Settings as SettingsIcon, User, LogOut, UserCircle2, ChevronRight, Menu } from "lucide-react";
-import { OrbitalSidebar, NAV_SECTIONS, useSidebarState } from "@/components/orbital-sidebar";
+import { OrbitalSidebar, NAV_SECTIONS, useSidebarState, useNavBadges, markAllSeen, markOneSeen } from "@/components/orbital-sidebar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
-import { NOTIFICATIONS } from "@/lib/audit-data";
+import { useAuth } from "@/lib/auth-context";
+import { getUserInitials, getUserDisplayName } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
 function findActive(pathname: string) {
@@ -16,17 +17,34 @@ function findActive(pathname: string) {
   return null;
 }
 
-const KIND_ICON = {
-  finding: AlertOctagon,
-  audit: ClipboardList,
-  report: FileBarChart,
-  system: SettingsIcon,
+const SEVERITY_ICON = {
+  CRITICAL: AlertOctagon,
+  HIGH: AlertOctagon,
+  MEDIUM: ClipboardList,
+  LOW: FileBarChart,
 } as const;
 
 function NotificationsPopover() {
-  const unread = NOTIFICATIONS.filter((n) => n.unread).length;
+  const { unreadCount, findings, openCount, seenIds } = useNavBadges();
+  const navigate = useNavigate();
+  const [open, setOpen] = React.useState(false);
+
+  const handleMarkAllRead = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    markAllSeen(findings.map((f) => f.id));
+  };
+
+  const handleClick = (auditId: string, findingId: string) => {
+    markOneSeen(findingId);
+    setOpen(false);
+    navigate({ to: "/audits/$id", params: { id: auditId } });
+  };
+
+  const displayFindings = findings.slice(0, 6);
+  const unread = displayFindings.filter((f) => !seenIds.has(f.id)).length;
+
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <button
           className="relative flex h-9 w-9 items-center justify-center rounded-lg border bg-white hover:bg-[color:var(--brown-50)]"
@@ -34,16 +52,15 @@ function NotificationsPopover() {
           aria-label="Notifications"
         >
           <Bell className="h-[16px] w-[16px]" strokeWidth={1.75} />
-          {unread > 0 && (
+          {unreadCount > 0 && (
             <span
               className="absolute -right-1 -top-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full px-1 text-[10px] font-semibold text-white ring-2 ring-white"
               style={{ backgroundColor: "var(--brown-800)" }}
             >
-              {unread > 9 ? "9+" : unread}
+              {unreadCount > 9 ? "9+" : unreadCount}
             </span>
           )}
         </button>
-
       </PopoverTrigger>
       <PopoverContent
         align="end"
@@ -56,19 +73,30 @@ function NotificationsPopover() {
             <p className="font-display text-sm font-semibold" style={{ color: "var(--brown-800)" }}>Notifications</p>
             <p className="text-[11px]" style={{ color: "var(--text-muted)" }}>{unread} unread</p>
           </div>
-          <button className="text-[11px] font-medium hover:underline" style={{ color: "var(--brown-600)" }}>
+          <button
+            onClick={handleMarkAllRead}
+            className="text-[11px] font-medium hover:underline"
+            style={{ color: "var(--brown-600)" }}
+          >
             Mark all read
           </button>
         </div>
         <div className="max-h-[360px] overflow-y-auto scrollbar-thin">
-          {NOTIFICATIONS.slice(0, 6).map((n) => {
-            const Icon = KIND_ICON[n.kind];
+          {displayFindings.length === 0 && (
+            <div className="px-4 py-6 text-center text-[13px]" style={{ color: "var(--text-muted)" }}>
+              No open findings right now.
+            </div>
+          )}
+          {displayFindings.map((f) => {
+            const isUnread = !seenIds.has(f.id);
+            const Icon = SEVERITY_ICON[f.severity as keyof typeof SEVERITY_ICON] ?? AlertOctagon;
             return (
-              <div
-                key={n.id}
+              <button
+                key={f.id}
+                onClick={() => handleClick(f.auditId, f.id)}
                 className={cn(
-                  "flex gap-3 border-b px-4 py-3 transition-colors hover:bg-[color:var(--surface)] cursor-pointer",
-                  n.unread && "bg-[color:var(--cream)]",
+                  "flex w-full gap-3 border-b px-4 py-3 text-left transition-colors hover:bg-[color:var(--surface)]",
+                  isUnread && "bg-[color:var(--cream)]",
                 )}
                 style={{ borderColor: "var(--border-subtle)" }}
               >
@@ -81,25 +109,28 @@ function NotificationsPopover() {
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-2">
                     <p className="truncate text-[13px] font-medium" style={{ color: "var(--brown-800)" }}>
-                      {n.title}
+                      {f.title}
                     </p>
-                    {n.unread && <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: "var(--brown-800)" }} />}
+                    {isUnread && <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: "var(--brown-800)" }} />}
                   </div>
                   <p className="mt-0.5 line-clamp-2 text-[12px]" style={{ color: "var(--text-muted)" }}>
-                    {n.body}
+                    {f.severity} severity · {f.status.replace(/_/g, " ")}
                   </p>
-                  <p className="mt-1 text-[10px]" style={{ color: "var(--text-hint)" }}>{n.time}</p>
+                  <p className="mt-1 text-[10px]" style={{ color: "var(--text-hint)" }}>
+                    {new Date(f.createdAt).toLocaleDateString()}
+                  </p>
                 </div>
-              </div>
+              </button>
             );
           })}
         </div>
         <Link
           to="/notifications"
+          onClick={() => setOpen(false)}
           className="flex items-center justify-between px-4 py-2.5 text-[12px] font-medium hover:bg-[color:var(--surface)]"
           style={{ color: "var(--brown-800)" }}
         >
-          View all notifications
+          View all {openCount > 0 ? `(${openCount} open)` : "notifications"}
           <ChevronRight className="h-3.5 w-3.5" />
         </Link>
       </PopoverContent>
@@ -108,6 +139,17 @@ function NotificationsPopover() {
 }
 
 function UserPopover() {
+  const { user, clearAuth } = useAuth();
+  const navigate = useNavigate();
+  const initials = getUserInitials(user ?? undefined);
+  const displayName = getUserDisplayName(user ?? undefined);
+  const email = user?.email ?? "";
+
+  const handleSignOut = () => {
+    clearAuth();
+    navigate({ to: "/" });
+  };
+
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -116,7 +158,7 @@ function UserPopover() {
           style={{ backgroundColor: "var(--brown-800)", color: "#fff", boxShadow: "0 0 0 2px var(--cream)" }}
           aria-label="Account"
         >
-          SC
+          {initials}
         </button>
       </PopoverTrigger>
       <PopoverContent
@@ -130,11 +172,11 @@ function UserPopover() {
             className="flex h-10 w-10 items-center justify-center rounded-full text-[13px] font-semibold"
             style={{ backgroundColor: "var(--brown-800)", color: "#fff" }}
           >
-            SC
+            {initials}
           </div>
           <div className="min-w-0">
-            <p className="truncate font-display text-sm font-semibold" style={{ color: "var(--brown-800)" }}>Sarah Chen</p>
-            <p className="truncate text-[11px]" style={{ color: "var(--text-muted)" }}>sarah@auditly.io</p>
+            <p className="truncate font-display text-sm font-semibold" style={{ color: "var(--brown-800)" }}>{displayName}</p>
+            <p className="truncate text-[11px]" style={{ color: "var(--text-muted)" }}>{email}</p>
           </div>
         </div>
         <div className="py-1.5">
@@ -144,6 +186,7 @@ function UserPopover() {
         </div>
         <div className="border-t py-1.5" style={{ borderColor: "var(--border-subtle)" }}>
           <button
+            onClick={handleSignOut}
             className="flex w-full items-center gap-2.5 px-4 py-2 text-left text-[13px] hover:bg-[color:var(--surface)]"
             style={{ color: "var(--destructive)" }}
           >
@@ -246,6 +289,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 }
 
 function MobileNav({ pathname }: { pathname: string }) {
+  const { unreadCount, openCount } = useNavBadges();
+
+  const badgeFor = (to: string): number | undefined => {
+    if (to === "/notifications") return unreadCount > 0 ? unreadCount : undefined;
+    if (to === "/findings") return openCount > 0 ? openCount : undefined;
+    return undefined;
+  };
+
   return (
     <nav className="scrollbar-thin flex h-full flex-col overflow-y-auto bg-linen px-3 py-4">
       <div className="px-3 pb-4 text-[15px] font-semibold tracking-tight text-white font-display">Auditly</div>
@@ -258,6 +309,7 @@ function MobileNav({ pathname }: { pathname: string }) {
             {section.items.map((item) => {
               const isActive = pathname === item.to || pathname.startsWith(item.to + "/");
               const Icon = item.icon;
+              const badge = badgeFor(item.to);
               return (
                 <li key={item.to}>
                   <Link
@@ -270,12 +322,12 @@ function MobileNav({ pathname }: { pathname: string }) {
                   >
                     <Icon className="h-[18px] w-[18px]" strokeWidth={1.75} />
                     <span className="flex-1 truncate">{item.label}</span>
-                    {item.badge != null && (
+                    {badge != null && (
                       <span
                         className="flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[10px] font-semibold"
                         style={{ backgroundColor: "var(--brown-200)", color: "var(--brown-800)" }}
                       >
-                        {item.badge}
+                        {badge > 99 ? "99+" : badge}
                       </span>
                     )}
                   </Link>
