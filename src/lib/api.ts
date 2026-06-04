@@ -225,6 +225,15 @@ export const authApi = {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     }),
+  getInvitationInfo: (token: string) =>
+    apiFetch<{ email: string; fullName: string; phone: string; role: string }>(
+      `/auth/invitations/info?token=${encodeURIComponent(token)}`,
+    ),
+  acceptInvitation: (data: { token: string; firstName: string; lastName: string; phone?: string; password: string }) =>
+    apiFetch<LoginResponse>('/auth/invitations/accept', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
   getProfile: () => apiFetch<ApiUser>('/auth/me'),
   updateProfile: (data: { firstName?: string; lastName?: string }) =>
     apiFetch<ApiUser>('/auth/profile', {
@@ -331,15 +340,15 @@ export const findingsApi2 = {
 };
 
 export const inviteApi = {
-  inviteAuditManager: (email: string) =>
+  inviteAuditManager: (email: string, fullName?: string, phone?: string) =>
     apiFetch<{ message: string }>('/auth/invitations/audit-managers', {
       method: 'POST',
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({ email, ...(fullName ? { fullName } : {}), ...(phone ? { phone } : {}) }),
     }),
-  inviteAuditor: (email: string) =>
+  inviteAuditor: (email: string, fullName?: string, phone?: string) =>
     apiFetch<{ message: string }>('/auth/invitations/auditors', {
       method: 'POST',
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({ email, ...(fullName ? { fullName } : {}), ...(phone ? { phone } : {}) }),
     }),
 };
 

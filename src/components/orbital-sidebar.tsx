@@ -15,6 +15,7 @@ export type NavItem = {
   label: string;
   icon: React.ComponentType<any>;
   badge?: string | number;
+  adminOnly?: boolean;
 };
 
 export type NavSection = { id: string; label: string; items: NavItem[] };
@@ -42,7 +43,7 @@ export const NAV_SECTIONS: NavSection[] = [
     id: "directory",
     label: "Directory",
     items: [
-      { to: "/users", label: "Users", icon: Users },
+      { to: "/users", label: "Users", icon: Users, adminOnly: true },
       { to: "/teams", label: "Teams", icon: UsersRound },
       { to: "/vendors", label: "Vendors", icon: Building2 },
     ],
@@ -110,6 +111,15 @@ export function useNavBadges() {
   return { openCount, unreadCount, findings, seenIds };
 }
 
+export function useNavSections(): NavSection[] {
+  const { user } = useAuth();
+  const isAdmin = user?.role === "ADMIN";
+  return NAV_SECTIONS.map((s) => ({
+    ...s,
+    items: s.items.filter((i) => !i.adminOnly || isAdmin),
+  })).filter((s) => s.items.length > 0);
+}
+
 const STORAGE_KEY = "auditly:sidebar:collapsed";
 
 export function useSidebarState() {
@@ -131,6 +141,7 @@ export function OrbitalSidebar({
   const navigate = useNavigate();
   const { user, clearAuth } = useAuth();
   const { openCount, unreadCount } = useNavBadges();
+  const navSections = useNavSections();
 
   const badgeFor = (to: string): number | undefined => {
     if (to === "/notifications") return unreadCount > 0 ? unreadCount : undefined;
@@ -192,7 +203,7 @@ export function OrbitalSidebar({
 
       {/* Nav */}
       <nav className="scrollbar-thin flex-1 overflow-y-auto px-3 py-4">
-        {NAV_SECTIONS.map((section, idx) => (
+        {navSections.map((section, idx) => (
           <div key={section.id} className={cn(idx > 0 && "mt-4")}>
             {!collapsed && (
               <div

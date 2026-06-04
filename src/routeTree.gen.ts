@@ -22,6 +22,7 @@ import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuditsIndexRouteImport } from './routes/audits/index'
 import { Route as AuditsIdRouteImport } from './routes/audits/$id'
+import { Route as AuthInvitationsAcceptRouteImport } from './routes/auth/invitations/accept'
 
 const VendorsRoute = VendorsRouteImport.update({
   id: '/vendors',
@@ -88,6 +89,11 @@ const AuditsIdRoute = AuditsIdRouteImport.update({
   path: '/audits/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthInvitationsAcceptRoute = AuthInvitationsAcceptRouteImport.update({
+  id: '/auth/invitations/accept',
+  path: '/auth/invitations/accept',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -103,6 +109,7 @@ export interface FileRoutesByFullPath {
   '/vendors': typeof VendorsRoute
   '/audits/$id': typeof AuditsIdRoute
   '/audits/': typeof AuditsIndexRoute
+  '/auth/invitations/accept': typeof AuthInvitationsAcceptRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -118,6 +125,7 @@ export interface FileRoutesByTo {
   '/vendors': typeof VendorsRoute
   '/audits/$id': typeof AuditsIdRoute
   '/audits': typeof AuditsIndexRoute
+  '/auth/invitations/accept': typeof AuthInvitationsAcceptRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -134,6 +142,7 @@ export interface FileRoutesById {
   '/vendors': typeof VendorsRoute
   '/audits/$id': typeof AuditsIdRoute
   '/audits/': typeof AuditsIndexRoute
+  '/auth/invitations/accept': typeof AuthInvitationsAcceptRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -151,6 +160,7 @@ export interface FileRouteTypes {
     | '/vendors'
     | '/audits/$id'
     | '/audits/'
+    | '/auth/invitations/accept'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -166,6 +176,7 @@ export interface FileRouteTypes {
     | '/vendors'
     | '/audits/$id'
     | '/audits'
+    | '/auth/invitations/accept'
   id:
     | '__root__'
     | '/'
@@ -181,6 +192,7 @@ export interface FileRouteTypes {
     | '/vendors'
     | '/audits/$id'
     | '/audits/'
+    | '/auth/invitations/accept'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -197,6 +209,7 @@ export interface RootRouteChildren {
   VendorsRoute: typeof VendorsRoute
   AuditsIdRoute: typeof AuditsIdRoute
   AuditsIndexRoute: typeof AuditsIndexRoute
+  AuthInvitationsAcceptRoute: typeof AuthInvitationsAcceptRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -292,6 +305,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuditsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/invitations/accept': {
+      id: '/auth/invitations/accept'
+      path: '/auth/invitations/accept'
+      fullPath: '/auth/invitations/accept'
+      preLoaderRoute: typeof AuthInvitationsAcceptRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -309,6 +329,7 @@ const rootRouteChildren: RootRouteChildren = {
   VendorsRoute: VendorsRoute,
   AuditsIdRoute: AuditsIdRoute,
   AuditsIndexRoute: AuditsIndexRoute,
+  AuthInvitationsAcceptRoute: AuthInvitationsAcceptRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
