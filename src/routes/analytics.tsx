@@ -6,6 +6,19 @@ import { PageHeader, StatTile } from "@/components/page-header";
 import { auditsApi, findingsApi, usersApi, AUDIT_STATUS_LABEL, SEVERITY_LABEL, getUserDisplayName } from "@/lib/api";
 import { ChartPie, ShieldCheck, TrendingUp, Users } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Legend,
+  Tooltip,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+} from "recharts";
 
 export const Route = createFileRoute("/analytics")({
   head: () => ({ meta: [{ title: "Analytics · Auditly" }] }),
@@ -52,6 +65,32 @@ function AnalyticsPage() {
     u.role === "AUDITOR" || u.role === "LEAD_AUDITOR",
   ).length;
 
+  // Color palette for charts - Black and white
+  const COLORS = ["#1f2937", "#4b5563", "#6b7280", "#9ca3af", "#d1d5db"];
+  const STATUS_COLORS: Record<string, string> = {
+    "NOT_STARTED": "#d1d5db",
+    "IN_PROGRESS": "#6b7280",
+    "COMPLETED": "#1f2937",
+    "ON_HOLD": "#9ca3af",
+  };
+
+  // Transform data for pie charts
+  const severityChartData = Object.entries(bySeverity).map(([key, value]) => ({
+    name: SEVERITY_LABEL[key] ?? key,
+    value,
+  }));
+
+  const statusChartData = Object.entries(byStatus).map(([key, value]) => ({
+    name: AUDIT_STATUS_LABEL[key] ?? key,
+    value,
+    fill: STATUS_COLORS[key] || "#8b5cf6",
+  }));
+
+  const findingStatusData = [
+    { name: "Resolved/Closed", value: resolvedCount },
+    { name: "Open", value: totalFindings - resolvedCount },
+  ];
+
   return (
     <AppShell>
       <PageHeader
@@ -75,21 +114,78 @@ function AnalyticsPage() {
 
           <div className="mt-6 grid gap-4 md:grid-cols-2">
             <Panel title="Findings by severity">
-              {Object.keys(bySeverity).length === 0 && (
+              {severityChartData.length === 0 ? (
                 <p className="text-sm text-muted-foreground">No findings yet.</p>
+              ) : (
+                <ResponsiveContainer width="100%" height={250}>
+                  <PieChart>
+                    <Pie
+                      data={severityChartData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, value }) => `${name}: ${value}`}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {severityChartData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
               )}
-              {Object.entries(bySeverity).map(([k, v]) => (
-                <Bar key={k} label={SEVERITY_LABEL[k] ?? k} value={v} max={Math.max(...Object.values(bySeverity))} />
-              ))}
             </Panel>
 
             <Panel title="Audits by status">
-              {Object.keys(byStatus).length === 0 && (
+              {statusChartData.length === 0 ? (
                 <p className="text-sm text-muted-foreground">No audits yet.</p>
+              ) : (
+                <ResponsiveContainer width="100%" height={250}>
+                  <PieChart>
+                    <Pie
+                      data={statusChartData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, value }) => `${name}: ${value}`}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {statusChartData.map((entry) => (
+                        <Cell key={`cell-${entry.name}`} fill={entry.fill} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
               )}
-              {Object.entries(byStatus).map(([k, v]) => (
-                <Bar key={k} label={AUDIT_STATUS_LABEL[k] ?? k} value={v} max={Math.max(...Object.values(byStatus))} />
-              ))}
+            </Panel>
+
+            <Panel title="Finding resolution status" className="md:col-span-2">
+              {totalFindings === 0 ? (
+                <p className="text-sm text-muted-foreground">No findings yet.</p>
+              ) : (
+                <ResponsiveContainer width="100%" height={250}>
+                  <BarChart data={findingStatusData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="value" fill="#3b82f6">
+                      {findingStatusData.map((entry, index) => (
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={index === 0 ? "#22c55e" : "#ef4444"}
+                        />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
             </Panel>
 
             <Panel title="Team overview" className="md:col-span-2">
@@ -140,17 +236,4 @@ function Panel({ title, children, className = "" }: { title: string; children: R
   );
 }
 
-function Bar({ label, value, max }: { label: string; value: number; max: number }) {
-  const pct = max > 0 ? (value / max) * 100 : 0;
-  return (
-    <div>
-      <div className="flex justify-between text-sm">
-        <span className="capitalize">{label}</span>
-        <span className="font-medium">{value}</span>
-      </div>
-      <div className="mt-1 h-2 overflow-hidden rounded-full bg-muted">
-        <div className="h-full rounded-full bg-gradient-to-r from-primary to-secondary transition-all" style={{ width: `${pct}%` }} />
-      </div>
-    </div>
-  );
-}
+

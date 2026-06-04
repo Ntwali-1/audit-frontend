@@ -1,5 +1,6 @@
 import * as React from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { AppShell } from "@/components/app-shell";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
@@ -7,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Sparkles, Send, History } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import { useAuth } from "@/lib/auth-context";
+import { auditsApi, findingsApi } from "@/lib/api";
 
 export const Route = createFileRoute("/assistant")({
   head: () => ({ meta: [{ title: "AI Assistant · Auditly" }] }),
@@ -14,6 +16,72 @@ export const Route = createFileRoute("/assistant")({
 });
 
 type Msg = { role: "user" | "assistant"; text: string };
+
+const SYSTEM_PROMPT = `You are an AI assistant embedded in Auditly, an audit management platform.
+
+You assist internal audit teams with:
+- Internal audit methodology: planning, fieldwork, reporting, and follow-up phases
+- Risk frameworks: COSO Internal Control framework and ISO 31000 risk management
+- Compliance standards: SOX (Sarbanes-Oxley), GDPR, and ISO 27001 information security
+- Audit findings lifecycle: identification → assignment → remediation → closure
+- Vendor management and contract review workflows
+- KPIs: remediation rate, finding severity distribution, auditor performance metrics
+
+Platform specifics:
+- Findings have severity levels: Critical, High, Medium, Low
+- Audits progress through stages: Planning → Fieldwork → Review → Closed
+- Each finding has an assigned auditor, due date, and remediation status
+
+Tone: professional, concise, use audit-industry terminology, provide short actionable answers.
+
+When answering questions about counts, lists, or specific records, use ONLY the data provided in the LIVE WORKSPACE DATA block below. Do not invent or estimate numbers.`;
+
+function buildWorkspaceContext(
+  dashboard: { total: number; overdue: number; upcoming: number; byStatus: Record<string, number> } | undefined,
+  audits: { data: { title: string; status: string; dueDate: string | null; type: string | null }[]; total: number } | undefined,
+  findings: { data: { title: string; severity: string; status: string; deadline: string | null; assignee?: { firstName: string | null; lastName: string | null; email: string } | null }[]; total: number } | undefined,
+): string {
+  if (!dashboard && !audits && !findings) return "";
+
+  const lines: string[] = ["\n\nLIVE WORKSPACE DATA (real data from the database, fetched this session):"];
+
+  if (dashboard) {
+    lines.push("\nDASHBOARD SUMMARY:");
+    lines.push(`- Total audits: ${dashboard.total}`);
+    lines.push(`- Overdue: ${dashboard.overdue}`);
+    lines.push(`- Upcoming (next 7 days): ${dashboard.upcoming}`);
+    const statusBreakdown = Object.entries(dashboard.byStatus)
+      .map(([k, v]) => `${k}: ${v}`)
+      .join(", ");
+    if (statusBreakdown) lines.push(`- By status: ${statusBreakdown}`);
+  }
+
+  if (audits && audits.data.length > 0) {
+    lines.push(`\nAUDITS (${audits.total} total, showing ${audits.data.length}):`);
+    audits.data.forEach((a, i) => {
+      const due = a.dueDate ? new Date(a.dueDate).toLocaleDateString() : "No due date";
+      lines.push(`${i + 1}. ${a.title} | Status: ${a.status} | Due: ${due}${a.type ? ` | Type: ${a.type}` : ""}`);
+    });
+  } else if (audits) {
+    lines.push("\nAUDITS: None found.");
+  }
+
+  if (findings && findings.data.length > 0) {
+    lines.push(`\nFINDINGS (${findings.total} total, showing ${findings.data.length}):`);
+    findings.data.forEach((f, i) => {
+      const due = f.deadline ? new Date(f.deadline).toLocaleDateString() : "No deadline";
+      const a = f.assignee;
+      const assignee = a
+        ? (a.firstName && a.lastName ? `${a.firstName} ${a.lastName}` : a.firstName ?? a.email)
+        : "Unassigned";
+      lines.push(`${i + 1}. ${f.title} | Severity: ${f.severity} | Status: ${f.status} | Assigned to: ${assignee} | Deadline: ${due}`);
+    });
+  } else if (findings) {
+    lines.push("\nFINDINGS: None found.");
+  }
+
+  return lines.join("\n");
+}
 
 const SUGGESTIONS = [
   "Which audits are overdue this month?",
@@ -26,6 +94,24 @@ const SUGGESTIONS = [
 function AssistantPage() {
   const { user } = useAuth();
   const firstName = user?.firstName ?? "there";
+
+  const { data: dashboard } = useQuery({
+    queryKey: ["dashboard"],
+    queryFn: () => auditsApi.getDashboard(),
+    staleTime: 60_000,
+  });
+
+  const { data: auditsData } = useQuery({
+    queryKey: ["audits", "assistant"],
+    queryFn: () => auditsApi.getAll({ take: 100 }),
+    staleTime: 60_000,
+  });
+
+  const { data: findingsData } = useQuery({
+    queryKey: ["findings", "assistant"],
+    queryFn: () => findingsApi.getAll({ take: 100 }),
+    staleTime: 60_000,
+  });
 
   const [messages, setMessages] = React.useState<Msg[]>([
     {
@@ -41,21 +127,47 @@ function AssistantPage() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, thinking]);
 
-  const send = (text: string) => {
+  const send = async (text: string) => {
     if (!text.trim()) return;
-    setMessages((m) => [...m, { role: "user", text }]);
+    const updatedMessages: Msg[] = [...messages, { role: "user", text }];
+    setMessages(updatedMessages);
     setInput("");
     setThinking(true);
-    setTimeout(() => {
+
+    try {
+      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+      const model = import.meta.env.VITE_GEMINI_MODEL_NAME ?? "gemini-2.5-flash-lite";
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
+      const workspaceContext = buildWorkspaceContext(dashboard, auditsData, findingsData);
+      const fullSystemPrompt = SYSTEM_PROMPT + workspaceContext;
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: fullSystemPrompt }] },
+          contents: updatedMessages.map((m) => ({
+            role: m.role === "assistant" ? "model" : "user",
+            parts: [{ text: m.text }],
+          })),
+        }),
+      });
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error((err as { error?: { message?: string } })?.error?.message ?? `API error ${response.status}`);
+      }
+
+      const data = await response.json();
+      const reply: string = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "I couldn't generate a response. Please try again.";
+      setMessages((m) => [...m, { role: "assistant", text: reply }]);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Something went wrong. Please try again.";
+      setMessages((m) => [...m, { role: "assistant", text: `Sorry, I ran into an error: ${message}` }]);
+    } finally {
       setThinking(false);
-      setMessages((m) => [
-        ...m,
-        {
-          role: "assistant",
-          text: `Based on your workspace I found 3 audits matching "${text}". Two are in progress and one is under review. I can break this down by team, vendor, or severity — just ask.`,
-        },
-      ]);
-    }, 900);
+    }
   };
 
   return (
