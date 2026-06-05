@@ -20,7 +20,9 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AssistantRouteImport } from './routes/assistant'
 import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as EvaluationsIndexRouteImport } from './routes/evaluations/index'
 import { Route as AuditsIndexRouteImport } from './routes/audits/index'
+import { Route as EvaluationsIdRouteImport } from './routes/evaluations/$id'
 import { Route as AuditsIdRouteImport } from './routes/audits/$id'
 import { Route as AuthInvitationsAcceptRouteImport } from './routes/auth/invitations/accept'
 
@@ -79,9 +81,19 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EvaluationsIndexRoute = EvaluationsIndexRouteImport.update({
+  id: '/evaluations/',
+  path: '/evaluations/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuditsIndexRoute = AuditsIndexRouteImport.update({
   id: '/audits/',
   path: '/audits/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EvaluationsIdRoute = EvaluationsIdRouteImport.update({
+  id: '/evaluations/$id',
+  path: '/evaluations/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuditsIdRoute = AuditsIdRouteImport.update({
@@ -108,7 +120,9 @@ export interface FileRoutesByFullPath {
   '/users': typeof UsersRoute
   '/vendors': typeof VendorsRoute
   '/audits/$id': typeof AuditsIdRoute
+  '/evaluations/$id': typeof EvaluationsIdRoute
   '/audits/': typeof AuditsIndexRoute
+  '/evaluations/': typeof EvaluationsIndexRoute
   '/auth/invitations/accept': typeof AuthInvitationsAcceptRoute
 }
 export interface FileRoutesByTo {
@@ -124,7 +138,9 @@ export interface FileRoutesByTo {
   '/users': typeof UsersRoute
   '/vendors': typeof VendorsRoute
   '/audits/$id': typeof AuditsIdRoute
+  '/evaluations/$id': typeof EvaluationsIdRoute
   '/audits': typeof AuditsIndexRoute
+  '/evaluations': typeof EvaluationsIndexRoute
   '/auth/invitations/accept': typeof AuthInvitationsAcceptRoute
 }
 export interface FileRoutesById {
@@ -141,7 +157,9 @@ export interface FileRoutesById {
   '/users': typeof UsersRoute
   '/vendors': typeof VendorsRoute
   '/audits/$id': typeof AuditsIdRoute
+  '/evaluations/$id': typeof EvaluationsIdRoute
   '/audits/': typeof AuditsIndexRoute
+  '/evaluations/': typeof EvaluationsIndexRoute
   '/auth/invitations/accept': typeof AuthInvitationsAcceptRoute
 }
 export interface FileRouteTypes {
@@ -159,7 +177,9 @@ export interface FileRouteTypes {
     | '/users'
     | '/vendors'
     | '/audits/$id'
+    | '/evaluations/$id'
     | '/audits/'
+    | '/evaluations/'
     | '/auth/invitations/accept'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -175,7 +195,9 @@ export interface FileRouteTypes {
     | '/users'
     | '/vendors'
     | '/audits/$id'
+    | '/evaluations/$id'
     | '/audits'
+    | '/evaluations'
     | '/auth/invitations/accept'
   id:
     | '__root__'
@@ -191,7 +213,9 @@ export interface FileRouteTypes {
     | '/users'
     | '/vendors'
     | '/audits/$id'
+    | '/evaluations/$id'
     | '/audits/'
+    | '/evaluations/'
     | '/auth/invitations/accept'
   fileRoutesById: FileRoutesById
 }
@@ -208,7 +232,9 @@ export interface RootRouteChildren {
   UsersRoute: typeof UsersRoute
   VendorsRoute: typeof VendorsRoute
   AuditsIdRoute: typeof AuditsIdRoute
+  EvaluationsIdRoute: typeof EvaluationsIdRoute
   AuditsIndexRoute: typeof AuditsIndexRoute
+  EvaluationsIndexRoute: typeof EvaluationsIndexRoute
   AuthInvitationsAcceptRoute: typeof AuthInvitationsAcceptRoute
 }
 
@@ -291,11 +317,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/evaluations/': {
+      id: '/evaluations/'
+      path: '/evaluations'
+      fullPath: '/evaluations/'
+      preLoaderRoute: typeof EvaluationsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/audits/': {
       id: '/audits/'
       path: '/audits'
       fullPath: '/audits/'
       preLoaderRoute: typeof AuditsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/evaluations/$id': {
+      id: '/evaluations/$id'
+      path: '/evaluations/$id'
+      fullPath: '/evaluations/$id'
+      preLoaderRoute: typeof EvaluationsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/audits/$id': {
@@ -328,7 +368,9 @@ const rootRouteChildren: RootRouteChildren = {
   UsersRoute: UsersRoute,
   VendorsRoute: VendorsRoute,
   AuditsIdRoute: AuditsIdRoute,
+  EvaluationsIdRoute: EvaluationsIdRoute,
   AuditsIndexRoute: AuditsIndexRoute,
+  EvaluationsIndexRoute: EvaluationsIndexRoute,
   AuthInvitationsAcceptRoute: AuthInvitationsAcceptRoute,
 }
 export const routeTree = rootRouteImport

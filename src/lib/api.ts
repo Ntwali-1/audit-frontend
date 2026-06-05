@@ -253,6 +253,7 @@ export const auditsApi = {
       : '';
     return apiFetch<AuditListResponse>(`/audits${qs}`);
   },
+  getMyAudits: () => apiFetch<ApiAudit[]>('/audits/my'),
   getById: (id: string) => apiFetch<ApiAudit>(`/audits/${id}`),
   getDashboard: () => apiFetch<DashboardResponse>('/audits/dashboard'),
   create: (data: CreateAuditInput) =>
@@ -263,6 +264,50 @@ export const auditsApi = {
     apiFetch<ApiAudit>(`/audits/${id}/status`, { method: 'PATCH' }),
   getTimeline: (id: string) =>
     apiFetch<Array<{ id: string; eventType: string; message: string; actor?: ApiUser; createdAt: string }>>(`/audits/${id}/timeline`),
+};
+
+export const auditStepsApi = {
+  // Manager CRUD
+  create: (auditId: string, data: { title: string; description?: string; assigneeId?: string; dueDate?: string }) =>
+    apiFetch<ApiAuditStep>(`/audits/${auditId}/steps`, { method: 'POST', body: JSON.stringify(data) }),
+  update: (auditId: string, stepId: string, data: { title?: string; description?: string; status?: string; assigneeId?: string; dueDate?: string }) =>
+    apiFetch<ApiAuditStep>(`/audits/${auditId}/steps/${stepId}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  remove: (auditId: string, stepId: string) =>
+    apiFetch<{ message: string }>(`/audits/${auditId}/steps/${stepId}`, { method: 'DELETE' }),
+
+  // Auditor actions
+  start: (auditId: string, stepId: string) =>
+    apiFetch<ApiAuditStep>(`/audits/${auditId}/steps/${stepId}/start`, { method: 'PATCH' }),
+  saveDraft: (auditId: string, stepId: string, notes: string) =>
+    apiFetch<ApiAuditStep>(`/audits/${auditId}/steps/${stepId}/draft`, {
+      method: 'PATCH',
+      body: JSON.stringify({ notes }),
+    }),
+  complete: (auditId: string, stepId: string, notes?: string) =>
+    apiFetch<ApiAuditStep>(`/audits/${auditId}/steps/${stepId}/complete`, {
+      method: 'PATCH',
+      body: JSON.stringify({ notes }),
+    }),
+
+  deleteEvidence: (auditId: string, stepId: string, fileId: string) =>
+    apiFetch<{ message: string }>(`/audits/${auditId}/steps/${stepId}/evidence/${fileId}`, { method: 'DELETE' }),
+
+  // File upload
+  uploadEvidence: async (auditId: string, stepId: string, file: File): Promise<ApiEvidence> => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+    const form = new FormData();
+    form.append('file', file);
+    const res = await fetch(`${API_URL}/audits/${auditId}/steps/${stepId}/evidence/upload`, {
+      method: 'POST',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body: form,
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({ message: `HTTP ${res.status}` }));
+      throw new Error(Array.isArray(body.message) ? body.message[0] : (body.message ?? `HTTP ${res.status}`));
+    }
+    return res.json();
+  },
 };
 
 export const findingsApi = {
