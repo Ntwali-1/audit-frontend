@@ -11,110 +11,83 @@ export function LogoIcon({ className, size = 32 }: { className?: string; size?: 
       className={className}
     >
       <defs>
-        {/* Deep gold gradient for shield body */}
-        <linearGradient id="shield-body-grad" x1="20" y1="20" x2="80" y2="80" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#E5C158" />
-          <stop offset="50%" stopColor="#C59E3F" />
-          <stop offset="100%" stopColor="#8F6B1E" />
+        {/* $50k Platinum/Chrome metallic gradients with high contrast */}
+        <linearGradient id="facet-light" x1="30" y1="20" x2="70" y2="80" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#FFFFFF" />
+          <stop offset="40%" stopColor="#F4F4F5" />
+          <stop offset="100%" stopColor="#D4D4D8" />
         </linearGradient>
 
-        {/* Light gold/cream gradient for shield highlight */}
-        <linearGradient id="shield-highlight-grad" x1="50" y1="20" x2="80" y2="80" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#FFF2CC" />
-          <stop offset="40%" stopColor="#F5D061" />
-          <stop offset="100%" stopColor="#A8812F" />
+        <linearGradient id="facet-medium" x1="30" y1="20" x2="70" y2="80" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#E4E4E7" />
+          <stop offset="100%" stopColor="#A1A1A6" />
         </linearGradient>
 
-        {/* Outer orbital rings gradient */}
-        <linearGradient id="orbit-grad-1" x1="10" y1="10" x2="90" y2="90" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#FFF2CC" stopOpacity="0.9" />
-          <stop offset="35%" stopColor="#E5C158" />
-          <stop offset="70%" stopColor="#8F6B1E" />
-          <stop offset="100%" stopColor="#3D2C24" stopOpacity="0.8" />
+        <linearGradient id="facet-dark" x1="30" y1="20" x2="70" y2="80" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#27272A" />
+          <stop offset="100%" stopColor="#09090B" />
         </linearGradient>
 
-        {/* Checkmark gradient */}
-        <linearGradient id="checkmark-grad" x1="30" y1="40" x2="75" y2="25" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#FFECA1" />
-          <stop offset="50%" stopColor="#FCD14D" />
-          <stop offset="100%" stopColor="#D4A325" />
+        <linearGradient id="glow-grad" x1="50" y1="0" x2="50" y2="100" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.15" />
+          <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0.0" />
         </linearGradient>
-        
-        {/* Subtle drop shadow */}
-        <filter id="logo-shadow" x="-10%" y="-10%" width="120%" height="120%" filterUnits="userSpaceOnUse">
-          <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor="#231510" floodOpacity="0.3" />
+
+        {/* High-end ambient occlusion drop shadow */}
+        <filter id="premium-shadow" x="-20%" y="-20%" width="140%" height="140%" filterUnits="userSpaceOnUse">
+          <feDropShadow dx="0" dy="6" stdDeviation="6" floodColor="#000000" floodOpacity="0.4" />
+          <feDropShadow dx="0" dy="1" stdDeviation="2" floodColor="#000000" floodOpacity="0.2" />
         </filter>
       </defs>
 
-      {/* Orbit Rings (Spiral swirling paths) */}
-      <path
-        d="M 50 8 C 73.2 8, 92 26.8, 92 50 C 92 68.5, 80 84.2, 63 89.5 M 37 90.5 C 20.7 85.7, 8 70.8, 8 53 C 8 28.5, 26.5 10, 48 8.5"
-        stroke="url(#orbit-grad-1)"
-        strokeWidth="3.5"
-        strokeLinecap="round"
-        filter="url(#logo-shadow)"
+      {/* Abstract outer ring representing the compass frame (ultra-thin, elegant) */}
+      <circle
+        cx="50"
+        cy="50"
+        r="44"
+        stroke="url(#glow-grad)"
+        strokeWidth="1.5"
+        strokeDasharray="4 2"
+        opacity="0.4"
       />
-      
-      <path
-        d="M 50 16 C 68.8 16, 84 31.2, 84 50 C 84 63, 76.7 74.3, 66 80 M 34 80 C 22.8 74.3, 16 63, 16 50 C 16 33, 29 18.5, 45 16.5"
-        stroke="url(#shield-body-grad)"
-        strokeWidth="2"
-        strokeLinecap="round"
-        opacity="0.85"
+      <circle
+        cx="50"
+        cy="50"
+        r="44"
+        stroke="#FFFFFF"
+        strokeWidth="1"
+        opacity="0.1"
       />
 
-      {/* Stylized Shield Container */}
-      <g filter="url(#logo-shadow)">
-        {/* Shield base outline */}
+      {/* The 3D Faceted "Audit Compass" Emblem */}
+      <g filter="url(#premium-shadow)">
+        {/* Left Side / Back Facet (Dark obsidian) */}
         <path
-          d="M 50 22 C 60 22, 69.5 25.5, 71.5 35 C 72.5 52, 60.5 66.5, 50 71 C 39.5 66.5, 27.5 52, 28.5 35 C 30.5 25.5, 40 22, 50 22 Z"
-          fill="url(#shield-body-grad)"
+          d="M 28 54 L 46 68 L 46 44 L 28 54 Z"
+          fill="url(#facet-dark)"
         />
         
-        {/* Shield highlight right half split */}
+        {/* Bottom Right Facet (Medium Slate/Graphite) */}
         <path
-          d="M 50 22 C 55 22, 69.5 25.5, 71.5 35 C 72.5 52, 60.5 66.5, 50 71 Z"
-          fill="url(#shield-highlight-grad)"
-          opacity="0.95"
+          d="M 46 68 L 76 34 L 56 46 L 46 68 Z"
+          fill="url(#facet-medium)"
         />
 
-        {/* Shield inner border overlay */}
+        {/* Top/Main Facet (Brilliant Chrome/Silver) */}
+        {/* This forms the sharp upward pointing needle/checkmark */}
         <path
-          d="M 50 26 C 58 26, 65.5 28.8, 67 36.5 C 67.8 49.5, 58.5 61, 50 65 M 50 26 C 42 26, 34.5 28.8, 33 36.5 C 32.2 49.5, 41.5 61, 50 65"
-          stroke="#3D2C24"
-          strokeWidth="1.2"
-          strokeOpacity="0.25"
-          fill="none"
+          d="M 46 44 L 76 34 L 56 46 L 46 44 Z"
+          fill="url(#facet-light)"
         />
-      </g>
 
-      {/* Bold 3D Checkmark overlapping the shield */}
-      <g filter="url(#logo-shadow)">
-        {/* Checkmark Shadow/Outline base */}
+        {/* Center fold highlight (Razor-sharp line) */}
         <path
-          d="M 36 50 L 46 60 L 73 31 L 68 26 L 46 48 L 41 43 Z"
-          fill="#3D2C24"
-          opacity="0.3"
-          transform="translate(1, 2)"
-        />
-        
-        {/* Main Checkmark Body */}
-        <path
-          d="M 36 50 L 46 60 L 73 31 L 68 26 L 46 48 L 41 43 Z"
-          fill="url(#checkmark-grad)"
-          stroke="#3D2C24"
-          strokeWidth="1.5"
-          strokeLinejoin="round"
-        />
-        
-        {/* Checkmark inner lighting highlight */}
-        <path
-          d="M 37.5 49 L 46 57.5 L 71 30.5"
-          stroke="#FFF9E6"
-          strokeWidth="0.8"
+          d="M 46 68 L 56 46 L 76 34"
+          stroke="#FFFFFF"
+          strokeWidth="0.75"
           strokeLinecap="round"
-          fill="none"
-          opacity="0.8"
+          strokeLinejoin="round"
+          opacity="0.6"
         />
       </g>
     </svg>
