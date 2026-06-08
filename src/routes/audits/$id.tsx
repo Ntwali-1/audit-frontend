@@ -1,8 +1,9 @@
-import * as React from "react";
+﻿import * as React from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AppShell } from "@/components/app-shell";
-import { auditsApi, teamsApi, findingsApi, AUDIT_STATUS_LABEL, FINDING_STATUS_LABEL, SEVERITY_LABEL, getAuditProgress, getUserDisplayName, ApiAudit } from "@/lib/api";
+import { auditsApi, auditStepsApi, usersApi, teamsApi, findingsApi, AUDIT_STATUS_LABEL, FINDING_STATUS_LABEL, SEVERITY_LABEL, getAuditProgress, getUserDisplayName, ApiAudit, ApiAuditStep } from "@/lib/api";
+import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,14 +11,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter,
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose,
 } from "@/components/ui/dialog";
 import { Spinner } from "@/components/ui/spinner";
-import { ArrowLeft, Plus, Users } from "lucide-react";
+import { ArrowLeft, Plus, Users, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/audits/$id")({
-  head: () => ({ meta: [{ title: `Audit · Auditly` }] }),
+  head: () => ({ meta: [{ title: `Audit Â· Auditly` }] }),
   component: AuditDetail,
 });
 
@@ -38,6 +39,8 @@ const STATUS_BADGE: Record<string, React.CSSProperties> = {
 
 function AuditDetail() {
   const { id } = Route.useParams();
+  const { user } = useAuth();
+  const isManager = user?.role === "AUDIT_MANAGER" || user?.role === "ADMIN";
   const queryClient = useQueryClient();
   const [findingOpen, setFindingOpen] = React.useState(false);
   const [severity, setSeverity] = React.useState("MEDIUM");
@@ -96,6 +99,7 @@ function AuditDetail() {
       audit={audit}
       progress={progress}
       owner={owner}
+      isManager={isManager}
       findingOpen={findingOpen}
       setFindingOpen={setFindingOpen}
       severity={severity}
@@ -189,10 +193,150 @@ function AssignTeamModal({
   );
 }
 
+/* â”€â”€â”€ Steps section â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+
+const STEP_PILL: Record<string, React.CSSProperties> = {
+  COMPLETED: { backgroundColor: "#E6F4ED", color: "#1A6638" },
+  IN_PROGRESS: { backgroundColor: "#FEF3E2", color: "#854F0B" },
+  TODO: { backgroundColor: "#F5EDE0", color: "#A0652A" },
+  BLOCKED: { backgroundColor: "#FEE2E2", color: "#991B1B" },
+};
+
+function StepsSection({ audit, isManager }: { audit: ApiAudit; isManager: boolean }) {
+  const qc = useQueryClient();
+  const steps = audit.steps ?? [];
+  const [addOpen, setAddOpen] = React.useState(false);
+  const [editStep, setEditStep] = React.useState<ApiAuditStep | null>(null);
+
+  const deleteMutation = useMutation({
+    mutationFn: (stepId: string) => auditStepsApi.remove(audit.id, stepId),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["audit", audit.id] }); toast.success("Step removed."); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  return (
+    <div className="rounded-2xl border bg-white p-6" style={{ borderColor: "var(--border-subtle)", boxShadow: "var(--shadow-card)" }}>
+      <div className="flex items-center justify-between">
+        <div className="data-label">Steps ({steps.length})</div>
+        {isManager && (
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-7 rounded-lg px-3 text-[12px]"
+            style={{ borderColor: "var(--brown-200)", color: "var(--brown-600)" }}
+            onClick={() => setAddOpen(true)}
+          >
+            <Plus className="mr-1 h-3 w-3" /> Add step
+          </Button>
+        )}
+      </div>
+
+      <div className="mt-3 space-y-2">
+        {steps.length === 0 && (
+          <p className="py-4 text-center text-[13px]" style={{ color: "var(--text-muted)" }}>
+            No steps yet. Click "Add step" to add custom steps.
+          </p>
+        )}
+        {steps.map((step, i) => (
+          <div key={step.id} className="flex items-start gap-3 rounded-xl border p-3" style={{ borderColor: "var(--border-subtle)" }}>
+            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold mt-0.5" style={{ backgroundColor: "var(--brown-100)", color: "var(--brown-700)" }}>
+              {i + 1}
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-[13px] font-medium" style={{ color: "var(--brown-800)" }}>{step.title}</span>
+                <span className="rounded-full px-2 py-0.5 text-[10px] font-medium" style={STEP_PILL[step.status] ?? STEP_PILL.TODO}>
+                  {step.status.replace(/_/g, " ")}
+                </span>
+              </div>
+              {step.description && <p className="mt-0.5 text-[12px]" style={{ color: "var(--text-muted)" }}>{step.description}</p>}
+              {step.assignee && <p className="mt-0.5 text-[11px]" style={{ color: "var(--text-hint)" }}>Assignee: {getUserDisplayName(step.assignee)}</p>}
+              {step.dueDate && <p className="mt-0.5 text-[11px]" style={{ color: "var(--text-hint)" }}>Due: {new Date(step.dueDate).toLocaleDateString()}</p>}
+            </div>
+            {isManager && (
+              <div className="flex shrink-0 gap-1">
+                <button onClick={() => setEditStep(step)} className="flex h-7 w-7 items-center justify-center rounded-lg hover:bg-stone-100" style={{ color: "var(--text-muted)" }} title="Edit step">
+                  <Pencil className="h-3.5 w-3.5" />
+                </button>
+                <button onClick={() => { if (confirm(`Remove "${step.title}"?`)) deleteMutation.mutate(step.id); }} className="flex h-7 w-7 items-center justify-center rounded-lg hover:bg-red-50" style={{ color: "var(--text-muted)" }} title="Delete step" disabled={deleteMutation.isPending}>
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {isManager && addOpen && <StepFormModal auditId={audit.id} onClose={() => setAddOpen(false)} />}
+      {isManager && editStep && <StepFormModal auditId={audit.id} step={editStep} onClose={() => setEditStep(null)} />}
+    </div>
+  );
+}
+
+function StepFormModal({ auditId, step, onClose }: { auditId: string; step?: ApiAuditStep; onClose: () => void }) {
+  const qc = useQueryClient();
+  const isEdit = !!step;
+  const [title, setTitle] = React.useState(step?.title ?? "");
+  const [description, setDescription] = React.useState(step?.description ?? "");
+  const [assigneeId, setAssigneeId] = React.useState(step?.assigneeId ?? "");
+  const [dueDate, setDueDate] = React.useState(step?.dueDate ? step.dueDate.slice(0, 10) : "");
+
+  const { data: usersData } = useQuery({ queryKey: ["users"], queryFn: () => usersApi.getAll() });
+  const eligible = (usersData?.data ?? []).filter((u) => u.role === "AUDITOR" || u.role === "LEAD_AUDITOR");
+
+  const mutation = useMutation({
+    mutationFn: () =>
+      isEdit
+        ? auditStepsApi.update(auditId, step!.id, { title, description: description || undefined, assigneeId: assigneeId || undefined, dueDate: dueDate || undefined })
+        : auditStepsApi.create(auditId, { title, description: description || undefined, assigneeId: assigneeId || undefined, dueDate: dueDate || undefined }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["audit", auditId] }); toast.success(isEdit ? "Step updated." : "Step added."); onClose(); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  return (
+    <Dialog open onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-w-md">
+        <DialogHeader><DialogTitle>{isEdit ? "Edit step" : "Add step"}</DialogTitle></DialogHeader>
+        <div className="space-y-4">
+          <div>
+            <Label>Title *</Label>
+            <Input value={title} onChange={(e) => setTitle(e.target.value)} className="mt-1.5" placeholder="e.g. Review access control policy" />
+          </div>
+          <div>
+            <Label>Description</Label>
+            <Textarea value={description} onChange={(e) => setDescription(e.target.value)} className="mt-1.5 resize-none" placeholder="What should the auditor do in this step?" rows={3} />
+          </div>
+          <div>
+            <Label>Assign to (optional)</Label>
+            <Select value={assigneeId || "__none__"} onValueChange={(v) => setAssigneeId(v === "__none__" ? "" : v)}>
+              <SelectTrigger className="mt-1.5"><SelectValue placeholder="Unassigned" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__none__">Unassigned</SelectItem>
+                {eligible.map((u) => <SelectItem key={u.id} value={u.id}>{getUserDisplayName(u)}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label>Due date (optional)</Label>
+            <Input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} className="mt-1.5" />
+          </div>
+        </div>
+        <DialogFooter className="gap-2">
+          <DialogClose asChild><Button variant="outline">Cancel</Button></DialogClose>
+          <Button onClick={() => mutation.mutate()} disabled={mutation.isPending || !title.trim()}>
+            {mutation.isPending ? <Spinner size={14} invert /> : isEdit ? "Save changes" : "Add step"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function AuditDetailContent({
   audit,
   progress,
   owner,
+  isManager,
   findingOpen,
   setFindingOpen,
   severity,
@@ -206,6 +350,7 @@ function AuditDetailContent({
   audit: ApiAudit;
   progress: number;
   owner: string;
+  isManager: boolean;
   findingOpen: boolean;
   setFindingOpen: (v: boolean) => void;
   severity: string;
@@ -334,27 +479,7 @@ function AuditDetailContent({
           </div>
         </div>
 
-        {(audit.steps?.length ?? 0) > 0 && (
-          <div className="rounded-2xl border bg-white p-6" style={{ borderColor: "var(--border-subtle)", boxShadow: "var(--shadow-card)" }}>
-            <div className="data-label">Steps</div>
-            <div className="mt-3 space-y-2">
-              {audit.steps!.map((step) => (
-                <div key={step.id} className="flex items-center gap-3 rounded-xl border p-3" style={{ borderColor: "var(--border-subtle)" }}>
-                  <div className="h-5 w-5 shrink-0 rounded-full border-2 flex items-center justify-center" style={{ borderColor: step.status === "COMPLETED" ? "var(--brown-400)" : "var(--border-default)", backgroundColor: step.status === "COMPLETED" ? "var(--brown-100)" : "transparent" }}>
-                    {step.status === "COMPLETED" && <span className="text-[9px]" style={{ color: "var(--brown-600)" }}>✓</span>}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="text-[13px] font-medium" style={{ color: "var(--brown-800)" }}>{step.title}</div>
-                    {step.description && <div className="text-[12px]" style={{ color: "var(--text-muted)" }}>{step.description}</div>}
-                  </div>
-                  <span className="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium" style={{ backgroundColor: step.status === "COMPLETED" ? "#E6F4ED" : step.status === "IN_PROGRESS" ? "#FEF3E2" : "#F5EDE0", color: step.status === "COMPLETED" ? "#1A6638" : step.status === "IN_PROGRESS" ? "#854F0B" : "#A0652A" }}>
-                    {step.status.replace("_", " ")}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        <StepsSection audit={audit} isManager={isManager} />
 
         <div className="rounded-2xl border bg-white p-6" style={{ borderColor: "var(--border-subtle)", boxShadow: "var(--shadow-card)" }}>
           <div className="data-label">Findings</div>
@@ -387,6 +512,7 @@ function AuditDetailContent({
     </AppShell>
   );
 }
+
 
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (

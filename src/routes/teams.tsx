@@ -10,9 +10,6 @@ import { Label } from "@/components/ui/label";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose,
 } from "@/components/ui/dialog";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 import { Plus, UsersRound, Crown, Pencil, Trash2, UserPlus, UserMinus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -185,6 +182,7 @@ function TeamsPage() {
 
 function CreateTeamModal({ onClose }: { onClose: () => void }) {
   const qc = useQueryClient();
+  const [step, setStep] = React.useState<1 | 2>(1);
   const [name, setName] = React.useState("");
   const [description, setDescription] = React.useState("");
   const [leadId, setLeadId] = React.useState("");
@@ -208,52 +206,114 @@ function CreateTeamModal({ onClose }: { onClose: () => void }) {
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["teams"] }); onClose(); },
   });
 
-  const toggleMember = (id: string) =>
-    setMemberIds((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
+  const toggleMember = (id: string) => {
+    setMemberIds((prev) => {
+      const next = prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id];
+      if (!next.includes(leadId)) setLeadId("");
+      return next;
+    });
+  };
+
+  const selectedAuditors = eligible.filter((u) => memberIds.includes(u.id));
 
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-w-md">
-        <DialogHeader><DialogTitle>New team</DialogTitle></DialogHeader>
-        <div className="space-y-4">
-          <div>
-            <Label>Name *</Label>
-            <Input value={name} onChange={(e) => setName(e.target.value)} className="mt-1.5" placeholder="e.g. Financial Controls" />
+        <DialogHeader>
+          <DialogTitle>New team</DialogTitle>
+          <div className="mt-3 flex gap-1.5">
+            <div className="h-1 flex-1 rounded-full transition-colors duration-300" style={{ backgroundColor: step >= 1 ? "var(--brown-600)" : "var(--brown-100)" }} />
+            <div className="h-1 flex-1 rounded-full transition-colors duration-300" style={{ backgroundColor: step >= 2 ? "var(--brown-600)" : "var(--brown-100)" }} />
           </div>
-          <div>
-            <Label>Description</Label>
-            <Input value={description} onChange={(e) => setDescription(e.target.value)} className="mt-1.5" placeholder="Optional" />
-          </div>
-          <div>
-            <Label>Team lead *</Label>
-            <Select value={leadId} onValueChange={setLeadId}>
-              <SelectTrigger className="mt-1.5"><SelectValue placeholder="Select lead…" /></SelectTrigger>
-              <SelectContent>
+          <p className="mt-1 text-[11px] uppercase tracking-[0.18em]" style={{ color: "var(--text-hint)" }}>
+            {step === 1 ? "Step 1 of 2 · Team details" : "Step 2 of 2 · Choose team lead"}
+          </p>
+        </DialogHeader>
+
+        {step === 1 && (
+          <div className="space-y-4">
+            <div>
+              <Label>Name *</Label>
+              <Input value={name} onChange={(e) => setName(e.target.value)} className="mt-1.5" placeholder="e.g. Financial Controls" />
+            </div>
+            <div>
+              <Label>Description</Label>
+              <Input value={description} onChange={(e) => setDescription(e.target.value)} className="mt-1.5" placeholder="Optional" />
+            </div>
+            <div>
+              <Label>Auditors *</Label>
+              <div className="mt-1.5 max-h-48 space-y-1 overflow-y-auto rounded-lg border p-2" style={{ borderColor: "var(--border-subtle)" }}>
+                {eligible.length === 0 && (
+                  <p className="px-2 py-1.5 text-[13px]" style={{ color: "var(--text-muted)" }}>No eligible auditors found.</p>
+                )}
                 {eligible.map((u) => (
-                  <SelectItem key={u.id} value={u.id}>{getUserDisplayName(u)}</SelectItem>
+                  <label key={u.id} className={cn("flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-[13px] hover:bg-stone-50", memberIds.includes(u.id) && "bg-stone-100")}>
+                    <input type="checkbox" checked={memberIds.includes(u.id)} onChange={() => toggleMember(u.id)} className="rounded" />
+                    {getUserDisplayName(u)}
+                    <span className="ml-auto text-[11px]" style={{ color: "var(--text-hint)" }}>{u.role?.replace(/_/g, " ")}</span>
+                  </label>
                 ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label>Members (select one or more)</Label>
-            <div className="mt-1.5 max-h-40 space-y-1 overflow-y-auto rounded-lg border p-2" style={{ borderColor: "var(--border-subtle)" }}>
-              {eligible.map((u) => (
-                <label key={u.id} className={cn("flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-[13px] hover:bg-stone-50", memberIds.includes(u.id) && "bg-stone-100")}>
-                  <input type="checkbox" checked={memberIds.includes(u.id)} onChange={() => toggleMember(u.id)} className="rounded" />
-                  {getUserDisplayName(u)}
-                  <span className="ml-auto text-[11px]" style={{ color: "var(--text-hint)" }}>{u.role?.replace(/_/g, " ")}</span>
-                </label>
-              ))}
+              </div>
             </div>
           </div>
-          {error && <p className="text-sm text-destructive">{(error as Error).message}</p>}
-        </div>
+        )}
+
+        {step === 2 && (
+          <div className="space-y-2">
+            <p className="text-[13px]" style={{ color: "var(--text-muted)" }}>
+              Select one auditor to be the team lead.
+            </p>
+            <div className="max-h-64 space-y-2 overflow-y-auto pr-0.5">
+              {selectedAuditors.map((u) => {
+                const selected = leadId === u.id;
+                return (
+                  <label
+                    key={u.id}
+                    className={cn(
+                      "flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 transition-colors",
+                      selected ? "border-brown-500" : "hover:bg-stone-50",
+                    )}
+                    style={{
+                      borderColor: selected ? "var(--brown-500)" : "var(--border-subtle)",
+                      backgroundColor: selected ? "var(--brown-50)" : undefined,
+                    }}
+                  >
+                    <input type="radio" name="teamLead" value={u.id} checked={selected} onChange={() => setLeadId(u.id)} className="sr-only" />
+                    <div
+                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold"
+                      style={{ backgroundColor: "var(--brown-100)", color: "var(--brown-800)" }}
+                    >
+                      {getUserInitials(u)}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[13px] font-medium" style={{ color: "var(--brown-800)" }}>{getUserDisplayName(u)}</p>
+                      <p className="text-[11px]" style={{ color: "var(--text-hint)" }}>{u.role?.replace(/_/g, " ")}</p>
+                    </div>
+                    {selected && <Crown className="h-4 w-4 shrink-0" style={{ color: "var(--brown-500)" }} />}
+                  </label>
+                );
+              })}
+            </div>
+            {error && <p className="text-sm text-destructive">{(error as Error).message}</p>}
+          </div>
+        )}
+
         <DialogFooter className="gap-2">
-          <DialogClose asChild><Button variant="outline">Cancel</Button></DialogClose>
-          <Button onClick={() => mutate()} disabled={isPending || !name.trim() || !leadId}>
-            {isPending ? <Spinner size={14} invert /> : "Create team"}
-          </Button>
+          {step === 1 ? (
+            <>
+              <DialogClose asChild><Button variant="outline">Cancel</Button></DialogClose>
+              <Button onClick={() => setStep(2)} disabled={!name.trim() || memberIds.length === 0}>
+                Next
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant="outline" onClick={() => setStep(1)}>Back</Button>
+              <Button onClick={() => mutate()} disabled={isPending || !leadId}>
+                {isPending ? <Spinner size={14} invert /> : "Create team"}
+              </Button>
+            </>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>

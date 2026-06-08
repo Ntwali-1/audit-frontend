@@ -1,13 +1,12 @@
 import * as React from "react";
 import { useRouterState, Link, useNavigate } from "@tanstack/react-router";
 import { Search, Bell, AlertOctagon, ClipboardList, FileBarChart, Settings as SettingsIcon, User, LogOut, UserCircle2, ChevronRight, Menu } from "lucide-react";
-import { OrbitalSidebar, NAV_SECTIONS, useSidebarState, useNavBadges, markAllSeen, markOneSeen } from "@/components/orbital-sidebar";
+import { OrbitalSidebar, NAV_SECTIONS, useSidebarState, useNavBadges, useNavSections, markAllSeen, markOneSeen } from "@/components/orbital-sidebar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { useAuth } from "@/lib/auth-context";
 import { getUserInitials, getUserDisplayName } from "@/lib/api";
 import { cn } from "@/lib/utils";
-import { LogoIcon } from "@/components/ui/logo";
 
 function findActive(pathname: string) {
   for (const s of NAV_SECTIONS) {
@@ -291,6 +290,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
 function MobileNav({ pathname }: { pathname: string }) {
   const { unreadCount, openCount } = useNavBadges();
+  const navSections = useNavSections();
 
   const badgeFor = (to: string): number | undefined => {
     if (to === "/notifications") return unreadCount > 0 ? unreadCount : undefined;
@@ -300,11 +300,8 @@ function MobileNav({ pathname }: { pathname: string }) {
 
   return (
     <nav className="scrollbar-thin flex h-full flex-col overflow-y-auto bg-linen px-3 py-4">
-      <div className="flex items-center gap-2.5 px-3 pb-4">
-        <LogoIcon size={24} className="shrink-0" />
-        <span className="text-[15px] font-semibold tracking-tight text-white font-display">Auditly</span>
-      </div>
-      {NAV_SECTIONS.map((section, idx) => (
+      <div className="px-3 pb-4 text-[15px] font-semibold tracking-tight text-white font-display">Auditly</div>
+      {navSections.map((section, idx) => (
         <div key={section.id} className={cn(idx > 0 && "mt-4")}>
           <div className="px-3 pb-2 pt-1 text-[10px] font-medium uppercase" style={{ letterSpacing: "0.12em", color: "rgba(255,255,255,0.35)" }}>
             {section.label}

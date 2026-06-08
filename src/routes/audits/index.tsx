@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus, Search } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
+import { useAuth } from "@/lib/auth-context";
 
 export const Route = createFileRoute("/audits/")({
   head: () => ({ meta: [{ title: "Audits · Auditly" }] }),
@@ -42,6 +43,8 @@ const PILL: Record<string, React.CSSProperties> = {
 };
 
 function AuditsPage() {
+  const { user } = useAuth();
+  const isManager = user?.role === "AUDIT_MANAGER" || user?.role === "ADMIN";
   const [q, setQ] = React.useState("");
   const [filter, setFilter] = React.useState<string>("all");
   const [open, setOpen] = React.useState(false);
@@ -112,7 +115,7 @@ function AuditsPage() {
         eyebrow="Operations"
         title="Audits"
         description="Track engagements, scopes, and progress across your portfolio."
-        actions={
+        actions={isManager ? (
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button className="h-[42px] rounded-[10px] px-4">
@@ -158,7 +161,7 @@ function AuditsPage() {
               </form>
             </DialogContent>
           </Dialog>
-        }
+        ) : null}
       />
 
       <div className="mb-6 flex flex-wrap items-center gap-3">

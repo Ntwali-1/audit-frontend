@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
-  LayoutDashboard, ClipboardList, FileBarChart, Settings, LogOut, ShieldCheck,
+  LayoutDashboard, ClipboardList, ClipboardCheck, FileBarChart, Settings, LogOut, ShieldCheck,
   Users, UsersRound, Building2, AlertOctagon, Sparkles, Bell, ChartPie,
   ChevronsLeft, ChevronsRight, ChevronDown,
 } from "lucide-react";
@@ -16,6 +16,9 @@ export type NavItem = {
   label: string;
   icon: React.ComponentType<any>;
   badge?: string | number;
+  adminOnly?: boolean;
+  managerOnly?: boolean;
+  auditorOnly?: boolean;
 };
 
 export type NavSection = { id: string; label: string; items: NavItem[] };
@@ -26,7 +29,7 @@ export const NAV_SECTIONS: NavSection[] = [
     label: "Workspace",
     items: [
       { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-      { to: "/analytics", label: "Analytics", icon: ChartPie },
+      { to: "/analytics", label: "Analytics", icon: ChartPie, managerOnly: true },
       { to: "/notifications", label: "Inbox", icon: Bell },
     ],
   },
@@ -34,18 +37,19 @@ export const NAV_SECTIONS: NavSection[] = [
     id: "ops",
     label: "Operations",
     items: [
-      { to: "/audits", label: "Audits", icon: ClipboardList },
+      { to: "/audits", label: "Audits", icon: ClipboardList, managerOnly: true },
+      { to: "/evaluations", label: "Evaluations", icon: ClipboardCheck, auditorOnly: true },
       { to: "/findings", label: "Findings", icon: AlertOctagon },
-      { to: "/reports", label: "Reports", icon: FileBarChart },
+      { to: "/reports", label: "Reports", icon: FileBarChart, managerOnly: true },
     ],
   },
   {
     id: "directory",
     label: "Directory",
     items: [
-      { to: "/users", label: "Users", icon: Users },
-      { to: "/teams", label: "Teams", icon: UsersRound },
-      { to: "/vendors", label: "Vendors", icon: Building2 },
+      { to: "/users", label: "Users", icon: Users, adminOnly: true },
+      { to: "/teams", label: "Teams", icon: UsersRound, managerOnly: true },
+      { to: "/vendors", label: "Vendors", icon: Building2, managerOnly: true },
     ],
   },
   {
@@ -111,6 +115,22 @@ export function useNavBadges() {
   return { openCount, unreadCount, findings, seenIds };
 }
 
+export function useNavSections(): NavSection[] {
+  const { user } = useAuth();
+  const isAdmin = user?.role === "ADMIN";
+  const isManager = user?.role === "AUDIT_MANAGER" || user?.role === "ADMIN";
+  const isAuditor = user?.role === "AUDITOR" || user?.role === "LEAD_AUDITOR";
+  return NAV_SECTIONS.map((s) => ({
+    ...s,
+    items: s.items.filter((i) => {
+      if (i.adminOnly && !isAdmin) return false;
+      if (i.managerOnly && !isManager) return false;
+      if (i.auditorOnly && !isAuditor) return false;
+      return true;
+    }),
+  })).filter((s) => s.items.length > 0);
+}
+
 const STORAGE_KEY = "auditly:sidebar:collapsed";
 
 export function useSidebarState() {
@@ -132,6 +152,7 @@ export function OrbitalSidebar({
   const navigate = useNavigate();
   const { user, clearAuth } = useAuth();
   const { openCount, unreadCount } = useNavBadges();
+  const navSections = useNavSections();
 
   const badgeFor = (to: string): number | undefined => {
     if (to === "/notifications") return unreadCount > 0 ? unreadCount : undefined;
@@ -188,7 +209,7 @@ export function OrbitalSidebar({
 
       {/* Nav */}
       <nav className="scrollbar-thin flex-1 overflow-y-auto px-3 py-4">
-        {NAV_SECTIONS.map((section, idx) => (
+        {navSections.map((section, idx) => (
           <div key={section.id} className={cn(idx > 0 && "mt-4")}>
             {!collapsed && (
               <div

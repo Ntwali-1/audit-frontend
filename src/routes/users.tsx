@@ -14,7 +14,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
-import { Plus, Search, Users as UsersIcon, ShieldCheck, UserCheck, UserX } from "lucide-react";
+import { Plus, Upload, Search, Users as UsersIcon, ShieldCheck, UserCheck, UserX, CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 
 export const Route = createFileRoute("/users")({
@@ -46,6 +46,7 @@ function UsersPage() {
   const [q, setQ] = React.useState("");
   const [manageModal, setManageModal] = React.useState<ManageModal>(null);
   const [inviteOpen, setInviteOpen] = React.useState(false);
+  const [bulkImportOpen, setBulkImportOpen] = React.useState(false);
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["users"],
@@ -73,9 +74,14 @@ function UsersPage() {
         description="Manage user accounts, roles, and access across the platform."
         actions={
           isManager ? (
-            <Button className="h-[42px] rounded-[10px] px-4" onClick={() => setInviteOpen(true)}>
-              <Plus className="mr-2 h-4 w-4" /> Invite user
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" className="h-[42px] rounded-[10px] px-4" onClick={() => setBulkImportOpen(true)}>
+                <Upload className="mr-2 h-4 w-4" /> Bulk import
+              </Button>
+              <Button className="h-[42px] rounded-[10px] px-4" onClick={() => setInviteOpen(true)}>
+                <Plus className="mr-2 h-4 w-4" /> Invite user
+              </Button>
+            </div>
           ) : null
         }
       />
@@ -176,6 +182,9 @@ function UsersPage() {
       )}
       {inviteOpen && (
         <InviteUserModal onClose={() => setInviteOpen(false)} isAdmin={isAdmin} />
+      )}
+      {bulkImportOpen && (
+        <BulkImportModal onClose={() => setBulkImportOpen(false)} isAdmin={isAdmin} />
       )}
     </AppShell>
   );
@@ -308,6 +317,262 @@ function InviteUserModal({ onClose, isAdmin }: { onClose: () => void; isAdmin: b
           <Button onClick={() => mutate()} disabled={isPending || !email.trim()}>
             {isPending ? <Spinner size={14} invert /> : "Send invite"}
           </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+type ImportRow = { no: string; name: string; email: string; phone: string; valid: boolean };
+type ImportResult = { email: string; ok: boolean; error?: string };
+type ImportStep = "upload" | "preview" | "importing" | "done";
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function BulkImportModal({ onClose, isAdmin }: { onClose: () => void; isAdmin: boolean }) {
+  const [role, setRole] = React.useState<"AUDIT_MANAGER" | "AUDITOR">(
+    isAdmin ? "AUDIT_MANAGER" : "AUDITOR",
+  );
+  const [step, setStep] = React.useState<ImportStep>("upload");
+  const [fileName, setFileName] = React.useState("");
+  const [rows, setRows] = React.useState<ImportRow[]>([]);
+  const [results, setResults] = React.useState<ImportResult[]>([]);
+  const fileRef = React.useRef<HTMLInputElement>(null);
+
+  const parseFile = async (file: File) => {
+    const XLSX = await import("xlsx");
+    const buf = await file.arrayBuffer();
+    const wb = XLSX.read(buf, { type: "array" });
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const json = XLSX.utils.sheet_to_json<Record<string, unknown>>(ws, { defval: "" });
+
+    // Fixed column layout: col 0 = number, col 1 = full name, col 2 = email, col 3 = phone
+    const keys = json.length > 0 ? Object.keys(json[0]) : [];
+    const noKey = keys[0] ?? "";
+    const nameKey = keys[1] ?? "";
+    const emailKey = keys[2] ?? keys[0] ?? "";
+    const phoneKey = keys[3] ?? "";
+
+    const parsed: ImportRow[] = json
+      .map((r) => ({
+        no: String(r[noKey] ?? "").trim(),
+        name: String(r[nameKey] ?? "").trim(),
+        email: String(r[emailKey] ?? "").trim(),
+        phone: String(r[phoneKey] ?? "").trim(),
+      }))
+      .filter(({ email }) => email.length > 0)
+      .map((row) => ({ ...row, valid: EMAIL_RE.test(row.email) }));
+
+    setRows(parsed);
+    setFileName(file.name);
+    setStep("preview");
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) parseFile(file);
+  };
+
+  const handleImport = async () => {
+    setStep("importing");
+    const valid = rows.filter((r) => r.valid);
+    const out: ImportResult[] = [];
+    for (const { email, name, phone } of valid) {
+      try {
+        if (role === "AUDIT_MANAGER") await inviteApi.inviteAuditManager(email, name || undefined, phone || undefined);
+        else await inviteApi.inviteAuditor(email, name || undefined, phone || undefined);
+        out.push({ email, ok: true });
+      } catch (err) {
+        out.push({ email, ok: false, error: (err as Error).message });
+      }
+      setResults([...out]);
+    }
+    setStep("done");
+  };
+
+  const validCount = rows.filter((r) => r.valid).length;
+  const invalidCount = rows.filter((r) => !r.valid).length;
+  const succeededCount = results.filter((r) => r.ok).length;
+  const failedCount = results.filter((r) => !r.ok).length;
+
+  return (
+    <Dialog open onOpenChange={(o) => !o && step !== "importing" && onClose()}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Bulk import users</DialogTitle>
+        </DialogHeader>
+
+        {step === "upload" && (
+          <div className="space-y-5">
+            {/* Role selector */}
+            <div>
+              <p className="mb-2 text-[13px] font-medium" style={{ color: "var(--brown-800)" }}>
+                Import as
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                {(["AUDIT_MANAGER", "AUDITOR"] as const).filter(
+                  (r) => r !== "AUDIT_MANAGER" || isAdmin,
+                ).map((r) => (
+                  <button
+                    key={r}
+                    onClick={() => setRole(r)}
+                    className={`rounded-xl border px-4 py-3 text-left text-[13px] font-medium transition-colors ${
+                      role === r
+                        ? "border-primary bg-primary/5 text-primary"
+                        : "border-border/60 bg-background text-foreground hover:bg-accent"
+                    }`}
+                  >
+                    {ROLE_LABEL[r]}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* File drop zone */}
+            <div>
+              <p className="mb-2 text-[13px] font-medium" style={{ color: "var(--brown-800)" }}>
+                Upload file
+              </p>
+              <button
+                onClick={() => fileRef.current?.click()}
+                className="flex w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border/60 bg-background/40 py-10 transition-colors hover:border-primary/40 hover:bg-accent"
+              >
+                <Upload className="h-6 w-6 text-muted-foreground" />
+                <p className="text-[13px] font-medium" style={{ color: "var(--brown-800)" }}>
+                  Click to select file
+                </p>
+                <p className="text-[12px] text-muted-foreground">.xlsx or .csv · Col 1: No. · Col 2: Full name · Col 3: Email · Col 4: Phone</p>
+              </button>
+              <input
+                ref={fileRef}
+                type="file"
+                accept=".xlsx,.csv"
+                className="hidden"
+                onChange={handleFileChange}
+              />
+            </div>
+          </div>
+        )}
+
+        {step === "preview" && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-3 rounded-lg border border-border/60 bg-muted/30 px-3 py-2">
+              <Upload className="h-4 w-4 shrink-0 text-muted-foreground" />
+              <span className="flex-1 truncate text-[13px]">{fileName}</span>
+              <span className="text-[12px] text-muted-foreground">
+                {validCount} valid · {invalidCount} invalid
+              </span>
+            </div>
+
+            <div className="max-h-56 overflow-y-auto rounded-xl border border-border/60">
+              <table className="w-full text-[12px]">
+                <thead style={{ backgroundColor: "var(--brown-50)" }}>
+                  <tr>
+                    <th className="px-3 py-2 text-left font-medium text-muted-foreground w-8">#</th>
+                    <th className="px-3 py-2 text-left font-medium text-muted-foreground">Name</th>
+                    <th className="px-3 py-2 text-left font-medium text-muted-foreground">Email</th>
+                    <th className="px-3 py-2 text-left font-medium text-muted-foreground hidden sm:table-cell">Phone</th>
+                    <th className="px-3 py-2 text-right font-medium text-muted-foreground">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((r, i) => (
+                    <tr key={i} className="border-t border-border/40">
+                      <td className="px-3 py-2 text-muted-foreground">{r.no || i + 1}</td>
+                      <td className="px-3 py-2">{r.name || "—"}</td>
+                      <td className="px-3 py-2 font-mono">{r.email}</td>
+                      <td className="px-3 py-2 hidden sm:table-cell">{r.phone || "—"}</td>
+                      <td className="px-3 py-2 text-right">
+                        {r.valid ? (
+                          <span className="text-emerald-600">Valid</span>
+                        ) : (
+                          <span className="text-destructive">Invalid email</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <p className="text-[12px] text-muted-foreground">
+              Will send invitations to <strong>{validCount}</strong> address
+              {validCount !== 1 ? "es" : ""} as <strong>{ROLE_LABEL[role]}</strong>.
+              {invalidCount > 0 && ` ${invalidCount} invalid row${invalidCount !== 1 ? "s" : ""} will be skipped.`}
+            </p>
+          </div>
+        )}
+
+        {(step === "importing" || step === "done") && (
+          <div className="space-y-3">
+            <div className="max-h-56 overflow-y-auto rounded-xl border border-border/60">
+              <table className="w-full text-[12px]">
+                <thead style={{ backgroundColor: "var(--brown-50)" }}>
+                  <tr>
+                    <th className="px-3 py-2 text-left font-medium text-muted-foreground w-8">#</th>
+                    <th className="px-3 py-2 text-left font-medium text-muted-foreground">Name</th>
+                    <th className="px-3 py-2 text-left font-medium text-muted-foreground">Email</th>
+                    <th className="px-3 py-2 text-left font-medium text-muted-foreground hidden sm:table-cell">Phone</th>
+                    <th className="px-3 py-2 text-right font-medium text-muted-foreground">Result</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.filter((r) => r.valid).map(({ no, name, email, phone }, i) => {
+                    const res = results.find((r) => r.email === email);
+                    return (
+                      <tr key={i} className="border-t border-border/40">
+                        <td className="px-3 py-2 text-muted-foreground">{no || i + 1}</td>
+                        <td className="px-3 py-2">{name || "—"}</td>
+                        <td className="px-3 py-2 font-mono">{email}</td>
+                        <td className="px-3 py-2 hidden sm:table-cell">{phone || "—"}</td>
+                        <td className="px-3 py-2 text-right">
+                          {!res ? (
+                            <Loader2 className="ml-auto h-3 w-3 animate-spin text-muted-foreground" />
+                          ) : res.ok ? (
+                            <CheckCircle2 className="ml-auto h-3.5 w-3.5 text-emerald-600" />
+                          ) : (
+                            <span className="text-destructive" title={res.error}><XCircle className="ml-auto h-3.5 w-3.5" /></span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+            {step === "done" && (
+              <p className="text-[12px] text-muted-foreground">
+                Done — <span className="text-emerald-600 font-medium">{succeededCount} sent</span>
+                {failedCount > 0 && (
+                  <>, <span className="text-destructive font-medium">{failedCount} failed</span></>
+                )}.
+              </p>
+            )}
+          </div>
+        )}
+
+        <DialogFooter className="gap-2">
+          {step === "upload" && (
+            <DialogClose asChild><Button variant="outline">Cancel</Button></DialogClose>
+          )}
+          {step === "preview" && (
+            <>
+              <Button variant="outline" onClick={() => { setRows([]); setStep("upload"); }}>
+                Back
+              </Button>
+              <Button onClick={handleImport} disabled={validCount === 0}>
+                Import {validCount} user{validCount !== 1 ? "s" : ""}
+              </Button>
+            </>
+          )}
+          {step === "importing" && (
+            <Button disabled>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Importing…
+            </Button>
+          )}
+          {step === "done" && (
+            <Button onClick={onClose}>Done</Button>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
