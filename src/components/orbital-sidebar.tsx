@@ -9,6 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth-context";
 import { findingsApi, getUserInitials, getUserDisplayName } from "@/lib/api";
+import { LogoIcon } from "@/components/ui/logo";
 
 export type NavItem = {
   to: string;
@@ -178,14 +179,9 @@ export function OrbitalSidebar({
         style={{ borderColor: "rgba(255,255,255,0.08)" }}
       >
         <Link to="/dashboard" className="flex items-center gap-3">
-          <div
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
-            style={{ backgroundColor: "var(--brown-200)", color: "var(--brown-800)" }}
-          >
-            <ShieldCheck className="h-4 w-4" />
-          </div>
+          <LogoIcon size={32} className="shrink-0" />
           {!collapsed && (
-            <span className="text-[15px] font-semibold tracking-tight text-white">Auditly</span>
+            <span className="text-[15px] font-semibold tracking-tight text-white font-display">Auditly</span>
           )}
         </Link>
       </div>

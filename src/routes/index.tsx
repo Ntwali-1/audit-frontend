@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
-import { ShieldCheck } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
+import { LogoIcon } from "@/components/ui/logo";
 import { authApi } from "@/lib/api";
 import { toast } from "sonner";
 
@@ -51,13 +51,8 @@ function SignIn() {
         style={{ backgroundColor: "var(--brown-800)" }}
       >
         <div className="relative z-10 flex items-center gap-3">
-          <div
-            className="flex h-9 w-9 items-center justify-center rounded-xl"
-            style={{ backgroundColor: "var(--brown-200)", color: "var(--brown-800)" }}
-          >
-            <ShieldCheck className="h-4 w-4" />
-          </div>
-          <span className="text-[16px] font-semibold text-white">Auditly</span>
+          <LogoIcon size={36} className="shrink-0" />
+          <span className="text-[18px] font-semibold text-white font-display">Auditly</span>
         </div>
 
         <div className="relative z-10 space-y-6">
