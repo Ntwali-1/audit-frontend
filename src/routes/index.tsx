@@ -1,5 +1,5 @@
 import * as React from "react";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -34,7 +34,13 @@ function SignIn() {
     try {
       const data = await authApi.login(email, password);
       setAuth(data.accessToken, data.refreshToken, data.user);
-      navigate({ to: "/dashboard" });
+      // Each portal has its own home. OAG and OCIA accounts cannot reach the
+      // institution dashboard at all, so sending everyone to /dashboard would
+      // land two thirds of users on a permission error.
+      const portal = (data.user as { portalType?: string }).portalType ?? "INSTITUTION";
+      navigate({
+        to: portal === "OAG" ? "/oag/engagements" : portal === "OCIA" ? "/ocia" : "/dashboard",
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");
       toast.error("Sign in failed", { description: err instanceof Error ? err.message : "Check your credentials" });
@@ -51,11 +57,10 @@ function SignIn() {
         style={{ backgroundColor: "var(--brown-800)" }}
       >
         <div className="relative z-10 flex items-center gap-3">
-          <div
-            className="flex h-9 w-9 items-center justify-center rounded-xl"
-            style={{ backgroundColor: "var(--brown-200)", color: "var(--brown-800)" }}
-          >
-            <ShieldCheck className="h-4 w-4" />
+          {/* No organization is known before sign-in, so the product mark is
+              used here. The institution's own crest appears once you are in. */}
+          <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl bg-white/95">
+            <img src="/logo.png" alt="Auditly" className="h-6 w-6 object-contain" />
           </div>
           <span className="text-[16px] font-semibold text-white">Auditly</span>
         </div>
@@ -126,6 +131,17 @@ function SignIn() {
             <Button type="submit" className="h-[42px] w-full rounded-[10px]" disabled={loading}>
               {loading ? <Spinner size={16} invert /> : "Sign in"}
             </Button>
+
+            {/*
+              There is no personal sign-up. You either bring your institution in,
+              or you were invited to one that is already here.
+            */}
+            <p className="pt-1 text-center text-[13px]" style={{ color: "var(--text-muted)" }}>
+              Institution not on Auditly yet?{" "}
+              <Link to="/register" className="font-medium hover:underline" style={{ color: "var(--brown-800)" }}>
+                Register it
+              </Link>
+            </p>
           </form>
         </div>
       </div>

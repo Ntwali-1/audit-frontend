@@ -17,7 +17,11 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
-import { AlertOctagon, AlertTriangle, ShieldAlert, CheckCircle2, Pencil, Trash2, ChevronRight } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
+import { useAuth } from "@/lib/auth-context";
+import { AlertOctagon, AlertTriangle, ShieldAlert, CheckCircle2, Pencil, Trash2, ChevronRight, ShieldCheck, Upload } from "lucide-react";
+import type { ApiFinding } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/findings")({
@@ -35,12 +39,22 @@ const SEV_TONE: Record<string, string> = {
 const STATUS_TONE: Record<string, React.CSSProperties> = {
   OPEN: { backgroundColor: "#FEE2E2", color: "#991B1B", border: "0.5px solid #FECACA" },
   IN_REMEDIATION: { backgroundColor: "#FEF3E2", color: "#854F0B", border: "0.5px solid #F0C97A" },
+  PENDING_VERIFICATION: { backgroundColor: "#EEF2FF", color: "#3730A3", border: "0.5px solid #C7D2FE" },
+  VERIFIED_CLOSED: { backgroundColor: "#E6F4ED", color: "#1A6638", border: "0.5px solid #A8D5BA" },
+  PARTIALLY_RESOLVED: { backgroundColor: "#FEF3E2", color: "#854F0B", border: "0.5px solid #F0C97A" },
+  REJECTED_REOPENED: { backgroundColor: "#FEE2E2", color: "#991B1B", border: "0.5px solid #FECACA" },
   RESOLVED: { backgroundColor: "#E6F4ED", color: "#1A6638", border: "0.5px solid #A8D5BA" },
   ACCEPTED_RISK: { backgroundColor: "#F5EDE0", color: "#A0652A", border: "0.5px solid #E8D5B7" },
   CLOSED: { backgroundColor: "#F4F4F5", color: "#27272A", border: "0.5px solid #D4D4D8" },
 };
 
-const STATUS_TABS = ["ALL", "OPEN", "IN_REMEDIATION", "RESOLVED", "ACCEPTED_RISK", "CLOSED"] as const;
+/** Outcomes only an auditor may set — they never appear as plain buttons. */
+const VERIFY_OUTCOMES = ["VERIFIED_CLOSED", "PARTIALLY_RESOLVED", "REJECTED_REOPENED"];
+
+const STATUS_TABS = [
+  "ALL", "OPEN", "IN_REMEDIATION", "PENDING_VERIFICATION",
+  "VERIFIED_CLOSED", "ACCEPTED_RISK", "CLOSED",
+] as const;
 const SEV_FILTERS = ["ALL", "CRITICAL", "HIGH", "MEDIUM", "LOW"] as const;
 
 type EditModal = { id: string; title: string; description: string; severity: string; deadline: string } | null;
@@ -51,6 +65,8 @@ function FindingsPage() {
   const [sevFilter, setSevFilter] = React.useState<string>("ALL");
   const [editModal, setEditModal] = React.useState<EditModal>(null);
   const [deleteId, setDeleteId] = React.useState<string | null>(null);
+  const [resolveFinding, setResolveFinding] = React.useState<ApiFinding | null>(null);
+  const [verifyFinding, setVerifyFinding] = React.useState<ApiFinding | null>(null);
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["findings"],
@@ -195,20 +211,50 @@ function FindingsPage() {
                         </button>
                       )}
                     </div>
-                    {transitions.length > 0 && (
-                      <div className="flex flex-wrap gap-1">
-                        {transitions.map((next) => (
-                          <button
-                            key={next}
-                            onClick={() => transitionMutation.mutate({ id: f.id, status: next })}
-                            disabled={transitionMutation.isPending}
-                            className="rounded-lg border px-2 py-1 text-[11px] font-medium transition-colors hover:opacity-80"
-                            style={STATUS_TONE[next] ?? {}}
-                          >
-                            → {FINDING_STATUS_LABEL[next] ?? next}
-                          </button>
-                        ))}
-                      </div>
+                    {/*
+                      Two of these transitions carry rules, so they get their own
+                      dialogs rather than a one-click button: submitting evidence
+                      (which parks the finding, it never closes itself) and the
+                      auditor's ruling on that evidence.
+                    */}
+                    <div className="flex flex-wrap justify-end gap-1">
+                      {f.status === "PENDING_VERIFICATION" ? (
+                        <button
+                          onClick={() => setVerifyFinding(f)}
+                          className="flex items-center gap-1 rounded-lg border px-2 py-1 text-[11px] font-medium transition-colors hover:opacity-80"
+                          style={STATUS_TONE.VERIFIED_CLOSED}
+                        >
+                          <ShieldCheck className="h-3 w-3" /> Review evidence
+                        </button>
+                      ) : (
+                        transitions.map((next) =>
+                          VERIFY_OUTCOMES.includes(next) ? null : next === "PENDING_VERIFICATION" ? (
+                            <button
+                              key={next}
+                              onClick={() => setResolveFinding(f)}
+                              className="flex items-center gap-1 rounded-lg border px-2 py-1 text-[11px] font-medium transition-colors hover:opacity-80"
+                              style={STATUS_TONE.PENDING_VERIFICATION}
+                            >
+                              <Upload className="h-3 w-3" /> Submit fix
+                            </button>
+                          ) : (
+                            <button
+                              key={next}
+                              onClick={() => transitionMutation.mutate({ id: f.id, status: next })}
+                              disabled={transitionMutation.isPending}
+                              className="rounded-lg border px-2 py-1 text-[11px] font-medium transition-colors hover:opacity-80"
+                              style={STATUS_TONE[next] ?? {}}
+                            >
+                              → {FINDING_STATUS_LABEL[next] ?? next}
+                            </button>
+                          ),
+                        )
+                      )}
+                    </div>
+                    {f.status === "VERIFIED_CLOSED" && f.verifiedBy && (
+                      <p className="text-right text-[11px]" style={{ color: "var(--text-muted)" }}>
+                        Verified by {getUserDisplayName(f.verifiedBy)}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -231,7 +277,7 @@ function FindingsPage() {
         <Dialog open onOpenChange={(o) => !o && setDeleteId(null)}>
           <DialogContent className="max-w-sm">
             <DialogHeader><DialogTitle>Delete finding</DialogTitle></DialogHeader>
-            <p className="text-sm text-muted-foreground">This finding will be permanently deleted. Only OPEN findings can be deleted.</p>
+            <p className="text-sm text-muted-foreground">This finding will be permanently deleted. Only OPEN findings can be deleted, by the auditor who reported it or an audit manager.</p>
             <DialogFooter className="gap-2">
               <DialogClose asChild><Button variant="outline">Cancel</Button></DialogClose>
               <Button variant="destructive" onClick={() => deleteMutation.mutate(deleteId!)} disabled={deleteMutation.isPending}>
@@ -241,7 +287,136 @@ function FindingsPage() {
           </DialogContent>
         </Dialog>
       )}
+      {resolveFinding && (
+        <SubmitFixModal finding={resolveFinding} onClose={() => setResolveFinding(null)} />
+      )}
+      {verifyFinding && (
+        <VerifyModal finding={verifyFinding} onClose={() => setVerifyFinding(null)} />
+      )}
     </AppShell>
+  );
+}
+
+/**
+ * The institution attaches evidence of a fix. This is as far as they can move
+ * it — the finding parks in Pending Verification until an auditor rules on it.
+ */
+function SubmitFixModal({ finding, onClose }: { finding: ApiFinding; onClose: () => void }) {
+  const qc = useQueryClient();
+  const [note, setNote] = React.useState("");
+
+  const { mutate, isPending, error } = useMutation({
+    mutationFn: () => findingsApi2.resolve(finding.id, note || undefined),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["findings"] });
+      toast.success("Submitted for verification", {
+        description: "An auditor will review the evidence. It does not close on its own.",
+      });
+      onClose();
+    },
+  });
+
+  return (
+    <Dialog open onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-w-md">
+        <DialogHeader><DialogTitle>Submit fix for verification</DialogTitle></DialogHeader>
+        <div className="space-y-3">
+          <p className="text-[13px]" style={{ color: "var(--text-muted)" }}>{finding.title}</p>
+          <div>
+            <Label>What was done</Label>
+            <Textarea className="mt-1.5" rows={4} value={note} onChange={(e) => setNote(e.target.value)}
+              placeholder="Corrected procurement file uploaded; threshold approval now on record." />
+          </div>
+          <p className="rounded-lg border px-3 py-2 text-[12px]"
+            style={{ borderColor: "var(--border-subtle)", color: "var(--text-muted)" }}>
+            This moves the finding to <strong>Pending Verification</strong>. An auditor decides whether it closes.
+          </p>
+          {error && <p className="text-sm text-destructive">{(error as Error).message}</p>}
+        </div>
+        <DialogFooter className="gap-2">
+          <DialogClose asChild><Button variant="outline">Cancel</Button></DialogClose>
+          <Button onClick={() => mutate()} disabled={isPending}>
+            {isPending ? <Spinner size={14} invert /> : "Submit for verification"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/** The auditor rules on submitted evidence. */
+function VerifyModal({ finding, onClose }: { finding: ApiFinding; onClose: () => void }) {
+  const qc = useQueryClient();
+  const { user } = useAuth();
+  const [status, setStatus] = React.useState("VERIFIED_CLOSED");
+  const [note, setNote] = React.useState("");
+
+  const { mutate, isPending, error } = useMutation({
+    mutationFn: () => findingsApi2.verify(finding.id, status, note || undefined),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["findings"] });
+      toast.success("Decision recorded");
+      onClose();
+    },
+  });
+
+  // Whoever remediated it can never sign it off, whatever their role.
+  const remediatedByMe = finding.assigneeId === user?.id;
+
+  return (
+    <Dialog open onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-w-md">
+        <DialogHeader><DialogTitle>Review the evidence</DialogTitle></DialogHeader>
+        <div className="space-y-3">
+          <p className="text-[13px] font-medium" style={{ color: "var(--brown-800)" }}>{finding.title}</p>
+          {finding.resolutionNote && (
+            <div>
+              <Label>What the institution says it did</Label>
+              <p className="mt-1.5 whitespace-pre-wrap rounded-lg border p-3 text-[13px]"
+                style={{ borderColor: "var(--border-subtle)", color: "var(--text-muted)" }}>
+                {finding.resolutionNote}
+              </p>
+            </div>
+          )}
+
+          {remediatedByMe ? (
+            <p className="flex items-start gap-2 rounded-lg border px-3 py-2 text-[12px]"
+              style={{ borderColor: "#F0C97A", backgroundColor: "#FEF3E2", color: "#854F0B" }}>
+              <ShieldAlert className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+              You remediated this finding, so you cannot verify it. Another auditor must review the evidence.
+            </p>
+          ) : (
+            <>
+              <div>
+                <Label>Outcome</Label>
+                <Select value={status} onValueChange={setStatus}>
+                  <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="VERIFIED_CLOSED">Verified and closed</SelectItem>
+                    <SelectItem value="PARTIALLY_RESOLVED">Partially resolved</SelectItem>
+                    <SelectItem value="REJECTED_REOPENED">Rejected, reopen</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Note</Label>
+                <Textarea className="mt-1.5" rows={3} value={note} onChange={(e) => setNote(e.target.value)}
+                  placeholder="Evidence reviewed against the original exception." />
+              </div>
+            </>
+          )}
+          {error && <p className="text-sm text-destructive">{(error as Error).message}</p>}
+        </div>
+        <DialogFooter className="gap-2">
+          <DialogClose asChild><Button variant="outline">Cancel</Button></DialogClose>
+          {!remediatedByMe && (
+            <Button onClick={() => mutate()} disabled={isPending}>
+              {isPending ? <Spinner size={14} invert /> : "Record decision"}
+            </Button>
+          )}
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 

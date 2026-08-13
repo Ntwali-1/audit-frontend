@@ -2,7 +2,7 @@ import * as React from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AppShell } from "@/components/app-shell";
-import { auditsApi, auditStepsApi, AUDIT_STATUS_LABEL, getUserDisplayName, getUserInitials, ApiAuditStep } from "@/lib/api";
+import { auditsApi, auditStepsApi, AUDIT_STATUS_LABEL, getUserDisplayName, getUserInitials, resolveFileUrl, ApiAuditStep } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -624,7 +624,7 @@ function StepWorkspace({
                     {ev.fileName}
                   </span>
                   <a
-                    href={ev.fileUrl}
+                    href={resolveFileUrl(ev.fileUrl)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="shrink-0 p-1 hover:opacity-70"

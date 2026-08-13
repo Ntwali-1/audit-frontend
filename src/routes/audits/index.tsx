@@ -1,21 +1,15 @@
 import * as React from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { AppShell } from "@/components/app-shell";
 import { PageHeader } from "@/components/page-header";
-import { auditsApi, teamsApi, AUDIT_STATUS_LABEL, getAuditProgress, getUserDisplayName, ApiAudit } from "@/lib/api";
+import { auditsApi, AUDIT_STATUS_LABEL, getAuditProgress, getUserDisplayName, ApiAudit } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Search } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
-import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
+import { CreateAuditWizard } from "@/components/create-audit-wizard";
 
 export const Route = createFileRoute("/audits/")({
   head: () => ({ meta: [{ title: "Audits · Auditly" }] }),
@@ -48,42 +42,11 @@ function AuditsPage() {
   const [q, setQ] = React.useState("");
   const [filter, setFilter] = React.useState<string>("all");
   const [open, setOpen] = React.useState(false);
-  const queryClient = useQueryClient();
-
-  const [formTitle, setFormTitle] = React.useState("");
-  const [formType, setFormType] = React.useState("");
-  const [formScope, setFormScope] = React.useState("");
-  const [formDueDate, setFormDueDate] = React.useState("");
-  const [formTeamId, setFormTeamId] = React.useState<string>("");
 
   const { data: auditsData, isLoading } = useQuery({
     queryKey: ["audits", "list"],
     queryFn: () => auditsApi.getAll({ take: 50 }),
     staleTime: 30_000,
-  });
-
-  const { data: teams = [] } = useQuery({
-    queryKey: ["teams", "list"],
-    queryFn: () => teamsApi.getAll(),
-    staleTime: 60_000,
-  });
-
-  const createMutation = useMutation({
-    mutationFn: (data: { title: string; type?: string; scope?: string; dueDate?: string; teamId?: string }) =>
-      auditsApi.create(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["audits"] });
-      setOpen(false);
-      setFormTitle("");
-      setFormType("");
-      setFormScope("");
-      setFormDueDate("");
-      setFormTeamId("");
-      toast.success("Audit created", { description: "New audit added to your workspace." });
-    },
-    onError: (err: Error) => {
-      toast.error("Failed to create audit", { description: err.message });
-    },
   });
 
   const allAudits = auditsData?.data ?? [];
@@ -97,17 +60,6 @@ function AuditsPage() {
     return matchesFilter && matchesSearch;
   });
 
-  const onCreate = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formTitle.trim()) return;
-    createMutation.mutate({
-      title: formTitle,
-      type: formType || undefined,
-      scope: formScope || undefined,
-      dueDate: formDueDate || undefined,
-      teamId: formTeamId || undefined,
-    });
-  };
 
   return (
     <AppShell>
@@ -116,53 +68,16 @@ function AuditsPage() {
         title="Audits"
         description="Track engagements, scopes, and progress across your portfolio."
         actions={isManager ? (
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button className="h-[42px] rounded-[10px] px-4">
-                <Plus className="mr-2 h-4 w-4" />
-                New audit
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="rounded-3xl border-0 p-8 shadow-modal sm:max-w-[560px]">
-              <DialogHeader className="space-y-3 pb-0">
-                <DialogTitle className="text-[18px] font-medium" style={{ color: "var(--brown-800)" }}>
-                  Create a new audit
-                </DialogTitle>
-                <span className="block h-[3px] w-16 rounded-sm" style={{ background: "linear-gradient(90deg, var(--brown-400), transparent)" }} />
-              </DialogHeader>
-              <form onSubmit={onCreate} className="mt-5 space-y-5">
-                <Field id="title" label="Audit name *" placeholder="e.g. Q2 ITGC Review" required value={formTitle} onChange={(e) => setFormTitle(e.target.value)} />
-                <Field id="type" label="Type" placeholder="e.g. Financial, SOC 2, GDPR" value={formType} onChange={(e) => setFormType(e.target.value)} />
-                <div>
-                  <Label className="mb-1 block text-[12px] font-medium" style={{ color: "var(--brown-600)" }}>Team</Label>
-                  <Select value={formTeamId || "__none__"} onValueChange={(v) => setFormTeamId(v === "__none__" ? "" : v)}>
-                    <SelectTrigger className="h-10">
-                      <SelectValue placeholder="No team assigned" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="__none__">No team</SelectItem>
-                      {teams.map((t) => (
-                        <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <Field id="dueDate" label="Due date" type="date" value={formDueDate} onChange={(e) => setFormDueDate(e.target.value)} />
-                <div>
-                  <Label htmlFor="scope" className="mb-1 block text-[12px] font-medium" style={{ color: "var(--brown-600)" }}>Scope</Label>
-                  <Textarea id="scope" placeholder="Short description of the engagement scope" value={formScope} onChange={(e) => setFormScope(e.target.value)} />
-                </div>
-                <DialogFooter className="gap-2 pt-2">
-                  <Button type="button" variant="outline" onClick={() => setOpen(false)} className="h-[42px] rounded-[10px] border bg-white px-4" style={{ borderColor: "var(--brown-200)", color: "var(--brown-600)" }}>Cancel</Button>
-                  <Button type="submit" disabled={createMutation.isPending || !formTitle.trim()} className="h-[42px] rounded-[10px] px-5">
-                    {createMutation.isPending ? <Spinner size={16} invert /> : "Create audit"}
-                  </Button>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
+          <Button className="h-[42px] rounded-[10px] px-4" onClick={() => setOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            New audit
+          </Button>
         ) : null}
       />
+
+      {/* Creating an audit walks the whole setup — the audit, its team, and who
+          is on it — because an audit with nobody attached cannot be worked. */}
+      {open && <CreateAuditWizard onClose={() => setOpen(false)} />}
 
       <div className="mb-6 flex flex-wrap items-center gap-3">
         <div className="relative w-full max-w-sm">
@@ -228,15 +143,6 @@ function AuditCard({ audit }: { audit: ApiAudit }) {
       </div>
       <div className="hidden h-9 w-9 items-center justify-center rounded-full transition-transform group-hover:translate-x-0.5 md:flex" style={{ backgroundColor: "var(--brown-50)", color: "var(--brown-600)" }}>→</div>
     </Link>
-  );
-}
-
-function Field({ id, label, ...rest }: { id: string; label: string } & React.InputHTMLAttributes<HTMLInputElement>) {
-  return (
-    <div>
-      <Label htmlFor={id} className="mb-1 block text-[12px] font-medium" style={{ color: "var(--brown-600)" }}>{label}</Label>
-      <Input id={id} {...rest} />
-    </div>
   );
 }
 

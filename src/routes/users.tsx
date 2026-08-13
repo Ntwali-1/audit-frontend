@@ -261,10 +261,13 @@ function InviteUserModal({ onClose, isAdmin }: { onClose: () => void; isAdmin: b
   const [success, setSuccess] = React.useState(false);
 
   const { mutate, isPending, error } = useMutation({
-    mutationFn: () =>
-      role === "AUDIT_MANAGER"
-        ? inviteApi.inviteAuditManager(email)
-        : inviteApi.inviteAuditor(email),
+    mutationFn: () => {
+      if (role === "AUDIT_MANAGER") return inviteApi.inviteAuditManager(email);
+      // An audit manager staffs their own unit, so lead auditors are theirs to
+      // appoint too — it no longer takes an ADMIN.
+      if (role === "LEAD_AUDITOR") return inviteApi.inviteLeadAuditor(email);
+      return inviteApi.inviteAuditor(email);
+    },
     onSuccess: () => setSuccess(true),
   });
 
@@ -306,6 +309,7 @@ function InviteUserModal({ onClose, isAdmin }: { onClose: () => void; isAdmin: b
               <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
               <SelectContent>
                 {isAdmin && <SelectItem value="AUDIT_MANAGER">Audit Manager</SelectItem>}
+                <SelectItem value="LEAD_AUDITOR">Lead Auditor</SelectItem>
                 <SelectItem value="AUDITOR">Auditor</SelectItem>
               </SelectContent>
             </Select>
@@ -330,7 +334,7 @@ type ImportStep = "upload" | "preview" | "importing" | "done";
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function BulkImportModal({ onClose, isAdmin }: { onClose: () => void; isAdmin: boolean }) {
-  const [role, setRole] = React.useState<"AUDIT_MANAGER" | "AUDITOR">(
+  const [role, setRole] = React.useState<"AUDIT_MANAGER" | "LEAD_AUDITOR" | "AUDITOR">(
     isAdmin ? "AUDIT_MANAGER" : "AUDITOR",
   );
   const [step, setStep] = React.useState<ImportStep>("upload");
@@ -380,6 +384,7 @@ function BulkImportModal({ onClose, isAdmin }: { onClose: () => void; isAdmin: b
     for (const { email, name, phone } of valid) {
       try {
         if (role === "AUDIT_MANAGER") await inviteApi.inviteAuditManager(email, name || undefined, phone || undefined);
+        else if (role === "LEAD_AUDITOR") await inviteApi.inviteLeadAuditor(email, name || undefined, phone || undefined);
         else await inviteApi.inviteAuditor(email, name || undefined, phone || undefined);
         out.push({ email, ok: true });
       } catch (err) {

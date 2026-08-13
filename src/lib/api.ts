@@ -2,7 +2,7 @@ const API_URL = typeof window !== 'undefined'
   ? (import.meta.env.VITE_API_URL ?? 'http://localhost:3000')
   : 'http://localhost:3000';
 
-function getToken(): string | null {
+export function getToken(): string | null {
   if (typeof window === 'undefined') return null;
   return localStorage.getItem('access_token');
 }
@@ -20,7 +20,7 @@ function clearSession() {
   window.location.href = '/';
 }
 
-async function doFetch(path: string, token: string | null, options?: RequestInit): Promise<Response> {
+export async function doFetch(path: string, token: string | null, options?: RequestInit): Promise<Response> {
   return fetch(`${API_URL}${path}`, {
     ...options,
     headers: {
@@ -31,7 +31,7 @@ async function doFetch(path: string, token: string | null, options?: RequestInit
   });
 }
 
-async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
+export async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
   let res = await doFetch(path, getToken(), options);
 
   if (res.status === 401) {
@@ -156,6 +156,14 @@ export interface ApiFinding {
   assignee?: ApiUser | null;
   createdById: string;
   createdBy?: ApiUser | null;
+  /** Verify-and-close: the institution's evidence, then the auditor's ruling. */
+  resolutionNote?: string | null;
+  submittedForVerificationAt?: string | null;
+  verifiedById?: string | null;
+  verifiedBy?: ApiUser | null;
+  verifiedAt?: string | null;
+  verificationNote?: string | null;
+  closedAt?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -264,6 +272,9 @@ export const auditsApi = {
     apiFetch<ApiAudit>(`/audits/${id}/status`, { method: 'PATCH' }),
   getTimeline: (id: string) =>
     apiFetch<Array<{ id: string; eventType: string; message: string; actor?: ApiUser; createdAt: string }>>(`/audits/${id}/timeline`),
+  /** Staff an audit with individual auditors and/or whole teams. */
+  assign: (id: string, data: { userIds?: string[]; teamIds?: string[] }) =>
+    apiFetch<unknown>(`/audits/${id}/assign`, { method: 'POST', body: JSON.stringify(data) }),
 };
 
 export const auditStepsApi = {
@@ -323,6 +334,8 @@ export const findingsApi = {
   },
   create: (data: CreateFindingInput) =>
     apiFetch<ApiFinding>('/findings', { method: 'POST', body: JSON.stringify(data) }),
+  /** Findings assigned to the signed-in user — their remediation queue. */
+  getMyFindings: () => apiFetch<ApiFinding[]>('/findings/my'),
 };
 
 export interface ApiReport {
@@ -378,10 +391,38 @@ export const reportsApi = {
 export const findingsApi2 = {
   update: (id: string, data: { title?: string; description?: string; severity?: string; deadline?: string }) =>
     apiFetch<ApiFinding>(`/findings/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
-  transitionStatus: (id: string, status: string) =>
-    apiFetch<ApiFinding>(`/findings/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),
+  transitionStatus: (id: string, status: string, note?: string) =>
+    apiFetch<ApiFinding>(`/findings/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status, ...(note ? { note } : {}) }),
+    }),
   delete: (id: string) =>
     apiFetch<{ message: string }>(`/findings/${id}`, { method: 'DELETE' }),
+
+  /** Institution attaches evidence of a fix. Moves to PENDING_VERIFICATION. */
+  resolve: (id: string, note?: string) =>
+    apiFetch<ApiFinding>(`/findings/${id}/resolve`, {
+      method: 'POST',
+      body: JSON.stringify({ ...(note ? { note } : {}) }),
+    }),
+
+  /** Auditor rules on the evidence. Never the person who remediated it. */
+  verify: (id: string, status: string, note?: string) =>
+    apiFetch<ApiFinding>(`/findings/${id}/verify`, {
+      method: 'POST',
+      body: JSON.stringify({ status, ...(note ? { note } : {}) }),
+    }),
+
+  timeline: (id: string) =>
+    apiFetch<Array<{
+      id: string;
+      message: string;
+      eventType: string;
+      fromFindingStatus: string | null;
+      toFindingStatus: string | null;
+      actor: ApiUser | null;
+      createdAt: string;
+    }>>(`/findings/${id}/timeline`),
 };
 
 export const inviteApi = {
@@ -395,14 +436,27 @@ export const inviteApi = {
       method: 'POST',
       body: JSON.stringify({ email, ...(fullName ? { fullName } : {}), ...(phone ? { phone } : {}) }),
     }),
+  /** Audit managers can appoint lead auditors themselves, without an ADMIN. */
+  inviteLeadAuditor: (email: string, fullName?: string, phone?: string) =>
+    apiFetch<{ message: string }>('/auth/invitations/lead-auditors', {
+      method: 'POST',
+      body: JSON.stringify({ email, ...(fullName ? { fullName } : {}), ...(phone ? { phone } : {}) }),
+    }),
 };
 
-// Allowed finding status transitions
+// Allowed finding status transitions.
+// Mirrors backend/src/common/findings/finding-workflow.ts — a finding never
+// closes itself: the institution can only reach PENDING_VERIFICATION, and an
+// auditor decides the outcome from there.
 export const FINDING_TRANSITIONS: Record<string, string[]> = {
-  OPEN: ['IN_REMEDIATION'],
-  IN_REMEDIATION: ['RESOLVED', 'ACCEPTED_RISK'],
-  RESOLVED: ['CLOSED'],
+  OPEN: ['IN_REMEDIATION', 'ACCEPTED_RISK'],
+  IN_REMEDIATION: ['PENDING_VERIFICATION', 'ACCEPTED_RISK'],
+  PENDING_VERIFICATION: ['VERIFIED_CLOSED', 'REJECTED_REOPENED', 'PARTIALLY_RESOLVED'],
+  REJECTED_REOPENED: ['IN_REMEDIATION'],
+  PARTIALLY_RESOLVED: ['IN_REMEDIATION', 'VERIFIED_CLOSED'],
+  VERIFIED_CLOSED: ['CLOSED'],
   ACCEPTED_RISK: ['CLOSED'],
+  RESOLVED: ['CLOSED'], // legacy rows only
   CLOSED: [],
 };
 
@@ -419,6 +473,10 @@ export const AUDIT_STATUS_LABEL: Record<string, string> = {
 export const FINDING_STATUS_LABEL: Record<string, string> = {
   OPEN: 'Open',
   IN_REMEDIATION: 'In Remediation',
+  PENDING_VERIFICATION: 'Pending Verification',
+  VERIFIED_CLOSED: 'Verified & Closed',
+  REJECTED_REOPENED: 'Rejected — Reopened',
+  PARTIALLY_RESOLVED: 'Partially Resolved',
   RESOLVED: 'Resolved',
   ACCEPTED_RISK: 'Accepted Risk',
   CLOSED: 'Closed',
@@ -446,6 +504,22 @@ export function getUserDisplayName(user?: ApiUser | null): string {
   if (user.firstName && user.lastName) return `${user.firstName} ${user.lastName}`;
   if (user.firstName) return user.firstName;
   return user.email;
+}
+
+/**
+ * Turns a stored evidence/attachment path into a URL the browser can open.
+ *
+ * Uploads are served by the API, not by this app, so a bare `/uploads/x.pdf`
+ * would resolve against the SPA origin and 404. It also repairs rows written
+ * before that was fixed, which were saved with the frontend origin baked in —
+ * anything containing `/uploads/` is re-pointed at the API.
+ */
+export function resolveFileUrl(url?: string | null): string {
+  if (!url) return '';
+  const marker = url.indexOf('/uploads/');
+  if (marker >= 0) return `${API_URL}${url.slice(marker)}`;
+  if (/^https?:\/\//i.test(url)) return url;
+  return `${API_URL}${url.startsWith('/') ? '' : '/'}${url}`;
 }
 
 export function getUserInitials(user?: ApiUser | null): string {

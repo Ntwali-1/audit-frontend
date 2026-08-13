@@ -15,7 +15,9 @@ import {
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 import { FileBarChart, Plus, Trash2, Download, AlertCircle } from "lucide-react";
+import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
+import { downloadReport } from "@/lib/api-portals";
 
 export const Route = createFileRoute("/reports")({
   head: () => ({ meta: [{ title: "Reports · Auditly" }] }),
@@ -168,9 +170,17 @@ function Reports() {
                   </p>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
-                  <span className="flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px]" style={{ borderColor: "var(--border-subtle)", color: "var(--text-muted)" }}>
-                    <Download className="h-3 w-3" /> PDF (server-side)
-                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      downloadReport(r.id, `${r.title}.pdf`).catch((e) =>
+                        toast.error("Download failed", { description: (e as Error).message }),
+                      )
+                    }
+                  >
+                    <Download className="mr-1.5 h-3.5 w-3.5" /> Download
+                  </Button>
                   {isManager && (
                     <button
                       onClick={() => setDeleteId(r.id)}

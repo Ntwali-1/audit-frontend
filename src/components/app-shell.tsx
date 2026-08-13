@@ -262,7 +262,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               style={{ borderColor: "var(--border-subtle)", color: "var(--text-hint)" }}
             >
               <Search className="h-[14px] w-[14px]" strokeWidth={1.75} />
-              <span className="flex-1 truncate">Search audits, findings, vendors…</span>
+              <span className="flex-1 truncate">Search audits, findings, teams…</span>
               <kbd
                 className="rounded px-1.5 py-0.5 font-mono text-[10px]"
                 style={{ backgroundColor: "var(--brown-50)", color: "var(--brown-600)" }}

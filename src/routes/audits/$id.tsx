@@ -507,6 +507,7 @@ function AuditDetailContent({
               </div>
             ))}
           </div>
+          
         </div>
       </div>
     </AppShell>

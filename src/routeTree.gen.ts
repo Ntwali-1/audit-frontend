@@ -9,28 +9,33 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as VendorsRouteImport } from './routes/vendors'
 import { Route as UsersRouteImport } from './routes/users'
 import { Route as TeamsRouteImport } from './routes/teams'
+import { Route as SubmissionsRouteImport } from './routes/submissions'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ReportsRouteImport } from './routes/reports'
+import { Route as RegisterRouteImport } from './routes/register'
+import { Route as PlatformRouteImport } from './routes/platform'
 import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as FindingsRouteImport } from './routes/findings'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AssistantRouteImport } from './routes/assistant'
 import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as OciaIndexRouteImport } from './routes/ocia/index'
 import { Route as EvaluationsIndexRouteImport } from './routes/evaluations/index'
 import { Route as AuditsIndexRouteImport } from './routes/audits/index'
+import { Route as OciaSubmissionsRouteImport } from './routes/ocia/submissions'
+import { Route as OciaComplianceRouteImport } from './routes/ocia/compliance'
+import { Route as OagSubmissionsRouteImport } from './routes/oag/submissions'
+import { Route as OagFindingsRouteImport } from './routes/oag/findings'
+import { Route as OagEngagementsRouteImport } from './routes/oag/engagements'
 import { Route as EvaluationsIdRouteImport } from './routes/evaluations/$id'
+import { Route as AuthVerifyEmailRouteImport } from './routes/auth/verify-email'
+import { Route as AuthResetPasswordRouteImport } from './routes/auth/reset-password'
 import { Route as AuditsIdRouteImport } from './routes/audits/$id'
 import { Route as AuthInvitationsAcceptRouteImport } from './routes/auth/invitations/accept'
 
-const VendorsRoute = VendorsRouteImport.update({
-  id: '/vendors',
-  path: '/vendors',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const UsersRoute = UsersRouteImport.update({
   id: '/users',
   path: '/users',
@@ -41,6 +46,11 @@ const TeamsRoute = TeamsRouteImport.update({
   path: '/teams',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SubmissionsRoute = SubmissionsRouteImport.update({
+  id: '/submissions',
+  path: '/submissions',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -49,6 +59,16 @@ const SettingsRoute = SettingsRouteImport.update({
 const ReportsRoute = ReportsRouteImport.update({
   id: '/reports',
   path: '/reports',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlatformRoute = PlatformRouteImport.update({
+  id: '/platform',
+  path: '/platform',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NotificationsRoute = NotificationsRouteImport.update({
@@ -81,6 +101,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OciaIndexRoute = OciaIndexRouteImport.update({
+  id: '/ocia/',
+  path: '/ocia/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EvaluationsIndexRoute = EvaluationsIndexRouteImport.update({
   id: '/evaluations/',
   path: '/evaluations/',
@@ -91,9 +116,44 @@ const AuditsIndexRoute = AuditsIndexRouteImport.update({
   path: '/audits/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OciaSubmissionsRoute = OciaSubmissionsRouteImport.update({
+  id: '/ocia/submissions',
+  path: '/ocia/submissions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OciaComplianceRoute = OciaComplianceRouteImport.update({
+  id: '/ocia/compliance',
+  path: '/ocia/compliance',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OagSubmissionsRoute = OagSubmissionsRouteImport.update({
+  id: '/oag/submissions',
+  path: '/oag/submissions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OagFindingsRoute = OagFindingsRouteImport.update({
+  id: '/oag/findings',
+  path: '/oag/findings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OagEngagementsRoute = OagEngagementsRouteImport.update({
+  id: '/oag/engagements',
+  path: '/oag/engagements',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EvaluationsIdRoute = EvaluationsIdRouteImport.update({
   id: '/evaluations/$id',
   path: '/evaluations/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthVerifyEmailRoute = AuthVerifyEmailRouteImport.update({
+  id: '/auth/verify-email',
+  path: '/auth/verify-email',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthResetPasswordRoute = AuthResetPasswordRouteImport.update({
+  id: '/auth/reset-password',
+  path: '/auth/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuditsIdRoute = AuditsIdRouteImport.update({
@@ -114,15 +174,25 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/findings': typeof FindingsRoute
   '/notifications': typeof NotificationsRoute
+  '/platform': typeof PlatformRoute
+  '/register': typeof RegisterRoute
   '/reports': typeof ReportsRoute
   '/settings': typeof SettingsRoute
+  '/submissions': typeof SubmissionsRoute
   '/teams': typeof TeamsRoute
   '/users': typeof UsersRoute
-  '/vendors': typeof VendorsRoute
   '/audits/$id': typeof AuditsIdRoute
+  '/auth/reset-password': typeof AuthResetPasswordRoute
+  '/auth/verify-email': typeof AuthVerifyEmailRoute
   '/evaluations/$id': typeof EvaluationsIdRoute
+  '/oag/engagements': typeof OagEngagementsRoute
+  '/oag/findings': typeof OagFindingsRoute
+  '/oag/submissions': typeof OagSubmissionsRoute
+  '/ocia/compliance': typeof OciaComplianceRoute
+  '/ocia/submissions': typeof OciaSubmissionsRoute
   '/audits/': typeof AuditsIndexRoute
   '/evaluations/': typeof EvaluationsIndexRoute
+  '/ocia/': typeof OciaIndexRoute
   '/auth/invitations/accept': typeof AuthInvitationsAcceptRoute
 }
 export interface FileRoutesByTo {
@@ -132,15 +202,25 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/findings': typeof FindingsRoute
   '/notifications': typeof NotificationsRoute
+  '/platform': typeof PlatformRoute
+  '/register': typeof RegisterRoute
   '/reports': typeof ReportsRoute
   '/settings': typeof SettingsRoute
+  '/submissions': typeof SubmissionsRoute
   '/teams': typeof TeamsRoute
   '/users': typeof UsersRoute
-  '/vendors': typeof VendorsRoute
   '/audits/$id': typeof AuditsIdRoute
+  '/auth/reset-password': typeof AuthResetPasswordRoute
+  '/auth/verify-email': typeof AuthVerifyEmailRoute
   '/evaluations/$id': typeof EvaluationsIdRoute
+  '/oag/engagements': typeof OagEngagementsRoute
+  '/oag/findings': typeof OagFindingsRoute
+  '/oag/submissions': typeof OagSubmissionsRoute
+  '/ocia/compliance': typeof OciaComplianceRoute
+  '/ocia/submissions': typeof OciaSubmissionsRoute
   '/audits': typeof AuditsIndexRoute
   '/evaluations': typeof EvaluationsIndexRoute
+  '/ocia': typeof OciaIndexRoute
   '/auth/invitations/accept': typeof AuthInvitationsAcceptRoute
 }
 export interface FileRoutesById {
@@ -151,15 +231,25 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/findings': typeof FindingsRoute
   '/notifications': typeof NotificationsRoute
+  '/platform': typeof PlatformRoute
+  '/register': typeof RegisterRoute
   '/reports': typeof ReportsRoute
   '/settings': typeof SettingsRoute
+  '/submissions': typeof SubmissionsRoute
   '/teams': typeof TeamsRoute
   '/users': typeof UsersRoute
-  '/vendors': typeof VendorsRoute
   '/audits/$id': typeof AuditsIdRoute
+  '/auth/reset-password': typeof AuthResetPasswordRoute
+  '/auth/verify-email': typeof AuthVerifyEmailRoute
   '/evaluations/$id': typeof EvaluationsIdRoute
+  '/oag/engagements': typeof OagEngagementsRoute
+  '/oag/findings': typeof OagFindingsRoute
+  '/oag/submissions': typeof OagSubmissionsRoute
+  '/ocia/compliance': typeof OciaComplianceRoute
+  '/ocia/submissions': typeof OciaSubmissionsRoute
   '/audits/': typeof AuditsIndexRoute
   '/evaluations/': typeof EvaluationsIndexRoute
+  '/ocia/': typeof OciaIndexRoute
   '/auth/invitations/accept': typeof AuthInvitationsAcceptRoute
 }
 export interface FileRouteTypes {
@@ -171,15 +261,25 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/findings'
     | '/notifications'
+    | '/platform'
+    | '/register'
     | '/reports'
     | '/settings'
+    | '/submissions'
     | '/teams'
     | '/users'
-    | '/vendors'
     | '/audits/$id'
+    | '/auth/reset-password'
+    | '/auth/verify-email'
     | '/evaluations/$id'
+    | '/oag/engagements'
+    | '/oag/findings'
+    | '/oag/submissions'
+    | '/ocia/compliance'
+    | '/ocia/submissions'
     | '/audits/'
     | '/evaluations/'
+    | '/ocia/'
     | '/auth/invitations/accept'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -189,15 +289,25 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/findings'
     | '/notifications'
+    | '/platform'
+    | '/register'
     | '/reports'
     | '/settings'
+    | '/submissions'
     | '/teams'
     | '/users'
-    | '/vendors'
     | '/audits/$id'
+    | '/auth/reset-password'
+    | '/auth/verify-email'
     | '/evaluations/$id'
+    | '/oag/engagements'
+    | '/oag/findings'
+    | '/oag/submissions'
+    | '/ocia/compliance'
+    | '/ocia/submissions'
     | '/audits'
     | '/evaluations'
+    | '/ocia'
     | '/auth/invitations/accept'
   id:
     | '__root__'
@@ -207,15 +317,25 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/findings'
     | '/notifications'
+    | '/platform'
+    | '/register'
     | '/reports'
     | '/settings'
+    | '/submissions'
     | '/teams'
     | '/users'
-    | '/vendors'
     | '/audits/$id'
+    | '/auth/reset-password'
+    | '/auth/verify-email'
     | '/evaluations/$id'
+    | '/oag/engagements'
+    | '/oag/findings'
+    | '/oag/submissions'
+    | '/ocia/compliance'
+    | '/ocia/submissions'
     | '/audits/'
     | '/evaluations/'
+    | '/ocia/'
     | '/auth/invitations/accept'
   fileRoutesById: FileRoutesById
 }
@@ -226,27 +346,30 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   FindingsRoute: typeof FindingsRoute
   NotificationsRoute: typeof NotificationsRoute
+  PlatformRoute: typeof PlatformRoute
+  RegisterRoute: typeof RegisterRoute
   ReportsRoute: typeof ReportsRoute
   SettingsRoute: typeof SettingsRoute
+  SubmissionsRoute: typeof SubmissionsRoute
   TeamsRoute: typeof TeamsRoute
   UsersRoute: typeof UsersRoute
-  VendorsRoute: typeof VendorsRoute
   AuditsIdRoute: typeof AuditsIdRoute
+  AuthResetPasswordRoute: typeof AuthResetPasswordRoute
+  AuthVerifyEmailRoute: typeof AuthVerifyEmailRoute
   EvaluationsIdRoute: typeof EvaluationsIdRoute
+  OagEngagementsRoute: typeof OagEngagementsRoute
+  OagFindingsRoute: typeof OagFindingsRoute
+  OagSubmissionsRoute: typeof OagSubmissionsRoute
+  OciaComplianceRoute: typeof OciaComplianceRoute
+  OciaSubmissionsRoute: typeof OciaSubmissionsRoute
   AuditsIndexRoute: typeof AuditsIndexRoute
   EvaluationsIndexRoute: typeof EvaluationsIndexRoute
+  OciaIndexRoute: typeof OciaIndexRoute
   AuthInvitationsAcceptRoute: typeof AuthInvitationsAcceptRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/vendors': {
-      id: '/vendors'
-      path: '/vendors'
-      fullPath: '/vendors'
-      preLoaderRoute: typeof VendorsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/users': {
       id: '/users'
       path: '/users'
@@ -261,6 +384,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TeamsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/submissions': {
+      id: '/submissions'
+      path: '/submissions'
+      fullPath: '/submissions'
+      preLoaderRoute: typeof SubmissionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/settings': {
       id: '/settings'
       path: '/settings'
@@ -273,6 +403,20 @@ declare module '@tanstack/react-router' {
       path: '/reports'
       fullPath: '/reports'
       preLoaderRoute: typeof ReportsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/platform': {
+      id: '/platform'
+      path: '/platform'
+      fullPath: '/platform'
+      preLoaderRoute: typeof PlatformRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/notifications': {
@@ -317,6 +461,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ocia/': {
+      id: '/ocia/'
+      path: '/ocia'
+      fullPath: '/ocia/'
+      preLoaderRoute: typeof OciaIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/evaluations/': {
       id: '/evaluations/'
       path: '/evaluations'
@@ -331,11 +482,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuditsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ocia/submissions': {
+      id: '/ocia/submissions'
+      path: '/ocia/submissions'
+      fullPath: '/ocia/submissions'
+      preLoaderRoute: typeof OciaSubmissionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ocia/compliance': {
+      id: '/ocia/compliance'
+      path: '/ocia/compliance'
+      fullPath: '/ocia/compliance'
+      preLoaderRoute: typeof OciaComplianceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/oag/submissions': {
+      id: '/oag/submissions'
+      path: '/oag/submissions'
+      fullPath: '/oag/submissions'
+      preLoaderRoute: typeof OagSubmissionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/oag/findings': {
+      id: '/oag/findings'
+      path: '/oag/findings'
+      fullPath: '/oag/findings'
+      preLoaderRoute: typeof OagFindingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/oag/engagements': {
+      id: '/oag/engagements'
+      path: '/oag/engagements'
+      fullPath: '/oag/engagements'
+      preLoaderRoute: typeof OagEngagementsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/evaluations/$id': {
       id: '/evaluations/$id'
       path: '/evaluations/$id'
       fullPath: '/evaluations/$id'
       preLoaderRoute: typeof EvaluationsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/verify-email': {
+      id: '/auth/verify-email'
+      path: '/auth/verify-email'
+      fullPath: '/auth/verify-email'
+      preLoaderRoute: typeof AuthVerifyEmailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/reset-password': {
+      id: '/auth/reset-password'
+      path: '/auth/reset-password'
+      fullPath: '/auth/reset-password'
+      preLoaderRoute: typeof AuthResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/audits/$id': {
@@ -362,15 +562,25 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   FindingsRoute: FindingsRoute,
   NotificationsRoute: NotificationsRoute,
+  PlatformRoute: PlatformRoute,
+  RegisterRoute: RegisterRoute,
   ReportsRoute: ReportsRoute,
   SettingsRoute: SettingsRoute,
+  SubmissionsRoute: SubmissionsRoute,
   TeamsRoute: TeamsRoute,
   UsersRoute: UsersRoute,
-  VendorsRoute: VendorsRoute,
   AuditsIdRoute: AuditsIdRoute,
+  AuthResetPasswordRoute: AuthResetPasswordRoute,
+  AuthVerifyEmailRoute: AuthVerifyEmailRoute,
   EvaluationsIdRoute: EvaluationsIdRoute,
+  OagEngagementsRoute: OagEngagementsRoute,
+  OagFindingsRoute: OagFindingsRoute,
+  OagSubmissionsRoute: OagSubmissionsRoute,
+  OciaComplianceRoute: OciaComplianceRoute,
+  OciaSubmissionsRoute: OciaSubmissionsRoute,
   AuditsIndexRoute: AuditsIndexRoute,
   EvaluationsIndexRoute: EvaluationsIndexRoute,
+  OciaIndexRoute: OciaIndexRoute,
   AuthInvitationsAcceptRoute: AuthInvitationsAcceptRoute,
 }
 export const routeTree = rootRouteImport

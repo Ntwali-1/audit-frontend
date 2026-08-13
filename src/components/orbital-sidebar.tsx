@@ -4,10 +4,11 @@ import {
   LayoutDashboard, ClipboardList, ClipboardCheck, FileBarChart, Settings, LogOut, ShieldCheck,
   Users, UsersRound, Building2, AlertOctagon, Sparkles, Bell, ChartPie,
   ChevronsLeft, ChevronsRight, ChevronDown,
+  Send, Briefcase, Inbox, Globe2,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
-import { useAuth } from "@/lib/auth-context";
+import { useAuth, useBrandMark, type PortalType } from "@/lib/auth-context";
 import { findingsApi, getUserInitials, getUserDisplayName } from "@/lib/api";
 
 export type NavItem = {
@@ -20,7 +21,15 @@ export type NavItem = {
   auditorOnly?: boolean;
 };
 
-export type NavSection = { id: string; label: string; items: NavItem[] };
+export type NavSection = {
+  id: string;
+  label: string;
+  items: NavItem[];
+  /** Portals this section belongs to. Omitted means the institution product. */
+  portals?: PortalType[];
+  /** Public bodies only — hidden from private organizations. */
+  publicOnly?: boolean;
+};
 
 export const NAV_SECTIONS: NavSection[] = [
   {
@@ -48,9 +57,42 @@ export const NAV_SECTIONS: NavSection[] = [
     items: [
       { to: "/users", label: "Users", icon: Users, adminOnly: true },
       { to: "/teams", label: "Teams", icon: UsersRound, managerOnly: true },
-      { to: "/vendors", label: "Vendors", icon: Building2, managerOnly: true },
     ],
   },
+  {
+    id: "statutory",
+    label: "Statutory reporting",
+    portals: ["INSTITUTION"],
+    // Public bodies only — a private organization owes nothing to OAG or OCIA,
+    // so the section is not just empty for them, it is meaningless.
+    publicOnly: true,
+    items: [{ to: "/submissions", label: "Submissions", icon: Send }],
+  },
+
+  // -- OAG portal ------------------------------------------------------------
+  {
+    id: "oag",
+    label: "External audit",
+    portals: ["OAG"],
+    items: [
+      { to: "/oag/engagements", label: "Engagements", icon: Briefcase },
+      { to: "/oag/findings", label: "External findings", icon: AlertOctagon },
+      { to: "/oag/submissions", label: "Filings received", icon: Inbox },
+    ],
+  },
+
+  // -- OCIA portal -----------------------------------------------------------
+  {
+    id: "ocia",
+    label: "Oversight",
+    portals: ["OCIA"],
+    items: [
+      { to: "/ocia", label: "National overview", icon: Globe2 },
+      { to: "/ocia/compliance", label: "Compliance", icon: ClipboardCheck },
+      { to: "/ocia/submissions", label: "Filings received", icon: Inbox },
+    ],
+  },
+
   {
     id: "intel",
     label: "Intelligence",
@@ -58,6 +100,13 @@ export const NAV_SECTIONS: NavSection[] = [
       { to: "/assistant", label: "AI Assistant", icon: Sparkles },
       { to: "/settings", label: "Settings", icon: Settings },
     ],
+  },
+
+  // Shown only to platform operators, whatever portal they sit in.
+  {
+    id: "platform",
+    label: "Platform",
+    items: [{ to: "/platform", label: "Institutions", icon: Building2 }],
   },
 ];
 
@@ -114,20 +163,38 @@ export function useNavBadges() {
   return { openCount, unreadCount, findings, seenIds };
 }
 
+/** Sections available to every portal — identity, not audit work. */
+const SHARED_SECTIONS = new Set(["intel"]);
+
 export function useNavSections(): NavSection[] {
-  const { user } = useAuth();
+  const { user, portal } = useAuth();
   const isAdmin = user?.role === "ADMIN";
   const isManager = user?.role === "AUDIT_MANAGER" || user?.role === "ADMIN";
   const isAuditor = user?.role === "AUDITOR" || user?.role === "LEAD_AUDITOR";
-  return NAV_SECTIONS.map((s) => ({
-    ...s,
-    items: s.items.filter((i) => {
-      if (i.adminOnly && !isAdmin) return false;
-      if (i.managerOnly && !isManager) return false;
-      if (i.auditorOnly && !isAuditor) return false;
-      return true;
-    }),
-  })).filter((s) => s.items.length > 0);
+
+  const isPlatformAdmin = !!user?.isPlatformAdmin;
+
+  return NAV_SECTIONS
+    // Portal first: OAG and OCIA are different applications, not different
+    // permission levels, so they never see the institution's audit navigation.
+    .filter((s) => {
+      // Platform operations sit outside the portals entirely.
+      if (s.id === "platform") return isPlatformAdmin;
+      if (SHARED_SECTIONS.has(s.id)) return true;
+      if (s.publicOnly && user?.organizationType === "PRIVATE_COMPANY") return false;
+      const portals = s.portals ?? ["INSTITUTION"];
+      return portals.includes(portal);
+    })
+    .map((s) => ({
+      ...s,
+      items: s.items.filter((i) => {
+        if (i.adminOnly && !isAdmin) return false;
+        if (i.managerOnly && !isManager) return false;
+        if (i.auditorOnly && !isAuditor) return false;
+        return true;
+      }),
+    }))
+    .filter((s) => s.items.length > 0);
 }
 
 const STORAGE_KEY = "auditly:sidebar:collapsed";
@@ -149,9 +216,11 @@ export function OrbitalSidebar({
 }: { collapsed: boolean; onToggle: () => void }) {
   const { location } = useRouterState();
   const navigate = useNavigate();
-  const { user, clearAuth } = useAuth();
+  const { user, clearAuth, isLoading } = useAuth();
   const { openCount, unreadCount } = useNavBadges();
   const navSections = useNavSections();
+  const brand = useBrandMark();
+  const organizationName = user?.organizationName ?? null;
 
   const badgeFor = (to: string): number | undefined => {
     if (to === "/notifications") return unreadCount > 0 ? unreadCount : undefined;
@@ -164,8 +233,11 @@ export function OrbitalSidebar({
     navigate({ to: "/" });
   };
 
-  const initials = getUserInitials(user ?? undefined);
-  const displayName = getUserDisplayName(user ?? undefined);
+  // Before the stored session has been read there is no user to name yet.
+  // Showing "Unknown" in that gap is what made the shell look broken until a
+  // manual reload, so it stays blank instead.
+  const initials = isLoading && !user ? "" : getUserInitials(user ?? undefined);
+  const displayName = isLoading && !user ? "" : getUserDisplayName(user ?? undefined);
   const roleLabel = user?.role
     ? user.role.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
     : "";
@@ -198,15 +270,24 @@ export function OrbitalSidebar({
         )}
         style={{ borderColor: "rgba(255,255,255,0.08)" }}
       >
-        <Link to="/dashboard" className="flex items-center gap-3">
+        <Link to="/dashboard" className="flex min-w-0 items-center gap-3">
           <div
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
-            style={{ backgroundColor: "var(--brown-200)", color: "var(--brown-800)" }}
+            className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-white/95"
           >
-            <ShieldCheck className="h-4 w-4" />
+            <img src={brand.src} alt={brand.alt} className="h-6 w-6 object-contain" />
           </div>
           {!collapsed && (
-            <span className="text-[15px] font-semibold tracking-tight text-white">Auditly</span>
+            <span className="min-w-0">
+              <span className="block truncate text-[15px] font-semibold leading-tight tracking-tight text-white">
+                Auditly
+              </span>
+              {organizationName && (
+                <span className="block truncate text-[11px] leading-tight"
+                  style={{ color: "rgba(255,255,255,0.45)" }}>
+                  {organizationName}
+                </span>
+              )}
+            </span>
           )}
         </Link>
       </div>

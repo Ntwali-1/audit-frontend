@@ -5,6 +5,7 @@ import { AppShell } from "@/components/app-shell";
 import { PageHeader, StatTile } from "@/components/page-header";
 import { auditsApi, AUDIT_STATUS_LABEL, getAuditProgress, getUserDisplayName, ApiAudit } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
+import { NoAuditorsPrompt } from "@/components/invite-auditors";
 import { ClipboardList, AlertTriangle, CheckCircle2, Clock, ArrowUpRight } from "lucide-react";
 
 export const Route = createFileRoute("/dashboard")({
@@ -68,6 +69,10 @@ function Dashboard() {
         title={`${greeting()}, ${displayName}`}
         description="Here's what's moving in your engagement portfolio today."
       />
+
+      {/* Pinned above everything while the institution has nobody to audit
+          with — the one setup gap that makes the whole product inert. */}
+      <NoAuditorsPrompt />
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <StatTile label="Total audits" value={total} icon={ClipboardList} trend={{ value: "+12%", positive: true }} />
