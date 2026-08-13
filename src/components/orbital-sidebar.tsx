@@ -10,6 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 import { useAuth, useBrandMark, type PortalType } from "@/lib/auth-context";
 import { findingsApi, getUserInitials, getUserDisplayName } from "@/lib/api";
+import { LogoIcon } from "@/components/ui/logo";
 
 export type NavItem = {
   to: string;
@@ -271,14 +272,22 @@ export function OrbitalSidebar({
         style={{ borderColor: "rgba(255,255,255,0.08)" }}
       >
         <Link to="/dashboard" className="flex min-w-0 items-center gap-3">
-          <div
-            className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-white/95"
-          >
-            <img src={brand.src} alt={brand.alt} className="h-6 w-6 object-contain" />
-          </div>
+          {/*
+            Once signed in, the mark belongs to the institution rather than the
+            product: public bodies and the two national offices carry the coat
+            of arms, private organizations their own logo. The Auditly LogoIcon
+            is the fallback while no organization is known yet.
+          */}
+          {brand.isProductMark ? (
+            <LogoIcon size={32} className="shrink-0" />
+          ) : (
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-white/95">
+              <img src={brand.src} alt={brand.alt} className="h-6 w-6 object-contain" />
+            </div>
+          )}
           {!collapsed && (
             <span className="min-w-0">
-              <span className="block truncate text-[15px] font-semibold leading-tight tracking-tight text-white">
+              <span className="block truncate text-[15px] font-semibold leading-tight tracking-tight text-white font-display">
                 Auditly
               </span>
               {organizationName && (

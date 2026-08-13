@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
-import { ShieldCheck } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
+import { LogoIcon } from "@/components/ui/logo";
 import { authApi } from "@/lib/api";
 import { toast } from "sonner";
 
@@ -57,12 +57,10 @@ function SignIn() {
         style={{ backgroundColor: "var(--brown-800)" }}
       >
         <div className="relative z-10 flex items-center gap-3">
-          {/* No organization is known before sign-in, so the product mark is
-              used here. The institution's own crest appears once you are in. */}
-          <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl bg-white/95">
-            <img src="/logo.png" alt="Auditly" className="h-6 w-6 object-contain" />
-          </div>
-          <span className="text-[16px] font-semibold text-white">Auditly</span>
+          {/* No organization is known before sign-in, so this is the product
+              mark. The institution's own crest takes over once you are in. */}
+          <LogoIcon size={36} className="shrink-0" />
+          <span className="text-[18px] font-semibold text-white font-display">Auditly</span>
         </div>
 
         <div className="relative z-10 space-y-6">
