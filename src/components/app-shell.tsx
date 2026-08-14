@@ -1,7 +1,8 @@
 import * as React from "react";
 import { useRouterState, Link, useNavigate } from "@tanstack/react-router";
-import { Search, Bell, AlertOctagon, ClipboardList, FileBarChart, Settings as SettingsIcon, User, LogOut, UserCircle2, ChevronRight, Menu } from "lucide-react";
+import { Bell, AlertOctagon, ClipboardList, FileBarChart, Settings as SettingsIcon, User, LogOut, UserCircle2, ChevronRight, Menu } from "lucide-react";
 import { OrbitalSidebar, NAV_SECTIONS, useSidebarState, useNavBadges, useNavSections, markAllSeen, markOneSeen } from "@/components/orbital-sidebar";
+import { GlobalSearchProvider, SearchIconButton, SearchTrigger } from "@/components/global-search";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { useAuth } from "@/lib/auth-context";
@@ -218,6 +219,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const active = findActive(location.pathname);
 
   return (
+    /* The palette lives at the shell level so ⌘K works from any page, and so
+       the header button and the shortcut share one piece of state. */
+    <GlobalSearchProvider>
     <div className="flex min-h-screen bg-[color:var(--cream)] text-foreground">
       <OrbitalSidebar collapsed={collapsed} onToggle={toggle} />
 
@@ -257,24 +261,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
 
           <div className="flex items-center gap-2 md:gap-3">
-            <div
-              className="hidden h-9 w-72 items-center gap-2 rounded-lg border bg-[color:var(--surface)] px-3 text-[13px] lg:flex"
-              style={{ borderColor: "var(--border-subtle)", color: "var(--text-hint)" }}
-            >
-              <Search className="h-[14px] w-[14px]" strokeWidth={1.75} />
-              <span className="flex-1 truncate">Search audits, findings, teams…</span>
-              <kbd
-                className="rounded px-1.5 py-0.5 font-mono text-[10px]"
-                style={{ backgroundColor: "var(--brown-50)", color: "var(--brown-600)" }}
-              >⌘K</kbd>
-            </div>
-            <button
-              className="flex h-9 w-9 items-center justify-center rounded-lg border bg-white lg:hidden"
-              style={{ borderColor: "var(--border-subtle)", color: "var(--brown-600)" }}
-              aria-label="Search"
-            >
-              <Search className="h-[16px] w-[16px]" strokeWidth={1.75} />
-            </button>
+            <SearchTrigger className="hidden w-72 lg:flex" />
+            <SearchIconButton className="lg:hidden" />
             <NotificationsPopover />
             <UserPopover />
           </div>
@@ -285,6 +273,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       </main>
     </div>
+    </GlobalSearchProvider>
   );
 }
 

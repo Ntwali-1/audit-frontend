@@ -15,16 +15,17 @@ import { Route as SubmissionsRouteImport } from './routes/submissions'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ReportsRouteImport } from './routes/reports'
 import { Route as RegisterRouteImport } from './routes/register'
-import { Route as PlatformRouteImport } from './routes/platform'
 import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as FindingsRouteImport } from './routes/findings'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AssistantRouteImport } from './routes/assistant'
 import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PlatformIndexRouteImport } from './routes/platform/index'
 import { Route as OciaIndexRouteImport } from './routes/ocia/index'
 import { Route as EvaluationsIndexRouteImport } from './routes/evaluations/index'
 import { Route as AuditsIndexRouteImport } from './routes/audits/index'
+import { Route as PlatformIdRouteImport } from './routes/platform/$id'
 import { Route as OciaSubmissionsRouteImport } from './routes/ocia/submissions'
 import { Route as OciaComplianceRouteImport } from './routes/ocia/compliance'
 import { Route as OagSubmissionsRouteImport } from './routes/oag/submissions'
@@ -66,11 +67,6 @@ const RegisterRoute = RegisterRouteImport.update({
   path: '/register',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PlatformRoute = PlatformRouteImport.update({
-  id: '/platform',
-  path: '/platform',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const NotificationsRoute = NotificationsRouteImport.update({
   id: '/notifications',
   path: '/notifications',
@@ -101,6 +97,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PlatformIndexRoute = PlatformIndexRouteImport.update({
+  id: '/platform/',
+  path: '/platform/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OciaIndexRoute = OciaIndexRouteImport.update({
   id: '/ocia/',
   path: '/ocia/',
@@ -114,6 +115,11 @@ const EvaluationsIndexRoute = EvaluationsIndexRouteImport.update({
 const AuditsIndexRoute = AuditsIndexRouteImport.update({
   id: '/audits/',
   path: '/audits/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlatformIdRoute = PlatformIdRouteImport.update({
+  id: '/platform/$id',
+  path: '/platform/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OciaSubmissionsRoute = OciaSubmissionsRouteImport.update({
@@ -174,7 +180,6 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/findings': typeof FindingsRoute
   '/notifications': typeof NotificationsRoute
-  '/platform': typeof PlatformRoute
   '/register': typeof RegisterRoute
   '/reports': typeof ReportsRoute
   '/settings': typeof SettingsRoute
@@ -190,9 +195,11 @@ export interface FileRoutesByFullPath {
   '/oag/submissions': typeof OagSubmissionsRoute
   '/ocia/compliance': typeof OciaComplianceRoute
   '/ocia/submissions': typeof OciaSubmissionsRoute
+  '/platform/$id': typeof PlatformIdRoute
   '/audits/': typeof AuditsIndexRoute
   '/evaluations/': typeof EvaluationsIndexRoute
   '/ocia/': typeof OciaIndexRoute
+  '/platform/': typeof PlatformIndexRoute
   '/auth/invitations/accept': typeof AuthInvitationsAcceptRoute
 }
 export interface FileRoutesByTo {
@@ -202,7 +209,6 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/findings': typeof FindingsRoute
   '/notifications': typeof NotificationsRoute
-  '/platform': typeof PlatformRoute
   '/register': typeof RegisterRoute
   '/reports': typeof ReportsRoute
   '/settings': typeof SettingsRoute
@@ -218,9 +224,11 @@ export interface FileRoutesByTo {
   '/oag/submissions': typeof OagSubmissionsRoute
   '/ocia/compliance': typeof OciaComplianceRoute
   '/ocia/submissions': typeof OciaSubmissionsRoute
+  '/platform/$id': typeof PlatformIdRoute
   '/audits': typeof AuditsIndexRoute
   '/evaluations': typeof EvaluationsIndexRoute
   '/ocia': typeof OciaIndexRoute
+  '/platform': typeof PlatformIndexRoute
   '/auth/invitations/accept': typeof AuthInvitationsAcceptRoute
 }
 export interface FileRoutesById {
@@ -231,7 +239,6 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/findings': typeof FindingsRoute
   '/notifications': typeof NotificationsRoute
-  '/platform': typeof PlatformRoute
   '/register': typeof RegisterRoute
   '/reports': typeof ReportsRoute
   '/settings': typeof SettingsRoute
@@ -247,9 +254,11 @@ export interface FileRoutesById {
   '/oag/submissions': typeof OagSubmissionsRoute
   '/ocia/compliance': typeof OciaComplianceRoute
   '/ocia/submissions': typeof OciaSubmissionsRoute
+  '/platform/$id': typeof PlatformIdRoute
   '/audits/': typeof AuditsIndexRoute
   '/evaluations/': typeof EvaluationsIndexRoute
   '/ocia/': typeof OciaIndexRoute
+  '/platform/': typeof PlatformIndexRoute
   '/auth/invitations/accept': typeof AuthInvitationsAcceptRoute
 }
 export interface FileRouteTypes {
@@ -261,7 +270,6 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/findings'
     | '/notifications'
-    | '/platform'
     | '/register'
     | '/reports'
     | '/settings'
@@ -277,9 +285,11 @@ export interface FileRouteTypes {
     | '/oag/submissions'
     | '/ocia/compliance'
     | '/ocia/submissions'
+    | '/platform/$id'
     | '/audits/'
     | '/evaluations/'
     | '/ocia/'
+    | '/platform/'
     | '/auth/invitations/accept'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -289,7 +299,6 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/findings'
     | '/notifications'
-    | '/platform'
     | '/register'
     | '/reports'
     | '/settings'
@@ -305,9 +314,11 @@ export interface FileRouteTypes {
     | '/oag/submissions'
     | '/ocia/compliance'
     | '/ocia/submissions'
+    | '/platform/$id'
     | '/audits'
     | '/evaluations'
     | '/ocia'
+    | '/platform'
     | '/auth/invitations/accept'
   id:
     | '__root__'
@@ -317,7 +328,6 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/findings'
     | '/notifications'
-    | '/platform'
     | '/register'
     | '/reports'
     | '/settings'
@@ -333,9 +343,11 @@ export interface FileRouteTypes {
     | '/oag/submissions'
     | '/ocia/compliance'
     | '/ocia/submissions'
+    | '/platform/$id'
     | '/audits/'
     | '/evaluations/'
     | '/ocia/'
+    | '/platform/'
     | '/auth/invitations/accept'
   fileRoutesById: FileRoutesById
 }
@@ -346,7 +358,6 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   FindingsRoute: typeof FindingsRoute
   NotificationsRoute: typeof NotificationsRoute
-  PlatformRoute: typeof PlatformRoute
   RegisterRoute: typeof RegisterRoute
   ReportsRoute: typeof ReportsRoute
   SettingsRoute: typeof SettingsRoute
@@ -362,9 +373,11 @@ export interface RootRouteChildren {
   OagSubmissionsRoute: typeof OagSubmissionsRoute
   OciaComplianceRoute: typeof OciaComplianceRoute
   OciaSubmissionsRoute: typeof OciaSubmissionsRoute
+  PlatformIdRoute: typeof PlatformIdRoute
   AuditsIndexRoute: typeof AuditsIndexRoute
   EvaluationsIndexRoute: typeof EvaluationsIndexRoute
   OciaIndexRoute: typeof OciaIndexRoute
+  PlatformIndexRoute: typeof PlatformIndexRoute
   AuthInvitationsAcceptRoute: typeof AuthInvitationsAcceptRoute
 }
 
@@ -412,13 +425,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/platform': {
-      id: '/platform'
-      path: '/platform'
-      fullPath: '/platform'
-      preLoaderRoute: typeof PlatformRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/notifications': {
       id: '/notifications'
       path: '/notifications'
@@ -461,6 +467,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/platform/': {
+      id: '/platform/'
+      path: '/platform'
+      fullPath: '/platform/'
+      preLoaderRoute: typeof PlatformIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ocia/': {
       id: '/ocia/'
       path: '/ocia'
@@ -480,6 +493,13 @@ declare module '@tanstack/react-router' {
       path: '/audits'
       fullPath: '/audits/'
       preLoaderRoute: typeof AuditsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/platform/$id': {
+      id: '/platform/$id'
+      path: '/platform/$id'
+      fullPath: '/platform/$id'
+      preLoaderRoute: typeof PlatformIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ocia/submissions': {
@@ -562,7 +582,6 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   FindingsRoute: FindingsRoute,
   NotificationsRoute: NotificationsRoute,
-  PlatformRoute: PlatformRoute,
   RegisterRoute: RegisterRoute,
   ReportsRoute: ReportsRoute,
   SettingsRoute: SettingsRoute,
@@ -578,9 +597,11 @@ const rootRouteChildren: RootRouteChildren = {
   OagSubmissionsRoute: OagSubmissionsRoute,
   OciaComplianceRoute: OciaComplianceRoute,
   OciaSubmissionsRoute: OciaSubmissionsRoute,
+  PlatformIdRoute: PlatformIdRoute,
   AuditsIndexRoute: AuditsIndexRoute,
   EvaluationsIndexRoute: EvaluationsIndexRoute,
   OciaIndexRoute: OciaIndexRoute,
+  PlatformIndexRoute: PlatformIndexRoute,
   AuthInvitationsAcceptRoute: AuthInvitationsAcceptRoute,
 }
 export const routeTree = rootRouteImport

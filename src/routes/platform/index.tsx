@@ -1,5 +1,5 @@
 import * as React from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AppShell } from "@/components/app-shell";
 import { PageHeader } from "@/components/page-header";
@@ -11,7 +11,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose,
 } from "@/components/ui/dialog";
 import {
-  Building2, Check, X, Clock, ShieldOff, RotateCcw, Mail, Phone, MapPin, Lock,
+  Building2, Check, X, Clock, ShieldOff, RotateCcw, Mail, Phone, MapPin, Lock, ChevronRight,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
@@ -20,7 +20,7 @@ import {
   type PendingOrganization,
 } from "@/lib/api-portals";
 
-export const Route = createFileRoute("/platform")({
+export const Route = createFileRoute("/platform/")({
   head: () => ({ meta: [{ title: "Platform · Auditly" }] }),
   component: Platform,
 });
@@ -131,7 +131,14 @@ function ApplicationCard({ org }: { org: PendingOrganization }) {
           <Building2 className="h-5 w-5" style={{ color: "var(--brown-600)" }} />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-[15px] font-medium" style={{ color: "var(--brown-800)" }}>{org.name}</p>
+          <Link
+            to="/platform/$id"
+            params={{ id: org.id }}
+            className="text-[15px] font-medium hover:underline"
+            style={{ color: "var(--brown-800)" }}
+          >
+            {org.name}
+          </Link>
           <p className="text-[12px]" style={{ color: "var(--text-muted)" }}>
             {ORG_TYPE_LABEL[org.type] ?? org.type}
             {org.district ? ` · ${org.district}` : ""}
@@ -223,16 +230,29 @@ function OrganizationRow({ org }: { org: PendingOrganization }) {
   const t = tone[org.status] ?? tone.REJECTED;
 
   return (
-    <div className="flex items-center gap-4 rounded-2xl border bg-white p-4"
+    <div className="flex items-center gap-4 rounded-2xl border bg-white p-4 transition-shadow hover:shadow-card"
       style={{ borderColor: "var(--border-subtle)" }}>
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-[14px] font-medium" style={{ color: "var(--brown-800)" }}>{org.name}</p>
+      {/*
+        Only the name block is the link. The row also carries suspend and
+        reinstate, and a button nested inside an anchor is neither valid nor
+        clickable in the way anyone expects.
+      */}
+      <Link
+        to="/platform/$id"
+        params={{ id: org.id }}
+        className="group min-w-0 flex-1"
+      >
+        <p className="flex items-center gap-1.5 truncate text-[14px] font-medium group-hover:underline"
+          style={{ color: "var(--brown-800)" }}>
+          {org.name}
+          <ChevronRight className="h-3.5 w-3.5 shrink-0 opacity-0 transition-opacity group-hover:opacity-100" />
+        </p>
         <p className="text-[12px]" style={{ color: "var(--text-muted)" }}>
           {ORG_TYPE_LABEL[org.type] ?? org.type}
           {" · "}{org._count?.users ?? 0} user{(org._count?.users ?? 0) === 1 ? "" : "s"}
           {org.reviewNote ? ` · ${org.reviewNote}` : ""}
         </p>
-      </div>
+      </Link>
       <span className="shrink-0 rounded-full border px-2.5 py-1 text-[11px]"
         style={{ backgroundColor: t.bg, color: t.fg, borderColor: t.border }}>
         {ORG_STATUS_LABEL[org.status] ?? org.status}

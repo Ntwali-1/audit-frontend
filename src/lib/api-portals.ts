@@ -208,6 +208,58 @@ export interface PendingOrganization extends Omit<ApiOrganization, '_count'> {
   _count?: { users: number; audits?: number; teams?: number };
 }
 
+/**
+ * The full picture of one organization, for the platform operator.
+ *
+ * Aggregates and directory only — running the platform is not a licence to
+ * read an institution's audit work, so nothing here carries finding or
+ * evidence content.
+ */
+export interface OrganizationDetail {
+  organization: PendingOrganization & {
+    reviewedBy: ApiUser | null;
+    updatedAt: string;
+    _count: {
+      users: number;
+      audits: number;
+      teams: number;
+      invitations: number;
+      submissions: number;
+      engagements: number;
+    };
+  };
+  users: Array<ApiUser & { isPlatformAdmin: boolean; createdAt: string }>;
+  teams: Array<{ id: string; name: string; teamLeadId: string | null; _count: { members: number } }>;
+  pendingInvitations: Array<{
+    id: string;
+    email: string;
+    role: string;
+    sentAt: string | null;
+    expiresAt: string;
+  }>;
+  recentAudits: Array<{
+    id: string;
+    title: string;
+    type: string | null;
+    status: string;
+    dueDate: string | null;
+    completedAt: string | null;
+    createdAt: string;
+    team: { id: string; name: string } | null;
+  }>;
+  stats: {
+    auditsByStatus: Record<string, number>;
+    overdueAudits: number;
+    usersByRole: Record<string, number>;
+    unverifiedUsers: number;
+    findingsTotal: number;
+    findingsOpen: number;
+    findingsBySeverity: Record<string, number>;
+    findingsByStatus: Record<string, number>;
+    submissionsByStatus: Record<string, number>;
+  };
+}
+
 /** Public — no token required. */
 export const registrationApi = {
   registerInstitution: (payload: RegisterInstitutionPayload) =>
@@ -228,6 +280,7 @@ export const platformApi = {
     return apiFetch<PendingOrganization[]>(`/platform/organizations${q ? `?${q}` : ''}`);
   },
   pending: () => apiFetch<PendingOrganization[]>('/platform/organizations/pending'),
+  organization: (id: string) => apiFetch<OrganizationDetail>(`/platform/organizations/${id}`),
   approve: (id: string, note?: string) =>
     apiFetch<{ message: string; invitationsSent?: number }>(
       `/platform/organizations/${id}/approve`,
