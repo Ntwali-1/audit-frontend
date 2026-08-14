@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
-import { ShieldCheck, CheckCircle2, XCircle, Mail } from "lucide-react";
+import { CheckCircle2, XCircle, Mail } from "lucide-react";
+import { PRODUCT_LOGO } from "@/lib/auth-context";
 import { toast } from "sonner";
 import { apiFetch } from "@/lib/api";
 
@@ -97,7 +98,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
       <div className="w-full max-w-sm rounded-2xl border bg-white p-8 text-center"
         style={{ borderColor: "var(--border-subtle)", boxShadow: "var(--shadow-card)" }}>
         <div className="mb-6 flex items-center justify-center gap-2">
-          <ShieldCheck className="h-5 w-5" style={{ color: "var(--brown-800)" }} />
+          <img src={PRODUCT_LOGO} alt="Auditly" className="h-6 w-6 object-contain" />
           <span className="text-[15px] font-semibold" style={{ color: "var(--brown-800)" }}>Auditly</span>
         </div>
         {children}

@@ -17,6 +17,7 @@ import {
   registrationApi, ORG_TYPE_LABEL,
   type OrganizationType, type RegisterInstitutionPayload,
 } from "@/lib/api-portals";
+import { isPublicBody, COAT_OF_ARMS, PRODUCT_LOGO } from "@/lib/auth-context";
 
 export const Route = createFileRoute("/register")({
   head: () => ({
@@ -125,8 +126,8 @@ function RegisterInstitution() {
             {/* Switches to the national crest as soon as a public type is
                 chosen, so the applicant sees which world they are entering. */}
             <img
-              src={type && type !== "PRIVATE_COMPANY" ? "/Coat_of_arms_of_Rwanda.svg" : "/logo.png"}
-              alt={type && type !== "PRIVATE_COMPANY" ? "Republic of Rwanda" : "Auditly"}
+              src={isPublicBody(type || undefined) ? COAT_OF_ARMS : PRODUCT_LOGO}
+              alt={isPublicBody(type || undefined) ? "Republic of Rwanda" : "Auditly"}
               className="h-6 w-6 object-contain"
             />
             <span className="text-[15px] font-semibold" style={{ color: "var(--brown-800)" }}>Auditly</span>

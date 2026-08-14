@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
-import { ShieldCheck, Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
+import { PRODUCT_LOGO } from "@/lib/auth-context";
 import { useAuth } from "@/lib/auth-context";
 import { authApi } from "@/lib/api";
 
@@ -57,8 +58,8 @@ function AcceptInvitationPage() {
           className="w-full max-w-md rounded-3xl border bg-white p-10 text-center"
           style={{ borderColor: "var(--border-subtle)", boxShadow: "var(--shadow-modal)" }}
         >
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full" style={{ backgroundColor: "var(--brown-100)" }}>
-            <ShieldCheck className="h-6 w-6" style={{ color: "var(--brown-800)" }} />
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center overflow-hidden rounded-full" style={{ backgroundColor: "var(--brown-100)" }}>
+            <img src={PRODUCT_LOGO} alt="Auditly" className="h-7 w-7 object-contain" />
           </div>
           <h2 className="text-[20px] font-medium" style={{ color: "var(--brown-800)" }}>
             {!token ? "Invalid link" : "Invitation expired"}
@@ -129,10 +130,9 @@ function AcceptInvitationPage() {
       >
         <div className="relative z-10 flex items-center gap-3">
           <div
-            className="flex h-9 w-9 items-center justify-center rounded-xl"
-            style={{ backgroundColor: "var(--brown-200)", color: "var(--brown-800)" }}
+            className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl bg-white/95"
           >
-            <ShieldCheck className="h-4 w-4" />
+            <img src={PRODUCT_LOGO} alt="Auditly" className="h-6 w-6 object-contain" />
           </div>
           <span className="text-[16px] font-semibold text-white">Auditly</span>
         </div>

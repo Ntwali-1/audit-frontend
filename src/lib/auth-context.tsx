@@ -149,30 +149,32 @@ export function usePortal() {
   };
 }
 
-/**
- * Which mark to show.
- *
- * Public bodies and the two national offices carry the coat of arms; private
- * organizations carry the product logo. `isProductMark` tells the caller to use
- * the drawn LogoIcon instead of an image — that applies to private orgs and to
- * the case where no organization is known yet.
- */
-export function useBrandMark(): { src: string; alt: string; isProductMark: boolean } {
-  const { user } = useAuth();
-  const type = user?.organizationType;
+/** The product mark, used wherever no government body is involved. */
+export const PRODUCT_LOGO = "/logo.png";
+/** Carried by government bodies and the two national audit offices. */
+export const COAT_OF_ARMS = "/Coat_of_arms_of_Rwanda.svg";
 
-  const isPublicBody =
+export function isPublicBody(type?: OrganizationType | null): boolean {
+  return (
     type === "GOVERNMENT_DISTRICT" ||
     type === "GOVERNMENT_INSTITUTION" ||
     type === "OAG" ||
-    type === "OCIA";
+    type === "OCIA"
+  );
+}
 
-  if (isPublicBody) {
-    return { src: "/Coat_of_arms_of_Rwanda.svg", alt: "Republic of Rwanda", isProductMark: false };
+/**
+ * Which mark to show.
+ *
+ * Government institutions, OAG and OCIA carry the national coat of arms.
+ * Everything else — private organizations, and any page where no organization
+ * is known yet, such as sign-in — carries the product logo.
+ */
+export function useBrandMark(): { src: string; alt: string } {
+  const { user } = useAuth();
+
+  if (isPublicBody(user?.organizationType)) {
+    return { src: COAT_OF_ARMS, alt: "Republic of Rwanda" };
   }
-  if (type === "PRIVATE_COMPANY") {
-    return { src: "/logo.png", alt: user?.organizationName ?? "Auditly", isProductMark: false };
-  }
-  // Organization not known yet (or a session stored before this existed).
-  return { src: "/logo.png", alt: "Auditly", isProductMark: true };
+  return { src: PRODUCT_LOGO, alt: user?.organizationName ?? "Auditly" };
 }

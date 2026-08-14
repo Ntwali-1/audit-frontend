@@ -4,8 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
-import { useAuth } from "@/lib/auth-context";
-import { LogoIcon } from "@/components/ui/logo";
+import { useAuth, PRODUCT_LOGO } from "@/lib/auth-context";
 import { authApi } from "@/lib/api";
 import { toast } from "sonner";
 
@@ -58,8 +57,10 @@ function SignIn() {
       >
         <div className="relative z-10 flex items-center gap-3">
           {/* No organization is known before sign-in, so this is the product
-              mark. The institution's own crest takes over once you are in. */}
-          <LogoIcon size={36} className="shrink-0" />
+              mark. A government body's coat of arms takes over once you are in. */}
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white/95">
+            <img src={PRODUCT_LOGO} alt="Auditly" className="h-7 w-7 object-contain" />
+          </div>
           <span className="text-[18px] font-semibold text-white font-display">Auditly</span>
         </div>
 
