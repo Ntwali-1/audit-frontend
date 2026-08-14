@@ -6,6 +6,7 @@ import { PageHeader, StatTile } from "@/components/page-header";
 import { auditsApi, AUDIT_STATUS_LABEL, getAuditProgress, getUserDisplayName, ApiAudit } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import { NoAuditorsPrompt } from "@/components/invite-auditors";
+import { AdminDashboard } from "@/components/admin-dashboard";
 import { ClipboardList, AlertTriangle, CheckCircle2, Clock, ArrowUpRight } from "lucide-react";
 
 export const Route = createFileRoute("/dashboard")({
@@ -31,7 +32,23 @@ const STATUS_PILL: Record<string, React.CSSProperties> = {
   DRAFT: { backgroundColor: "#FAFAFA", color: "#71717A", border: "0.5px solid #E4E4E7" },
 };
 
+/**
+ * An administrator does not work audits, they run the institution — so the
+ * greeting, the personal engagement list and the setup wizard belong to the
+ * operational roles only. Admins land on the system-wide command centre
+ * instead.
+ */
 function Dashboard() {
+  const { user } = useAuth();
+
+  return (
+    <AppShell>
+      {user?.role === "ADMIN" ? <AdminDashboard /> : <WorkspaceDashboard />}
+    </AppShell>
+  );
+}
+
+function WorkspaceDashboard() {
   const { user } = useAuth();
 
   const { data: dashboard } = useQuery({
@@ -63,7 +80,7 @@ function Dashboard() {
   const displayName = user ? (user.firstName ?? user.email.split("@")[0]) : "there";
 
   return (
-    <AppShell>
+    <>
       <PageHeader
         eyebrow="Workspace"
         title={`${greeting()}, ${displayName}`}
@@ -146,7 +163,7 @@ function Dashboard() {
           </div>
         </aside>
       </div>
-    </AppShell>
+    </>
   );
 }
 

@@ -106,6 +106,40 @@
   --chart-4: var(--brown-400);
   --chart-5: var(--brown-600);
 
+  /*
+   * Data-visualisation tokens.
+   *
+   * The product is deliberately monochrome, so charts stay in ink wherever the
+   * mark is a magnitude. Hue is spent only where it carries meaning that
+   * lightness cannot: two series that must be told apart, and severity.
+   *
+   * viz-series-1/2 are categorical slots 1 and 2 — validated as a pair against
+   * both surfaces (worst CVD ΔE 24.7 light / 26.8 dark, both ≥ 3:1).
+   * viz-ordinal-1..8 is a neutral one-hue ramp for ordered categories (workflow
+   * stages, age bands), stepped evenly in perceptual lightness so no two
+   * neighbouring stages share a tone; its light end clears 2:1 on the card.
+   * viz-critical/serious/warning/good are reserved status colours and never
+   * stand in for a series. The two that fall under 3:1 on white always ship
+   * with a visible label beside the mark.
+   */
+  --viz-series-1: #2A78D6;
+  --viz-series-2: #EB6834;
+  --viz-ordinal-1: #070707;
+  --viz-ordinal-2: #191919;
+  --viz-ordinal-3: #2C2C2C;
+  --viz-ordinal-4: #414141;
+  --viz-ordinal-5: #575757;
+  --viz-ordinal-6: #6E6E6E;
+  --viz-ordinal-7: #868686;
+  --viz-ordinal-8: #9E9E9E;
+  --viz-critical: #D03B3B;
+  --viz-serious: #EC835A;
+  --viz-warning: #FAB219;
+  --viz-good: #0CA30C;
+  --viz-grid: #ECECEE;
+  --viz-axis: #A1A1A6;
+  --viz-surface: #FFFFFF;
+
   /* Sidebar — pure ink */
   --sidebar: var(--brown-800);
   --sidebar-foreground: #FFFFFF;
@@ -160,6 +194,21 @@
   --sidebar-accent: #1F1F22;
   --sidebar-accent-foreground: #FFFFFF;
   --sidebar-border: rgba(255,255,255,0.06);
+
+  /* Dark is selected, not flipped: the same hues re-stepped for the dark card. */
+  --viz-series-1: #3987E5;
+  --viz-series-2: #D95926;
+  --viz-ordinal-1: #FAFAFA;
+  --viz-ordinal-2: #E2E2E2;
+  --viz-ordinal-3: #CBCBCB;
+  --viz-ordinal-4: #B4B4B4;
+  --viz-ordinal-5: #9E9E9E;
+  --viz-ordinal-6: #888888;
+  --viz-ordinal-7: #737373;
+  --viz-ordinal-8: #5F5F5F;
+  --viz-grid: #27272A;
+  --viz-axis: #52525B;
+  --viz-surface: #18181B;
 }
 
 @layer base {
