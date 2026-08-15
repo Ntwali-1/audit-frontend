@@ -168,6 +168,11 @@ export interface ApiFinding {
   updatedAt: string;
 }
 
+/** A finding as it appears in someone's own remediation queue. */
+export interface AssignedFinding extends ApiFinding {
+  audit?: { id: string; title: string; type: string | null };
+}
+
 export interface ApiTeam {
   id: string;
   name: string;
@@ -334,8 +339,12 @@ export const findingsApi = {
   },
   create: (data: CreateFindingInput) =>
     apiFetch<ApiFinding>('/findings', { method: 'POST', body: JSON.stringify(data) }),
-  /** Findings assigned to the signed-in user — their remediation queue. */
-  getMyFindings: () => apiFetch<ApiFinding[]>('/findings/my'),
+  /**
+   * Findings assigned to the signed-in user — their remediation queue, and for
+   * an auditee the entire product. Carries the audit it came from and who
+   * raised it, because an auditee has no access to the audit itself.
+   */
+  getMyFindings: () => apiFetch<AssignedFinding[]>('/findings/my'),
 };
 
 export interface ApiReport {

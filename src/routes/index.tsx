@@ -37,8 +37,16 @@ function SignIn() {
       // institution dashboard at all, so sending everyone to /dashboard would
       // land two thirds of users on a permission error.
       const portal = (data.user as { portalType?: string }).portalType ?? "INSTITUTION";
+      // An auditee has no dashboard — the findings assigned to them are the
+      // whole product, so that list is their home rather than a page they
+      // would only be bounced off.
+      const isAuditee = data.user.role === "AUDITEE";
       navigate({
-        to: portal === "OAG" ? "/oag/engagements" : portal === "OCIA" ? "/ocia" : "/dashboard",
+        to:
+          portal === "OAG" ? "/oag/engagements"
+          : portal === "OCIA" ? "/ocia"
+          : isAuditee ? "/findings"
+          : "/dashboard",
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");

@@ -19,6 +19,11 @@ export type NavItem = {
   adminOnly?: boolean;
   managerOnly?: boolean;
   auditorOnly?: boolean;
+  /**
+   * Visible to an auditee. Everything else is hidden from them — they are in
+   * the business, not in audit, and the product is one list of things to fix.
+   */
+  auditeeToo?: boolean;
 };
 
 export type NavSection = {
@@ -38,7 +43,7 @@ export const NAV_SECTIONS: NavSection[] = [
     items: [
       { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
       { to: "/analytics", label: "Analytics", icon: ChartPie, managerOnly: true },
-      { to: "/notifications", label: "Inbox", icon: Bell },
+      { to: "/notifications", label: "Inbox", icon: Bell, auditeeToo: true },
     ],
   },
   {
@@ -52,7 +57,7 @@ export const NAV_SECTIONS: NavSection[] = [
        */
       { to: "/audits", label: "Audits", icon: ClipboardList },
       { to: "/evaluations", label: "Evaluations", icon: ClipboardCheck, auditorOnly: true },
-      { to: "/findings", label: "Findings", icon: AlertOctagon },
+      { to: "/findings", label: "Findings", icon: AlertOctagon, auditeeToo: true },
       { to: "/reports", label: "Reports", icon: FileBarChart, managerOnly: true },
     ],
   },
@@ -177,8 +182,21 @@ export function useNavSections(): NavSection[] {
   const isAdmin = user?.role === "ADMIN";
   const isManager = user?.role === "AUDIT_MANAGER" || user?.role === "ADMIN";
   const isAuditor = user?.role === "AUDITOR" || user?.role === "LEAD_AUDITOR";
+  const isAuditee = user?.role === "AUDITEE";
 
   const isPlatformAdmin = !!user?.isPlatformAdmin;
+
+  /*
+   * An auditee is not audit staff. Rather than hide items one by one and rely
+   * on nobody forgetting a flag on the next one added, their navigation is
+   * built by opt-in: nothing is theirs unless it says so.
+   */
+  if (isAuditee) {
+    return NAV_SECTIONS.map((s) => ({
+      ...s,
+      items: s.items.filter((i) => i.auditeeToo),
+    })).filter((s) => s.items.length > 0);
+  }
 
   return NAV_SECTIONS
     // Portal first: OAG and OCIA are different applications, not different

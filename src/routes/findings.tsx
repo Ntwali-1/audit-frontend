@@ -20,14 +20,30 @@ import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
+import { AuditeeFindings } from "@/components/auditee-findings";
 import { AlertOctagon, AlertTriangle, ShieldAlert, CheckCircle2, Pencil, Trash2, ChevronRight, ShieldCheck, Upload } from "lucide-react";
 import type { ApiFinding } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/findings")({
   head: () => ({ meta: [{ title: "Findings · Auditly" }] }),
-  component: FindingsPage,
+  component: FindingsRoute,
 });
+
+/**
+ * Two different products share this path. Audit staff get the register — every
+ * finding, filterable, with verification. An auditee gets only what they have
+ * been asked to fix, because that is all they have access to and almost nothing
+ * on the register would apply to them.
+ */
+function FindingsRoute() {
+  const { user } = useAuth();
+  return (
+    <AppShell>
+      {user?.role === "AUDITEE" ? <AuditeeFindings /> : <FindingsPage />}
+    </AppShell>
+  );
+}
 
 const SEV_TONE: Record<string, string> = {
   CRITICAL: "bg-red-50 text-red-700 border-red-200",
@@ -101,7 +117,7 @@ function FindingsPage() {
   });
 
   return (
-    <AppShell>
+    <>
       <PageHeader
         eyebrow="Operations"
         title="Findings"
@@ -293,7 +309,7 @@ function FindingsPage() {
       {verifyFinding && (
         <VerifyModal finding={verifyFinding} onClose={() => setVerifyFinding(null)} />
       )}
-    </AppShell>
+    </>
   );
 }
 
