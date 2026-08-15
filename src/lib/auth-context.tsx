@@ -149,6 +149,18 @@ export function usePortal() {
   };
 }
 
+/**
+ * The platform operator's own organization. It exists because multi-tenancy had
+ * to put the original accounts somewhere, not because anybody audits it — so it
+ * is never named as though it were an institution. Mirrors
+ * PLATFORM_ORGANIZATION_ID in backend/src/common/constants.ts.
+ */
+export const PLATFORM_ORGANIZATION_ID = "00000000-0000-4000-8000-000000000001";
+
+export function isPlatformOrganization(organizationId?: string | null): boolean {
+  return organizationId === PLATFORM_ORGANIZATION_ID;
+}
+
 /** The product mark, used wherever no government body is involved. */
 export const PRODUCT_LOGO = "/logo.png";
 /** Carried by government bodies and the two national audit offices. */

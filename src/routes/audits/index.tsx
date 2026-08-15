@@ -6,7 +6,7 @@ import { PageHeader } from "@/components/page-header";
 import { auditsApi, AUDIT_STATUS_LABEL, getAuditProgress, getUserDisplayName, ApiAudit } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Search } from "lucide-react";
+import { Eye, Plus, Search } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import { useAuth } from "@/lib/auth-context";
 import { CreateAuditWizard } from "@/components/create-audit-wizard";
@@ -66,7 +66,11 @@ function AuditsPage() {
       <PageHeader
         eyebrow="Operations"
         title="Audits"
-        description="Track engagements, scopes, and progress across your portfolio."
+        description={
+          isManager
+            ? "Track engagements, scopes, and progress across your portfolio."
+            : "Every engagement in your institution. Open Evaluations for the ones assigned to you."
+        }
         actions={isManager ? (
           <Button className="h-[42px] rounded-[10px] px-4" onClick={() => setOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
@@ -78,6 +82,25 @@ function AuditsPage() {
       {/* Creating an audit walks the whole setup — the audit, its team, and who
           is on it — because an audit with nobody attached cannot be worked. */}
       {open && <CreateAuditWizard onClose={() => setOpen(false)} />}
+
+      {/* Absent buttons alone read as a broken page. Auditors are told the list
+          is deliberately read-only, and where their editable work lives. */}
+      {!isManager && (
+        <div
+          className="mb-5 flex items-start gap-2.5 rounded-xl border px-4 py-3 text-[13px]"
+          style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--surface)", color: "var(--text-muted)" }}
+        >
+          <Eye className="mt-0.5 h-4 w-4 shrink-0" style={{ color: "var(--text-hint)" }} />
+          <span>
+            You can view every audit here. Recording work — steps, evidence and findings — is
+            available on the engagements you are assigned to, under{" "}
+            <Link to="/evaluations" className="font-medium underline" style={{ color: "var(--brown-800)" }}>
+              Evaluations
+            </Link>
+            .
+          </span>
+        </div>
+      )}
 
       <div className="mb-6 flex flex-wrap items-center gap-3">
         <div className="relative w-full max-w-sm">

@@ -14,7 +14,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose,
 } from "@/components/ui/dialog";
 import { Spinner } from "@/components/ui/spinner";
-import { ArrowLeft, Plus, Users, Pencil, Trash2 } from "lucide-react";
+import { ArrowLeft, Eye, Plus, Users, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/audits/$id")({
@@ -52,6 +52,20 @@ function AuditDetail() {
     queryFn: () => auditsApi.getById(id),
     staleTime: 30_000,
   });
+
+  /*
+   * Whether this auditor may record work here, answered by the same list the
+   * server builds their queue from rather than re-deriving the assignment rule
+   * on the client. If the two ever disagree, the UI is the one that is wrong,
+   * and this way it cannot disagree.
+   */
+  const { data: myAudits } = useQuery({
+    queryKey: ["audits", "my"],
+    queryFn: () => auditsApi.getMyAudits(),
+    enabled: !isManager,
+    staleTime: 60_000,
+  });
+  const canWork = isManager || (myAudits ?? []).some((a) => a.id === id);
 
   const addFindingMutation = useMutation({
     mutationFn: () =>
@@ -100,6 +114,7 @@ function AuditDetail() {
       progress={progress}
       owner={owner}
       isManager={isManager}
+      canWork={canWork}
       findingOpen={findingOpen}
       setFindingOpen={setFindingOpen}
       severity={severity}
@@ -337,6 +352,7 @@ function AuditDetailContent({
   progress,
   owner,
   isManager,
+  canWork,
   findingOpen,
   setFindingOpen,
   severity,
@@ -351,6 +367,8 @@ function AuditDetailContent({
   progress: number;
   owner: string;
   isManager: boolean;
+  /** Manager, or an auditor staffed on this engagement. */
+  canWork: boolean;
   findingOpen: boolean;
   setFindingOpen: (v: boolean) => void;
   severity: string;
@@ -398,18 +416,29 @@ function AuditDetailContent({
           </div>
 
           <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              onClick={() => setTeamModalOpen(true)}
-              className="h-[42px] rounded-[10px] px-4"
-              style={{ borderColor: "var(--brown-200)", color: "var(--brown-600)" }}
-            >
-              <Users className="mr-2 h-4 w-4" />
-              {audit.team ? "Change team" : "Assign team"}
-            </Button>
+            {/* Staffing an engagement is the manager's call, not an auditor's. */}
+            {isManager && (
+              <Button
+                variant="outline"
+                onClick={() => setTeamModalOpen(true)}
+                className="h-[42px] rounded-[10px] px-4"
+                style={{ borderColor: "var(--brown-200)", color: "var(--brown-600)" }}
+              >
+                <Users className="mr-2 h-4 w-4" />
+                {audit.team ? "Change team" : "Assign team"}
+              </Button>
+            )}
+            {!canWork && (
+              <span
+                className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-[12px]"
+                style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--surface)", color: "var(--text-muted)" }}
+              >
+                <Eye className="h-3.5 w-3.5" /> View only — you are not assigned to this audit
+              </span>
+            )}
             <Dialog open={findingOpen} onOpenChange={setFindingOpen}>
-              <DialogTrigger asChild>
-                <Button className="h-[42px] rounded-[10px] px-4">
+              <DialogTrigger asChild disabled={!canWork}>
+                <Button className="h-[42px] rounded-[10px] px-4" disabled={!canWork}>
                   <Plus className="mr-2 h-4 w-4" /> Log finding
                 </Button>
               </DialogTrigger>

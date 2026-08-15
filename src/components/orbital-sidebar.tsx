@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
-import { useAuth, useBrandMark, type PortalType } from "@/lib/auth-context";
+import { useAuth, useBrandMark, isPlatformOrganization, type PortalType } from "@/lib/auth-context";
 import { findingsApi, getUserInitials, getUserDisplayName } from "@/lib/api";
 
 export type NavItem = {
@@ -45,7 +45,12 @@ export const NAV_SECTIONS: NavSection[] = [
     id: "ops",
     label: "Operations",
     items: [
-      { to: "/audits", label: "Audits", icon: ClipboardList, managerOnly: true },
+      /*
+       * Auditors see the whole programme read-only — knowing what the
+       * institution is working on is part of the job. Evaluations stays their
+       * own queue: the subset they can actually act on.
+       */
+      { to: "/audits", label: "Audits", icon: ClipboardList },
       { to: "/evaluations", label: "Evaluations", icon: ClipboardCheck, auditorOnly: true },
       { to: "/findings", label: "Findings", icon: AlertOctagon },
       { to: "/reports", label: "Reports", icon: FileBarChart, managerOnly: true },
@@ -56,7 +61,8 @@ export const NAV_SECTIONS: NavSection[] = [
     label: "Directory",
     items: [
       { to: "/users", label: "Users", icon: Users, adminOnly: true },
-      { to: "/teams", label: "Teams", icon: UsersRound, managerOnly: true },
+      /* Managers get the whole directory; an auditor gets their own team. */
+      { to: "/teams", label: "Teams", icon: UsersRound },
     ],
   },
   {
@@ -220,7 +226,14 @@ export function OrbitalSidebar({
   const { openCount, unreadCount } = useNavBadges();
   const navSections = useNavSections();
   const brand = useBrandMark();
-  const organizationName = user?.organizationName ?? null;
+  /*
+   * The platform's own organization is a container for the operator's account,
+   * not an institution, so the shell is not branded with its name — it would
+   * read as though the operator were signed into a body being audited.
+   */
+  const organizationName = isPlatformOrganization(user?.organizationId)
+    ? null
+    : (user?.organizationName ?? null);
 
   const badgeFor = (to: string): number | undefined => {
     if (to === "/notifications") return unreadCount > 0 ? unreadCount : undefined;

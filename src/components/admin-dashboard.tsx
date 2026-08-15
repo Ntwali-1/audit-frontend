@@ -13,7 +13,7 @@ import {
   INK, ORDINAL, SEVERITY_COLOR, SERIES_1, SERIES_2, nf, ordinalScale, tally,
   type BarRow,
 } from "@/components/viz";
-import { useAuth } from "@/lib/auth-context";
+import { useAuth, isPlatformOrganization } from "@/lib/auth-context";
 import {
   auditsApi, findingsApi, reportsApi, teamsApi, usersApi,
   AUDIT_STATUS_LABEL, FINDING_STATUS_LABEL, SEVERITY_LABEL,
@@ -345,7 +345,9 @@ export function AdminDashboard() {
         eyebrow="Administration"
         title="System overview"
         description={
-          user?.organizationName
+          /* Never named for the platform's own organization — see
+             isPlatformOrganization. */
+          user?.organizationName && !isPlatformOrganization(user.organizationId)
             ? `Programme-wide health, capacity and workload across ${user.organizationName}.`
             : "Programme-wide health, capacity and workload across the institution."
         }

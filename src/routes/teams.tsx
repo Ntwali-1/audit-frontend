@@ -33,9 +33,14 @@ function TeamsPage() {
   const qc = useQueryClient();
   const [modal, setModal] = React.useState<TeamModal>(null);
 
+  /*
+   * A manager runs the directory and sees all of it. An auditor gets the teams
+   * they are actually on — the full list is not theirs to browse, and asking
+   * for it would only earn a 403.
+   */
   const { data: teams = [], isLoading } = useQuery({
-    queryKey: ["teams"],
-    queryFn: () => teamsApi.getAll(),
+    queryKey: ["teams", isManager ? "all" : "mine"],
+    queryFn: () => (isManager ? teamsApi.getAll() : teamsApi.getMine()),
     staleTime: 60_000,
   });
 
@@ -45,8 +50,12 @@ function TeamsPage() {
     <AppShell>
       <PageHeader
         eyebrow="Directory"
-        title="Teams"
-        description="Group auditors into delivery teams with assigned leads."
+        title={isManager ? "Teams" : "My teams"}
+        description={
+          isManager
+            ? "Group auditors into delivery teams with assigned leads."
+            : "The delivery teams you belong to, and who you work alongside."
+        }
         actions={
           isManager ? (
             <Button className="h-[42px] rounded-[10px] px-4" onClick={() => setModal({ type: "create" })}>

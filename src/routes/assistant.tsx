@@ -136,7 +136,12 @@ function AssistantPage() {
 
     try {
       const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-      const model = import.meta.env.VITE_GEMINI_MODEL_NAME ?? "gemini-2.5-flash-lite";
+      /*
+       * The 2.5 line is closed to projects created after it shipped, so a fresh
+       * API key cannot call it at all — the fallback has to name a model that
+       * new projects can still reach.
+       */
+      const model = import.meta.env.VITE_GEMINI_MODEL_NAME ?? "gemini-3.5-flash-lite";
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
       const workspaceContext = buildWorkspaceContext(dashboard, auditsData, findingsData);

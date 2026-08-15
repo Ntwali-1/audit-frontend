@@ -353,6 +353,14 @@ export const teamsApi = {
     apiFetch<{ data: ApiTeam[]; total: number; skip: number; take: number }>('/teams?take=100').then(
       (res) => res.data,
     ),
+  /**
+   * The caller's own teams. Auditors are not given the whole directory, so this
+   * is what they get instead — the same shape, just their teams.
+   */
+  getMine: () =>
+    apiFetch<{ data: ApiTeam[]; total: number; skip: number; take: number }>('/teams/my').then(
+      (res) => res.data,
+    ),
   getById: (id: string) => apiFetch<ApiTeam>(`/teams/${id}`),
   create: (data: { name: string; description?: string; teamLeadId: string; memberIds: string[] }) =>
     apiFetch<ApiTeam>('/teams', { method: 'POST', body: JSON.stringify(data) }),
