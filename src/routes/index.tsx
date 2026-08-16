@@ -112,34 +112,127 @@ function FloatingNav() {
 
 function Hero() {
   return (
-    <section id="intelligence" className="relative min-h-[680px] overflow-hidden bg-[#fbfcfd] pt-24">
-      <div className="pointer-events-none absolute inset-x-0 top-[150px] h-[450px] opacity-80">
-        <div className="absolute left-[-8%] top-[100px] h-[150px] w-[118%] -rotate-[1.5deg] rounded-[80px] bg-gradient-to-r from-[#e9edf2] via-[#f7f8fa] to-[#e1e6ec] blur-[1px]" />
-        <div className="absolute right-[-2%] top-[84px] h-[120px] w-[68%] -rotate-[9deg] rounded-full bg-gradient-to-r from-[#eef2f5] via-[#f8fafc] to-[#e7ebf0] shadow-[0_40px_90px_rgba(15,23,42,0.08)]" />
-        <div className="absolute left-[12%] top-[16px] h-[350px] w-[155px] -rotate-[14deg] rounded-[28px] border border-white/80 bg-gradient-to-br from-[#e8ecf1] via-[#f8fafc] to-[#dce2e9] shadow-[inset_0_0_0_12px_rgba(255,255,255,0.45)]" />
-        <div className="absolute bottom-[12px] left-[27%] h-[118px] w-[118px] rounded-full border-[18px] border-[#eef2f5] bg-white/50 shadow-[0_24px_70px_rgba(15,23,42,0.1)]" />
-        <div className="absolute bottom-[16px] right-[4%] h-[118px] w-[118px] rounded-full border-[18px] border-[#eef2f5] bg-white/50 shadow-[0_24px_70px_rgba(15,23,42,0.1)]" />
-        <div className="absolute inset-x-0 bottom-0 h-[230px] bg-gradient-to-b from-transparent via-white/80 to-white" />
-        <div className="absolute inset-0 bg-white/38" />
+    <section id="intelligence" className="relative overflow-hidden bg-[#f7f8fa] pb-20 pt-28 sm:pb-24">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-full">
+        <div className="absolute left-[-10%] top-12 h-[520px] w-[55%] rounded-[32px] bg-gradient-to-br from-[#eef1f4] via-[#f7f8fa] to-transparent blur-[2px]" />
+        <div className="absolute right-[-6%] top-20 h-[380px] w-[50%] rounded-full bg-gradient-to-r from-[#eef3f8] via-[#f9fafb] to-[#edf1f5] shadow-[0_30px_80px_rgba(15,23,42,0.08)]" />
+        <div className="absolute inset-x-0 bottom-0 h-[220px] bg-gradient-to-b from-transparent via-white/75 to-white" />
       </div>
 
-      <div className="relative z-10 mx-auto flex min-h-[560px] max-w-[850px] flex-col items-center justify-center px-5 text-center">
-        <div className="rounded-full border border-[#e7ebf0] bg-white/76 px-4 py-2 text-[9px] font-bold uppercase tracking-[0.18em] text-[#8893a3] shadow-[0_7px_20px_rgba(15,23,42,0.04)]">
-          Autonomous audit intelligence
+      <div className="relative z-10 mx-auto grid max-w-[1180px] items-center gap-10 px-5 lg:grid-cols-[1.02fr_0.98fr]">
+        <div className="max-w-[560px]">
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#e2e8ef] bg-white/80 px-3 py-1.5 text-[9px] font-bold uppercase tracking-[0.18em] text-[#6b7788] shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
+            <span className="h-2 w-2 rounded-full bg-[#16212f]" />
+            Autonomous audit intelligence
+          </div>
+
+          <h1 className="mt-7 font-display text-[48px] font-semibold leading-[0.95] tracking-[-0.06em] text-[#17212d] sm:text-[60px] lg:text-[72px]">
+            Audit with
+            <span className="mt-2 block text-[#abb4c0]">clarity.</span>
+          </h1>
+
+          <p className="mt-6 max-w-[520px] text-[17px] leading-[1.6] text-[#667385] sm:text-[19px]">
+            Auditly turns fragmented evidence, risk indicators, and reporting tasks into one intelligent workflow designed for modern institutions.
+          </p>
+
+          <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:items-center">
+            <Button asChild className="h-[46px] min-w-[184px] rounded-full bg-[#141b22] px-7 text-[10px] font-bold uppercase tracking-[0.18em] text-white shadow-[0_16px_30px_rgba(15,23,42,0.18)] hover:bg-[#0d1218]">
+              <Link to="/register">Begin onboarding</Link>
+            </Button>
+            <Button asChild variant="outline" className="h-[46px] min-w-[188px] rounded-full border-[#e7ebef] bg-white/90 px-7 text-[10px] font-bold uppercase tracking-[0.18em] text-[#374152] shadow-[0_10px_25px_rgba(15,23,42,0.06)] hover:bg-white hover:text-[#111820]">
+              <a href="#story">Watch intelligence</a>
+            </Button>
+          </div>
+
+          <div className="mt-8 flex flex-wrap gap-3 text-[10px] font-bold uppercase tracking-[0.14em] text-[#7b8794]">
+            {[
+              "Evidence flow",
+              "Risk detection",
+              "Board reporting",
+            ].map((item) => (
+              <span key={item} className="rounded-full border border-[#e8edf2] bg-white/80 px-3 py-2">
+                {item}
+              </span>
+            ))}
+          </div>
         </div>
-        <h1 className="mt-7 font-display text-[56px] font-medium leading-[0.96] tracking-normal text-[#17212d] sm:text-[68px]">
-          Audit.<span className="text-[#c5cbd4]">Perfectly.</span>
-        </h1>
-        <p className="mt-6 max-w-[560px] text-[18px] leading-[1.45] text-[#788393]">
-          Auditly uses deep operational reasoning to identify risk, evidence gaps, and reporting priorities while your team focuses on assurance.
-        </p>
-        <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row">
-          <Button asChild className="h-[42px] min-w-[180px] rounded-full bg-[#1d2836] px-8 text-[10px] font-bold uppercase tracking-[0.18em] text-white shadow-[0_12px_26px_rgba(15,23,42,0.16)] hover:bg-[#111820]">
-            <Link to="/register">Begin onboarding</Link>
-          </Button>
-          <Button asChild variant="outline" className="h-[42px] min-w-[194px] rounded-full border-white bg-white px-8 text-[10px] font-bold uppercase tracking-[0.18em] text-[#3d4652] shadow-[0_10px_24px_rgba(15,23,42,0.08)] hover:bg-white hover:text-[#111820]">
-            <a href="#story">Watch intelligence</a>
-          </Button>
+
+        <div className="relative mx-auto w-full max-w-[560px]">
+          <div className="absolute -left-4 top-10 hidden h-20 w-20 rounded-2xl border border-[#e7edf4] bg-white/85 p-3 shadow-[0_18px_40px_rgba(15,23,42,0.08)] sm:block">
+            <div className="flex h-full w-full items-center justify-center rounded-xl bg-[#f4f7f9] text-[#152230]">
+              <ShieldCheck className="h-8 w-8" />
+            </div>
+          </div>
+
+          <div className="absolute -right-3 bottom-8 hidden rounded-2xl border border-[#edf1f5] bg-white/90 px-4 py-3 shadow-[0_24px_50px_rgba(15,23,42,0.08)] sm:block">
+            <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-[#8a96a7]">Readiness</p>
+            <p className="mt-2 text-2xl font-black tracking-[-0.06em] text-[#171f2a]">94%</p>
+          </div>
+
+          <div className="overflow-hidden rounded-[28px] border border-[#e7edf3] bg-white shadow-[0_35px_90px_rgba(15,23,42,0.12)]">
+            <div className="flex h-[42px] items-center gap-2 border-b border-[#edf1f5] bg-[#fafbfc] px-4">
+              <span className="h-2.5 w-2.5 rounded-full bg-[#ff8b8b]" />
+              <span className="h-2.5 w-2.5 rounded-full bg-[#f7cf62]" />
+              <span className="h-2.5 w-2.5 rounded-full bg-[#6ecf80]" />
+              <div className="ml-3 h-[18px] flex-1 rounded-full border border-[#e5e9ee] bg-white px-3 text-left text-[9px] leading-[18px] text-[#c1c8d0]">
+                app.auditly.ai/portfolio
+              </div>
+            </div>
+
+            <div className="p-5 sm:p-6">
+              <div className="flex items-center justify-between gap-4 rounded-[18px] border border-[#edf1f5] bg-[#f9fafb] p-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#0f1720] p-2 shadow-[0_10px_24px_rgba(15,23,42,0.12)]">
+                    <img src={PRODUCT_LOGO} alt="Auditly" className="h-6 w-6 object-contain" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#8b98a8]">Institution portfolio</p>
+                    <p className="mt-1 text-[16px] font-black tracking-[-0.05em] text-[#17212d]">Audit command</p>
+                  </div>
+                </div>
+                <div className="rounded-full bg-[#ecf5f0] px-2.5 py-1 text-[8px] font-bold uppercase tracking-[0.12em] text-[#1b7a4a]">
+                  Live
+                </div>
+              </div>
+
+              <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                {[
+                  ["127", "Audit tests"],
+                  ["84.3%", "Ready"],
+                  ["38hrs", "Saved"],
+                ].map(([value, label]) => (
+                  <div key={label} className="rounded-[16px] border border-[#edf2f6] bg-[#fbfcfd] p-4">
+                    <p className="text-[18px] font-black tracking-[-0.06em] text-[#181f29]">{value}</p>
+                    <p className="mt-1 text-[8px] font-bold uppercase tracking-[0.14em] text-[#8b97a8]">{label}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-5 overflow-hidden rounded-[18px] border border-[#edf1f5] bg-white">
+                <div className="grid grid-cols-[1.3fr_1fr_0.9fr] bg-[#fafbfd] px-4 py-3 text-left text-[8px] font-bold uppercase tracking-[0.12em] text-[#99a5b6]">
+                  <span>Area</span>
+                  <span>Type</span>
+                  <span>Status</span>
+                </div>
+                {candidates.slice(0, 3).map(([initial, name, role, score, status], index) => (
+                  <div key={name} className={`grid grid-cols-[1.3fr_1fr_0.9fr] items-center px-4 py-3 text-left text-[10px] ${index % 2 ? "bg-[#fbfcfd]" : "bg-white"}`}>
+                    <span className="flex items-center gap-2 font-semibold text-[#17212d]">
+                      <span className="flex h-[22px] w-[22px] items-center justify-center rounded-full border border-[#dfe4ea] bg-[#f3f5f7] text-[9px] text-[#9aa4b1]">
+                        {initial}
+                      </span>
+                      {name}
+                    </span>
+                    <span className="text-[#6d7a8a]">{role}</span>
+                    <span>
+                      <span className={`rounded-full px-2 py-1 text-[7px] font-bold uppercase ${status === "DRAFT" ? "bg-[#f0f2f5] text-[#8f9aa8]" : "bg-[#1d2836] text-white"}`}>
+                        {status}
+                      </span>
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
