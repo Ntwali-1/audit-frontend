@@ -107,7 +107,7 @@ const SUGGESTIONS = [
 ];
 
 function renderInlineMarkdown(text: string): React.ReactNode[] {
-  const tokens = text.split(/(\*\*.*?\*\*|__.*?__|<u>.*?</u>)/g);
+  const tokens = text.split(/(\*\*.*?\*\*|__.*?__|<u>.*?<\/u>)/g);
 
   return tokens.map((token, index) => {
     if (token.startsWith("**") && token.endsWith("**")) {
