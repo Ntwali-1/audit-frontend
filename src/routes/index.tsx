@@ -130,19 +130,19 @@ function Hero() {
         <div className="absolute inset-x-0 bottom-0 h-[220px] bg-gradient-to-b from-transparent via-white/75 to-white" />
       </div>
 
-      <div className="relative z-10 mx-auto grid max-w-[1180px] items-center gap-10 px-5 lg:grid-cols-[1.02fr_0.98fr]">
-        <div className="max-w-[560px]">
+      <div className="relative z-10 mx-auto grid max-w-[1200px] items-center gap-6 px-5 lg:grid-cols-[0.98fr_1.02fr]">
+        <div className="max-w-[520px] -translate-x-3">
           <div className="inline-flex items-center gap-2 rounded-full border border-[#e2e8ef] bg-white/80 px-3 py-1.5 text-[9px] font-bold uppercase tracking-[0.18em] text-[#6b7788] shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
             <span className="h-2 w-2 rounded-full bg-[#16212f]" />
             Autonomous audit intelligence
           </div>
 
-          <h1 className="mt-7 font-display text-[48px] font-semibold leading-[0.95] tracking-[-0.06em] text-[#17212d] sm:text-[60px] lg:text-[72px]">
+          <h1 className="mt-7 font-display text-[42px] font-semibold leading-[0.92] tracking-[-0.06em] text-[#17212d] sm:text-[52px] lg:text-[66px]">
             Audit with
             <span className="mt-2 block text-[#abb4c0]">clarity.</span>
           </h1>
 
-          <p className="mt-6 max-w-[520px] text-[17px] leading-[1.6] text-[#667385] sm:text-[19px]">
+          <p className="mt-6 max-w-[470px] text-[16px] leading-[1.55] text-[#667385] sm:text-[18px]">
             Auditly turns fragmented evidence, risk indicators, and reporting tasks into one intelligent workflow designed for modern institutions.
           </p>
 
@@ -168,7 +168,7 @@ function Hero() {
           </div>
         </div>
 
-        <div className="relative mx-auto w-full max-w-[700px]">
+        <div className="relative mx-auto w-full max-w-[760px]">
           <div className="absolute -left-4 top-10 hidden h-20 w-20 rounded-2xl border border-[#e7edf4] bg-white/85 p-3 shadow-[0_18px_40px_rgba(15,23,42,0.08)] sm:block">
             <div className="flex h-full w-full items-center justify-center rounded-xl bg-[#f4f7f9] text-[#152230]">
               <ShieldCheck className="h-8 w-8" />
