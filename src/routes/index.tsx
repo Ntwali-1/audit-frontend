@@ -168,7 +168,7 @@ function Hero() {
           </div>
         </div>
 
-        <div className="relative mx-auto w-full max-w-[600px]">
+        <div className="relative mx-auto w-full max-w-[700px]">
           <div className="absolute -left-4 top-10 hidden h-20 w-20 rounded-2xl border border-[#e7edf4] bg-white/85 p-3 shadow-[0_18px_40px_rgba(15,23,42,0.08)] sm:block">
             <div className="flex h-full w-full items-center justify-center rounded-xl bg-[#f4f7f9] text-[#152230]">
               <ShieldCheck className="h-8 w-8" />
@@ -190,11 +190,13 @@ function Hero() {
               </div>
             </div>
 
-            <img
-              src="/dashboard.png"
-              alt="Auditly dashboard"
-              className="h-[440px] w-full object-cover object-top"
-            />
+            <div className="overflow-hidden bg-[#f2f4f6]">
+              <img
+                src="/dashboard.png"
+                alt="Auditly dashboard"
+                className="h-[440px] w-full object-cover object-center scale-[1.04]"
+              />
+            </div>
           </div>
         </div>
       </div>
