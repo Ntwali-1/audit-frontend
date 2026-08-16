@@ -37,21 +37,25 @@ const systems = [
     no: "01",
     title: "INTAKE INTELLIGENCE",
     text: "Capture audit requests, institutional context, and annual plan priorities without scattered spreadsheets.",
+    variant: "intake",
   },
   {
     no: "02",
     title: "NEURAL EVIDENCE FLOW",
     text: "Connect teams, evidence folders, submissions, and conversations into one clear review trail.",
+    variant: "evidence",
   },
   {
     no: "03",
     title: "AUTONOMOUS FINDINGS",
     text: "Issues are tracked in real time. Only verified findings reach managers with the context they need.",
+    variant: "findings",
   },
   {
     no: "04",
     title: "SMART REPORTING",
     text: "Auditly prepares clean report packets and highlights gaps before oversight submissions are due.",
+    variant: "reporting",
   },
 ];
 
@@ -354,13 +358,137 @@ function ProductDemo() {
   );
 }
 
+function renderSystemPreview(variant: string) {
+  const sharedFrame =
+    "relative h-full overflow-hidden rounded-[18px] border border-[#edf1f5] bg-[#f9fafb] p-3 shadow-[0_16px_28px_rgba(15,23,42,0.06)]";
+
+  if (variant === "assistant") {
+    return (
+      <div className={sharedFrame}>
+        <div className="flex h-full flex-col rounded-[14px] bg-[#f3f4f6] p-2">
+          <div className="flex items-center gap-2 border-b border-[#e6eaee] pb-2">
+            <span className="h-2.5 w-2.5 rounded-full bg-[#1e1f22]" />
+            <span className="h-2.5 w-2.5 rounded-full bg-[#d9dfe6]" />
+            <span className="h-2.5 w-2.5 rounded-full bg-[#d9dfe6]" />
+          </div>
+          <div className="mt-2 flex-1 space-y-2">
+            <div className="rounded-xl bg-white p-2 text-[8px] leading-4 text-[#4b5563] shadow-sm">
+              Which audits are overdue this month?
+            </div>
+            <div className="ml-3 rounded-xl bg-[#111827] px-2 py-1.5 text-[8px] font-medium text-white">
+              Show me all critical findings...
+            </div>
+            <div className="rounded-xl bg-white p-2 text-[8px] leading-4 text-[#4b5563] shadow-sm">
+              Based on your workspace data, there are currently no audits recorded in the system.
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (variant === "evidence") {
+    return (
+      <div className={sharedFrame}>
+        <div className="flex h-full rounded-[14px] bg-[#fafafb] p-2">
+          <aside className="w-[26%] rounded-[10px] bg-[#111827] p-2 text-[7px] text-white/80">
+            <div className="mb-3 h-5 w-10 rounded bg-white/10" />
+            <div className="space-y-2">
+              <div className="h-2.5 rounded bg-white/10" />
+              <div className="h-2.5 rounded bg-white/10" />
+              <div className="h-2.5 rounded bg-white/10" />
+            </div>
+          </aside>
+          <div className="ml-2 flex-1 space-y-2">
+            <div className="flex items-center justify-between rounded-[10px] bg-white px-2 py-2 shadow-sm">
+              <div>
+                <div className="h-2.5 w-16 rounded bg-[#dfe5ea]" />
+                <div className="mt-2 h-2 w-10 rounded bg-[#edf1f5]" />
+              </div>
+              <div className="h-6 w-6 rounded-full bg-[#111827]" />
+            </div>
+            <div className="rounded-[10px] bg-white p-2 shadow-sm">
+              <div className="mb-2 h-2.5 w-20 rounded bg-[#e5e7eb]" />
+              <div className="space-y-1.5">
+                <div className="h-2 rounded bg-[#eef2f5]" />
+                <div className="h-2 rounded bg-[#eef2f5]" />
+                <div className="h-2 rounded bg-[#eef2f5]" />
+                <div className="h-2 rounded bg-[#eef2f5]" />
+              </div>
+            </div>
+            <div className="rounded-[10px] bg-[#eef4f6] p-2 shadow-sm">
+              <div className="h-2.5 w-16 rounded bg-[#d8e3ea]" />
+              <div className="mt-2 h-2 w-14 rounded bg-[#cfe0ea]" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (variant === "findings") {
+    return (
+      <div className={sharedFrame}>
+        <div className="flex h-full flex-col rounded-[14px] bg-[#f5f6f8] p-2">
+          <div className="rounded-[10px] bg-white p-2 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div className="h-2.5 w-20 rounded bg-[#dfe5ea]" />
+              <div className="h-5 w-12 rounded-full bg-[#ecfdf5]" />
+            </div>
+            <div className="mt-3 space-y-2">
+              <div className="h-8 rounded bg-[#eef2f5]" />
+              <div className="h-8 rounded bg-[#eef2f5]" />
+              <div className="h-8 rounded bg-[#eef2f5]" />
+            </div>
+          </div>
+          <div className="mt-2 grid grid-cols-2 gap-2">
+            <div className="rounded-[10px] bg-[#111827] p-2 text-[7px] text-white">
+              <div className="mb-2 h-2.5 w-12 rounded bg-white/20" />
+              <div className="h-2 rounded bg-white/10" />
+            </div>
+            <div className="rounded-[10px] bg-white p-2 shadow-sm">
+              <div className="mb-2 h-2.5 w-12 rounded bg-[#e5e7eb]" />
+              <div className="h-2 rounded bg-[#eef2f5]" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={sharedFrame}>
+      <div className="flex h-full flex-col rounded-[14px] bg-[#f7f8fa] p-2">
+        <div className="mb-2 flex items-center justify-between rounded-[10px] bg-white p-2 shadow-sm">
+          <div className="h-2.5 w-16 rounded bg-[#dfe5ea]" />
+          <div className="h-5 w-5 rounded-full bg-[#111827]" />
+        </div>
+        <div className="grid flex-1 grid-cols-2 gap-2">
+          <div className="rounded-[10px] bg-white p-2 shadow-sm">
+            <div className="mb-2 h-2.5 w-12 rounded bg-[#e5e7eb]" />
+            <div className="h-14 rounded bg-[#eef2f5]" />
+          </div>
+          <div className="rounded-[10px] bg-[#111827] p-2 text-white shadow-sm">
+            <div className="mb-2 h-2.5 w-12 rounded bg-white/15" />
+            <div className="h-14 rounded bg-white/10" />
+          </div>
+        </div>
+        <div className="mt-2 rounded-[10px] bg-white p-2 shadow-sm">
+          <div className="h-2.5 w-20 rounded bg-[#e5e7eb]" />
+          <div className="mt-2 h-2 rounded bg-[#eef2f5]" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function SystemsSection() {
   return (
-    <section id="systems" className="bg-[#fbfcfd] px-5 py-20">
-      <div className="mx-auto grid max-w-[915px] gap-12 lg:grid-cols-[0.9fr_1.1fr]">
-        <div id="scale" className="pt-8">
+    <section id="systems" className="bg-[#fbfcfd] px-5 py-16 sm:py-20">
+      <div className="mx-auto grid max-w-[1180px] gap-8 lg:grid-cols-[0.7fr_1.3fr] lg:items-start">
+        <div id="scale" className="pt-4 lg:sticky lg:top-24 lg:pb-10">
           <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-[#a0a9b6]">Autonomous systems</p>
-          <h2 className="mt-6 max-w-[350px] font-display text-[38px] font-medium leading-[1.15] tracking-normal text-[#17212d]">
+          <h2 className="mt-6 max-w-[330px] font-display text-[38px] font-medium leading-[1.12] tracking-normal text-[#17212d]">
             Audit work that <span className="text-[#a8b0bd]">reasons like you.</span>
           </h2>
           <p className="mt-7 max-w-[330px] text-[14px] leading-7 text-[#788393]">
@@ -368,17 +496,28 @@ function SystemsSection() {
           </p>
         </div>
 
-        <div className="space-y-0">
-          {systems.map((item) => (
-            <article key={item.no} className="relative rounded-[28px] border border-[#f1f3f6] bg-white px-9 py-11 shadow-[0_20px_70px_rgba(15,23,42,0.05)]">
-              <span className="flex h-[39px] w-[39px] items-center justify-center rounded-[12px] bg-[#fbfcfd] text-[#263241]">
-                {item.no === "01" ? <FileCheck2 className="h-5 w-5" /> : <Zap className="h-5 w-5" />}
-              </span>
-              <span className="absolute right-9 top-9 text-[24px] font-black italic text-[#eef1f5]">{item.no}</span>
-              <h3 className="mt-7 text-[20px] font-black uppercase tracking-[-0.06em] text-[#17212d]">{item.title}</h3>
-              <p className="mt-4 max-w-[390px] text-[13px] leading-7 text-[#8a94a3]">{item.text}</p>
-            </article>
-          ))}
+        <div className="lg:max-h-[620px] lg:overflow-y-auto lg:pr-2">
+          <div className="space-y-[-26px]">
+            {systems.map((item, index) => (
+              <article
+                key={item.no}
+                className={`relative rounded-[28px] border border-[#f1f3f6] bg-white px-5 py-6 shadow-[0_20px_70px_rgba(15,23,42,0.06)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_26px_76px_rgba(15,23,42,0.09)] lg:px-7 lg:py-7 ${index > 0 ? "-mt-[26px]" : ""}`}
+              >
+                <div className="grid gap-5 lg:grid-cols-[0.92fr_1.08fr] lg:items-center">
+                  <div>
+                    <span className="flex h-[39px] w-[39px] items-center justify-center rounded-[12px] bg-[#fbfcfd] text-[#263241]">
+                      {item.no === "01" ? <FileCheck2 className="h-5 w-5" /> : <Zap className="h-5 w-5" />}
+                    </span>
+                    <span className="mt-5 block text-[24px] font-black italic text-[#eef1f5]">{item.no}</span>
+                    <h3 className="mt-3 text-[20px] font-black uppercase tracking-[-0.06em] text-[#17212d]">{item.title}</h3>
+                    <p className="mt-3 max-w-[390px] text-[13px] leading-7 text-[#8a94a3]">{item.text}</p>
+                  </div>
+
+                  <div className="min-h-[200px]">{renderSystemPreview(item.variant)}</div>
+                </div>
+              </article>
+            ))}
+          </div>
         </div>
       </div>
     </section>
