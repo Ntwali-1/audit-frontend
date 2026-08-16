@@ -16,6 +16,7 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ReportsRouteImport } from './routes/reports'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as NotificationsRouteImport } from './routes/notifications'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as FindingsRouteImport } from './routes/findings'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AssistantRouteImport } from './routes/assistant'
@@ -70,6 +71,11 @@ const RegisterRoute = RegisterRouteImport.update({
 const NotificationsRoute = NotificationsRouteImport.update({
   id: '/notifications',
   path: '/notifications',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FindingsRoute = FindingsRouteImport.update({
@@ -179,6 +185,7 @@ export interface FileRoutesByFullPath {
   '/assistant': typeof AssistantRoute
   '/dashboard': typeof DashboardRoute
   '/findings': typeof FindingsRoute
+  '/login': typeof LoginRoute
   '/notifications': typeof NotificationsRoute
   '/register': typeof RegisterRoute
   '/reports': typeof ReportsRoute
@@ -208,6 +215,7 @@ export interface FileRoutesByTo {
   '/assistant': typeof AssistantRoute
   '/dashboard': typeof DashboardRoute
   '/findings': typeof FindingsRoute
+  '/login': typeof LoginRoute
   '/notifications': typeof NotificationsRoute
   '/register': typeof RegisterRoute
   '/reports': typeof ReportsRoute
@@ -238,6 +246,7 @@ export interface FileRoutesById {
   '/assistant': typeof AssistantRoute
   '/dashboard': typeof DashboardRoute
   '/findings': typeof FindingsRoute
+  '/login': typeof LoginRoute
   '/notifications': typeof NotificationsRoute
   '/register': typeof RegisterRoute
   '/reports': typeof ReportsRoute
@@ -269,6 +278,7 @@ export interface FileRouteTypes {
     | '/assistant'
     | '/dashboard'
     | '/findings'
+    | '/login'
     | '/notifications'
     | '/register'
     | '/reports'
@@ -298,6 +308,7 @@ export interface FileRouteTypes {
     | '/assistant'
     | '/dashboard'
     | '/findings'
+    | '/login'
     | '/notifications'
     | '/register'
     | '/reports'
@@ -327,6 +338,7 @@ export interface FileRouteTypes {
     | '/assistant'
     | '/dashboard'
     | '/findings'
+    | '/login'
     | '/notifications'
     | '/register'
     | '/reports'
@@ -357,6 +369,7 @@ export interface RootRouteChildren {
   AssistantRoute: typeof AssistantRoute
   DashboardRoute: typeof DashboardRoute
   FindingsRoute: typeof FindingsRoute
+  LoginRoute: typeof LoginRoute
   NotificationsRoute: typeof NotificationsRoute
   RegisterRoute: typeof RegisterRoute
   ReportsRoute: typeof ReportsRoute
@@ -430,6 +443,13 @@ declare module '@tanstack/react-router' {
       path: '/notifications'
       fullPath: '/notifications'
       preLoaderRoute: typeof NotificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/findings': {
@@ -581,6 +601,7 @@ const rootRouteChildren: RootRouteChildren = {
   AssistantRoute: AssistantRoute,
   DashboardRoute: DashboardRoute,
   FindingsRoute: FindingsRoute,
+  LoginRoute: LoginRoute,
   NotificationsRoute: NotificationsRoute,
   RegisterRoute: RegisterRoute,
   ReportsRoute: ReportsRoute,

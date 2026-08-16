@@ -132,7 +132,7 @@ function RegisterInstitution() {
             />
             <span className="text-[15px] font-semibold" style={{ color: "var(--brown-800)" }}>Auditly</span>
           </div>
-          <Link to="/" className="text-[13px] hover:underline" style={{ color: "var(--text-muted)" }}>
+          <Link to="/login" className="text-[13px] hover:underline" style={{ color: "var(--text-muted)" }}>
             Already registered? Sign in
           </Link>
         </header>
@@ -402,7 +402,7 @@ function SubmittedScreen({ message, invites }: { message: string; invites: numbe
           </p>
         </div>
 
-        <Link to="/">
+        <Link to="/login">
           <Button variant="outline" className="mt-6">Back to sign in</Button>
         </Link>
       </div>
