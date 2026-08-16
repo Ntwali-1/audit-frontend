@@ -130,8 +130,8 @@ function Hero() {
         <div className="absolute inset-x-0 bottom-0 h-[220px] bg-gradient-to-b from-transparent via-white/75 to-white" />
       </div>
 
-      <div className="relative z-10 mx-auto grid max-w-[1200px] items-center gap-6 px-5 lg:grid-cols-[0.98fr_1.02fr]">
-        <div className="max-w-[520px] -translate-x-3">
+      <div className="relative z-10 mx-auto grid max-w-[1280px] items-center gap-8 px-5 lg:grid-cols-[0.92fr_1.08fr]">
+        <div className="max-w-[520px] -translate-x-2">
           <div className="inline-flex items-center gap-2 rounded-full border border-[#e2e8ef] bg-white/80 px-3 py-1.5 text-[9px] font-bold uppercase tracking-[0.18em] text-[#6b7788] shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
             <span className="h-2 w-2 rounded-full bg-[#16212f]" />
             Autonomous audit intelligence
@@ -168,19 +168,8 @@ function Hero() {
           </div>
         </div>
 
-        <div className="relative mx-auto w-full max-w-[760px]">
-          <div className="absolute -left-4 top-10 hidden h-20 w-20 rounded-2xl border border-[#e7edf4] bg-white/85 p-3 shadow-[0_18px_40px_rgba(15,23,42,0.08)] sm:block">
-            <div className="flex h-full w-full items-center justify-center rounded-xl bg-[#f4f7f9] text-[#152230]">
-              <ShieldCheck className="h-8 w-8" />
-            </div>
-          </div>
-
-          <div className="absolute -right-3 bottom-8 hidden rounded-2xl border border-[#edf1f5] bg-white/90 px-4 py-3 shadow-[0_24px_50px_rgba(15,23,42,0.08)] sm:block">
-            <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-[#8a96a7]">Readiness</p>
-            <p className="mt-2 text-2xl font-black tracking-[-0.06em] text-[#171f2a]">94%</p>
-          </div>
-
-          <div className="overflow-hidden rounded-[28px] border border-[#e7edf3] bg-white shadow-[0_35px_90px_rgba(15,23,42,0.12)]">
+        <div className="mx-auto w-full max-w-[760px]">
+          <div className="overflow-hidden rounded-[30px] border border-[#e7edf3] bg-white shadow-[0_35px_90px_rgba(15,23,42,0.12)]">
             <div className="flex h-[42px] items-center gap-2 border-b border-[#edf1f5] bg-[#fafbfc] px-4">
               <span className="h-2.5 w-2.5 rounded-full bg-[#ff8b8b]" />
               <span className="h-2.5 w-2.5 rounded-full bg-[#f7cf62]" />
@@ -190,11 +179,11 @@ function Hero() {
               </div>
             </div>
 
-            <div className="overflow-hidden bg-[#f2f4f6]">
+            <div className="overflow-hidden bg-[#f3f3f1]">
               <img
                 src="/dashboard.png"
                 alt="Auditly dashboard"
-                className="h-[440px] w-full object-cover object-center scale-[1.04]"
+                className="h-[470px] w-full object-contain object-center"
               />
             </div>
           </div>
