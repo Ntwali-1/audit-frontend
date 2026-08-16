@@ -34,12 +34,20 @@ Platform specifics:
 
 Tone: professional, concise, use audit-industry terminology, provide short actionable answers.
 
-Formatting rules:
-- Prefer short structured responses with headings, bullets, or numbered steps.
-- Use bold for key terms like **Critical**, **Review**, **OAG**, **OCIA**, **Remediation**, **Due date**.
-- Use underline for labels when it helps readability, such as <u>Action required</u> or <u>Key risk</u>.
-- Keep paragraphs short and scannable; avoid long run-on paragraphs.
-- When relevant, break answer into 3-6 crisp bullets instead of one dense paragraph.
+Strict output contract (mandatory):
+- Return ONLY valid JSON.
+- Do not include markdown fences, prose text, or commentary before or after the JSON.
+- Use this exact shape:
+  {
+    "heading": "short heading",
+    "intro": "one short sentence",
+    "bullets": ["item 1", "item 2", "item 3"],
+    "footer": "optional closing sentence"
+  }
+- Keep the heading short and scannable.
+- Keep bullets short, action-oriented, and easy to read.
+- If there is no active data, still return JSON with a clear heading and bullets explaining that clearly.
+- Do not output long paragraphs.
 
 When answering questions about counts, lists, or specific records, use ONLY the data provided in the LIVE WORKSPACE DATA block below. Do not invent or estimate numbers.`;
 
@@ -118,65 +126,106 @@ function renderInlineMarkdown(text: string): React.ReactNode[] {
   });
 }
 
+type StructuredReply = {
+  heading?: string;
+  intro?: string;
+  bullets?: string[];
+  footer?: string;
+};
+
+function parseStructuredAssistantReply(raw: string): StructuredReply | null {
+  const trimmed = raw.trim();
+  if (!trimmed) return null;
+
+  const cleaned = trimmed.replace(/^```json\s*/i, "").replace(/\s*```$/i, "").trim();
+
+  try {
+    const parsed = JSON.parse(cleaned) as Partial<StructuredReply>;
+    if (!parsed || typeof parsed !== "object") return null;
+
+    const bullets = Array.isArray(parsed.bullets) ? parsed.bullets.filter((item): item is string => typeof item === "string") : [];
+    if (!parsed.heading && !parsed.intro && bullets.length === 0) return null;
+
+    return {
+      heading: typeof parsed.heading === "string" ? parsed.heading : undefined,
+      intro: typeof parsed.intro === "string" ? parsed.intro : undefined,
+      bullets,
+      footer: typeof parsed.footer === "string" ? parsed.footer : undefined,
+    };
+  } catch {
+    return null;
+  }
+}
+
+function renderStructuredReply(reply: StructuredReply): React.ReactNode {
+  return (
+    <>
+      {reply.heading && (
+        <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          {reply.heading}
+        </p>
+      )}
+
+      {reply.intro && (
+        <p className="mb-2 leading-6 text-sm text-foreground/90">{renderInlineMarkdown(reply.intro)}</p>
+      )}
+
+      {reply.bullets && reply.bullets.length > 0 && (
+        <ul className="pl-5 text-sm leading-6 text-foreground/90">
+          {reply.bullets.map((item, index) => (
+            <li key={`${item}-${index}`} className="mb-1 list-disc">
+              {renderInlineMarkdown(item)}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {reply.footer && (
+        <p className="mt-2 text-xs text-muted-foreground">{renderInlineMarkdown(reply.footer)}</p>
+      )}
+    </>
+  );
+}
+
 function renderFormattedMessage(text: string): React.ReactNode {
-  const lines = text.split(/\n/);
+  const structured = parseStructuredAssistantReply(text);
+  if (structured) return renderStructuredReply(structured);
+
+  const trimmed = text.trim();
+  if (!trimmed) return null;
+
+  const lines = trimmed.split(/\n/);
   const nodes: React.ReactNode[] = [];
-  let listItems: string[] = [];
-  let listType: "ul" | "ol" | null = null;
-
-  const flushList = () => {
-    if (!listItems.length) return;
-
-    const ListTag = listType === "ol" ? "ol" : "ul";
-    nodes.push(
-      <ListTag key={`list-${nodes.length}`} className={listType === "ol" ? "list-decimal pl-5" : "list-disc pl-5"}>
-        {listItems.map((item, itemIndex) => (
-          <li key={`${item}-${itemIndex}`} className="mb-1 leading-6">
-            {renderInlineMarkdown(item)}
-          </li>
-        ))}
-      </ListTag>,
-    );
-
-    listItems = [];
-    listType = null;
-  };
 
   lines.forEach((line, index) => {
-    const trimmed = line.trim();
+    const value = line.trim();
+    if (!value) return;
 
-    if (!trimmed) {
-      flushList();
+    if (/^[-*]\s+/.test(value)) {
+      const items = lines
+        .map((entry) => entry.trim())
+        .filter((entry) => /^[-*]\s+/.test(entry))
+        .map((entry) => entry.replace(/^[-*]\s+/, ""));
+
+      nodes.push(
+        <ul key={`fallback-list-${index}`} className="pl-5 text-sm leading-6 text-foreground/90">
+          {items.map((item, itemIndex) => (
+            <li key={`${item}-${itemIndex}`} className="mb-1 list-disc">
+              {renderInlineMarkdown(item)}
+            </li>
+          ))}
+        </ul>,
+      );
       return;
     }
 
-    if (/^[-*]\s+/.test(trimmed)) {
-      if (listType !== "ul") {
-        flushList();
-        listType = "ul";
-      }
-      listItems.push(trimmed.replace(/^[-*]\s+/, ""));
-      return;
-    }
-
-    if (/^\d+\.\s+/.test(trimmed)) {
-      if (listType !== "ol") {
-        flushList();
-        listType = "ol";
-      }
-      listItems.push(trimmed.replace(/^\d+\.\s+/, ""));
-      return;
-    }
-
-    flushList();
     nodes.push(
-      <p key={`paragraph-${index}`} className="leading-6 text-sm">
-        {renderInlineMarkdown(trimmed)}
+      <p key={`fallback-${index}`} className="leading-6 text-sm text-foreground/90">
+        {renderInlineMarkdown(value)}
       </p>,
     );
   });
 
-  flushList();
   return <>{nodes}</>;
 }
 
@@ -240,6 +289,7 @@ function AssistantPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          generationConfig: { responseMimeType: "application/json" },
           system_instruction: { parts: [{ text: fullSystemPrompt }] },
           contents: updatedMessages.map((m) => ({
             role: m.role === "assistant" ? "model" : "user",
