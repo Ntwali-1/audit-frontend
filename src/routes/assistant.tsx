@@ -34,6 +34,13 @@ Platform specifics:
 
 Tone: professional, concise, use audit-industry terminology, provide short actionable answers.
 
+Formatting rules:
+- Prefer short structured responses with headings, bullets, or numbered steps.
+- Use bold for key terms like **Critical**, **Review**, **OAG**, **OCIA**, **Remediation**, **Due date**.
+- Use underline for labels when it helps readability, such as <u>Action required</u> or <u>Key risk</u>.
+- Keep paragraphs short and scannable; avoid long run-on paragraphs.
+- When relevant, break answer into 3-6 crisp bullets instead of one dense paragraph.
+
 When answering questions about counts, lists, or specific records, use ONLY the data provided in the LIVE WORKSPACE DATA block below. Do not invent or estimate numbers.`;
 
 function buildWorkspaceContext(
@@ -90,6 +97,88 @@ const SUGGESTIONS = [
   "Which vendors have outstanding unreviewed contracts?",
   "Top 5 auditors by findings logged this quarter",
 ];
+
+function renderInlineMarkdown(text: string): React.ReactNode[] {
+  const tokens = text.split(/(\*\*.*?\*\*|__.*?__|<u>.*?</u>)/g);
+
+  return tokens.map((token, index) => {
+    if (token.startsWith("**") && token.endsWith("**")) {
+      return <strong key={`${token}-${index}`}>{token.slice(2, -2)}</strong>;
+    }
+
+    if (token.startsWith("__") && token.endsWith("__")) {
+      return <span key={`${token}-${index}`} className="underline decoration-1 underline-offset-2">{token.slice(2, -2)}</span>;
+    }
+
+    if (token.startsWith("<u>") && token.endsWith("</u>")) {
+      return <span key={`${token}-${index}`} className="underline decoration-1 underline-offset-2">{token.slice(3, -4)}</span>;
+    }
+
+    return <React.Fragment key={`${token}-${index}`}>{token}</React.Fragment>;
+  });
+}
+
+function renderFormattedMessage(text: string): React.ReactNode {
+  const lines = text.split(/\n/);
+  const nodes: React.ReactNode[] = [];
+  let listItems: string[] = [];
+  let listType: "ul" | "ol" | null = null;
+
+  const flushList = () => {
+    if (!listItems.length) return;
+
+    const ListTag = listType === "ol" ? "ol" : "ul";
+    nodes.push(
+      <ListTag key={`list-${nodes.length}`} className={listType === "ol" ? "list-decimal pl-5" : "list-disc pl-5"}>
+        {listItems.map((item, itemIndex) => (
+          <li key={`${item}-${itemIndex}`} className="mb-1 leading-6">
+            {renderInlineMarkdown(item)}
+          </li>
+        ))}
+      </ListTag>,
+    );
+
+    listItems = [];
+    listType = null;
+  };
+
+  lines.forEach((line, index) => {
+    const trimmed = line.trim();
+
+    if (!trimmed) {
+      flushList();
+      return;
+    }
+
+    if (/^[-*]\s+/.test(trimmed)) {
+      if (listType !== "ul") {
+        flushList();
+        listType = "ul";
+      }
+      listItems.push(trimmed.replace(/^[-*]\s+/, ""));
+      return;
+    }
+
+    if (/^\d+\.\s+/.test(trimmed)) {
+      if (listType !== "ol") {
+        flushList();
+        listType = "ol";
+      }
+      listItems.push(trimmed.replace(/^\d+\.\s+/, ""));
+      return;
+    }
+
+    flushList();
+    nodes.push(
+      <p key={`paragraph-${index}`} className="leading-6 text-sm">
+        {renderInlineMarkdown(trimmed)}
+      </p>,
+    );
+  });
+
+  flushList();
+  return <>{nodes}</>;
+}
 
 function AssistantPage() {
   const { user } = useAuth();
@@ -199,7 +288,7 @@ function AssistantPage() {
                       : "bg-muted text-foreground rounded-bl-sm"
                   }`}
                 >
-                  {m.text}
+                  {m.role === "assistant" ? renderFormattedMessage(m.text) : m.text}
                 </div>
               </div>
             ))}
