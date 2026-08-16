@@ -1,22 +1,13 @@
 import * as React from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
-  ArrowRight,
-  BarChart3,
-  Bot,
-  Building2,
-  CheckCircle2,
-  ClipboardCheck,
+  ChevronDown,
   FileCheck2,
-  FileText,
-  Globe2,
-  Layers3,
-  LockKeyhole,
-  MessageSquareText,
+  Github,
+  Home,
   ShieldCheck,
-  Sparkles,
-  UsersRound,
-  Workflow,
+  Twitter,
+  Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PRODUCT_LOGO } from "@/lib/auth-context";
@@ -24,200 +15,245 @@ import { PRODUCT_LOGO } from "@/lib/auth-context";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Auditly · Intelligent audit management" },
+      { title: "Auditly - Intelligent audit management" },
       {
         name: "description",
-        content: "Run audit engagements, evidence, findings, reports, and statutory submissions in one intelligent workspace.",
+        content: "Autonomous audit intelligence for engagements, evidence, findings, and statutory reporting.",
       },
     ],
   }),
   component: LandingPage,
 });
 
-const partners = ["OAG", "OCIA", "Districts", "Ministries", "Private audit teams", "External auditees"];
+const candidates = [
+  ["R", "Revenue Controls", "Financial Audit", "96", "REVIEWING"],
+  ["P", "Procurement Cycle", "Compliance", "91", "ACTIVE"],
+  ["A", "Asset Register", "Operations", "82", "DRAFT"],
+  ["G", "Grant Reporting", "Financial Audit", "94", "REVIEWING"],
+];
 
-const features = [
+const systems = [
   {
-    icon: ClipboardCheck,
-    title: "Engagement command center",
-    text: "Plan audits, assign steps, track fieldwork, and keep every team member aligned from kickoff to closeout.",
+    no: "01",
+    title: "INTAKE INTELLIGENCE",
+    text: "Capture audit requests, institutional context, and annual plan priorities without scattered spreadsheets.",
   },
   {
-    icon: FileCheck2,
-    title: "Evidence and findings workflow",
-    text: "Collect documents, raise findings, verify remediation, and preserve a clean trail for review.",
+    no: "02",
+    title: "NEURAL EVIDENCE FLOW",
+    text: "Connect teams, evidence folders, submissions, and conversations into one clear review trail.",
   },
   {
-    icon: Bot,
-    title: "AI-assisted audit work",
-    text: "Use the assistant to summarize evidence, draft observations, and surface next actions without leaving the workspace.",
+    no: "03",
+    title: "AUTONOMOUS FINDINGS",
+    text: "Issues are tracked in real time. Only verified findings reach managers with the context they need.",
   },
   {
-    icon: Globe2,
-    title: "Multi-portal collaboration",
-    text: "Institution, OAG, OCIA, and auditee portals share the same source of truth with role-aware access.",
-  },
-  {
-    icon: BarChart3,
-    title: "Live risk visibility",
-    text: "Spot overdue actions, recurring issues, severity trends, and reporting gaps while there is still time to act.",
-  },
-  {
-    icon: LockKeyhole,
-    title: "Built for accountability",
-    text: "Tenant boundaries, role controls, and audit history keep sensitive work protected and traceable.",
+    no: "04",
+    title: "SMART REPORTING",
+    text: "Auditly prepares clean report packets and highlights gaps before oversight submissions are due.",
   },
 ];
 
-const metrics = [
-  ["42%", "faster closeout cycles"],
-  ["3x", "clearer finding ownership"],
-  ["100%", "traceable submissions"],
+const faqs = [
+  "HOW DOES AUDITLY REDUCE AUDIT DELAYS?",
+  "WHAT MAKES AUDITLY DIFFERENT FROM SPREADSHEETS?",
+  "HOW LONG DOES IT TAKE TO SET UP AN INSTITUTION?",
 ];
 
 function LandingPage() {
   return (
-    <main className="min-h-screen bg-[#f7f8f5] text-[#111312]">
+    <main className="min-h-screen overflow-x-hidden bg-[#fbfcfd] text-[#182230]">
+      <FloatingNav />
       <Hero />
-      <LogoBand />
-      <FeatureSection />
-      <WorkflowSection />
-      <InsightsSection />
-      <CtaSection />
+      <DemoSection />
+      <SystemsSection />
+      <FaqSection />
       <Footer />
+      <Link
+        to="/"
+        aria-label="Back home"
+        className="fixed bottom-6 right-9 z-40 hidden h-12 w-12 items-center justify-center rounded-full border border-[#e4e8ee] bg-white text-[#7a8492] shadow-[0_12px_28px_rgba(15,23,42,0.12)] transition hover:text-[#182230] md:flex"
+      >
+        <Home className="h-4 w-4" />
+      </Link>
     </main>
+  );
+}
+
+function FloatingNav() {
+  return (
+    <header className="fixed left-0 right-0 top-3 z-50 px-4">
+      <nav className="mx-auto flex h-10 max-w-[670px] items-center justify-between rounded-[20px] border border-[#dfe4eb] bg-white/88 px-3 shadow-[0_9px_24px_rgba(15,23,42,0.12)] backdrop-blur-xl">
+        <Link to="/" className="flex min-w-[112px] items-center gap-2 text-[14px] font-bold text-[#17212d]">
+          <img src={PRODUCT_LOGO} alt="Auditly" className="h-4 w-4 object-contain" />
+          Auditly
+        </Link>
+        <div className="hidden items-center gap-7 text-[11px] font-medium text-[#536070] md:flex">
+          <a href="#intelligence" className="transition hover:text-[#17212d]">Intelligence</a>
+          <a href="#story" className="transition hover:text-[#17212d]">Story</a>
+          <a href="#scale" className="transition hover:text-[#17212d]">Scale</a>
+          <a href="#systems" className="transition hover:text-[#17212d]">Systems</a>
+          <a href="#support" className="transition hover:text-[#17212d]">Support</a>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="hidden h-4 w-px bg-[#d7dce3] md:block" />
+          <Link to="/login" className="text-[11px] font-semibold text-[#111820]">
+            Sign In
+          </Link>
+          <Button asChild className="h-7 rounded-[8px] bg-[#121417] px-4 text-[10px] font-bold tracking-[0.12em] text-white shadow-none hover:bg-black">
+            <Link to="/register">GET STARTED</Link>
+          </Button>
+        </div>
+      </nav>
+    </header>
   );
 }
 
 function Hero() {
   return (
-    <section className="relative overflow-hidden bg-[#07110d] text-white">
-      <div className="absolute inset-0 opacity-45 [background-image:radial-gradient(circle_at_20%_10%,rgba(38,196,133,0.28),transparent_32%),radial-gradient(circle_at_78%_18%,rgba(96,165,250,0.18),transparent_26%),linear-gradient(120deg,rgba(255,255,255,0.08)_0_1px,transparent_1px_18px)]" />
-      <div className="relative mx-auto flex min-h-[92vh] max-w-7xl flex-col px-5 py-5 sm:px-8 lg:px-10">
-        <nav className="flex items-center justify-between rounded-full border border-white/10 bg-white/[0.06] px-4 py-3 backdrop-blur-md">
-          <Link to="/" className="flex items-center gap-3">
-            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white">
-              <img src={PRODUCT_LOGO} alt="Auditly" className="h-6 w-6 object-contain" />
-            </span>
-            <span className="font-display text-[17px] font-semibold">Auditly</span>
-          </Link>
-          <div className="hidden items-center gap-7 text-[13px] text-white/72 md:flex">
-            <a href="#platform" className="hover:text-white">Platform</a>
-            <a href="#workflow" className="hover:text-white">Workflow</a>
-            <a href="#insights" className="hover:text-white">Insights</a>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button asChild variant="ghost" className="hidden rounded-full px-4 text-white hover:bg-white/10 hover:text-white sm:inline-flex">
-              <Link to="/login">Sign in</Link>
-            </Button>
-            <Button asChild className="rounded-full bg-white px-4 text-[#07110d] shadow-none hover:bg-white/90">
-              <Link to="/register">Register <ArrowRight className="h-4 w-4" /></Link>
-            </Button>
-          </div>
-        </nav>
+    <section id="intelligence" className="relative min-h-[680px] overflow-hidden bg-[#fbfcfd] pt-24">
+      <div className="pointer-events-none absolute inset-x-0 top-[150px] h-[450px] opacity-80">
+        <div className="absolute left-[-8%] top-[100px] h-[150px] w-[118%] -rotate-[1.5deg] rounded-[80px] bg-gradient-to-r from-[#e9edf2] via-[#f7f8fa] to-[#e1e6ec] blur-[1px]" />
+        <div className="absolute right-[-2%] top-[84px] h-[120px] w-[68%] -rotate-[9deg] rounded-full bg-gradient-to-r from-[#eef2f5] via-[#f8fafc] to-[#e7ebf0] shadow-[0_40px_90px_rgba(15,23,42,0.08)]" />
+        <div className="absolute left-[12%] top-[16px] h-[350px] w-[155px] -rotate-[14deg] rounded-[28px] border border-white/80 bg-gradient-to-br from-[#e8ecf1] via-[#f8fafc] to-[#dce2e9] shadow-[inset_0_0_0_12px_rgba(255,255,255,0.45)]" />
+        <div className="absolute bottom-[12px] left-[27%] h-[118px] w-[118px] rounded-full border-[18px] border-[#eef2f5] bg-white/50 shadow-[0_24px_70px_rgba(15,23,42,0.1)]" />
+        <div className="absolute bottom-[16px] right-[4%] h-[118px] w-[118px] rounded-full border-[18px] border-[#eef2f5] bg-white/50 shadow-[0_24px_70px_rgba(15,23,42,0.1)]" />
+        <div className="absolute inset-x-0 bottom-0 h-[230px] bg-gradient-to-b from-transparent via-white/80 to-white" />
+        <div className="absolute inset-0 bg-white/38" />
+      </div>
 
-        <div className="grid flex-1 items-center gap-12 py-12 lg:grid-cols-[0.96fr_1.04fr] lg:py-16">
-          <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 rounded-full border border-emerald-300/25 bg-emerald-300/10 px-3 py-1.5 text-[12px] font-medium text-emerald-100">
-              <Sparkles className="h-3.5 w-3.5" />
-              Intelligent audit operations for modern institutions
-            </div>
-            <h1 className="mt-6 max-w-4xl font-display text-[48px] font-semibold leading-[0.98] tracking-normal sm:text-[68px] lg:text-[78px]">
-              Audit work, evidence, and reporting in one calm system.
-            </h1>
-            <p className="mt-6 max-w-2xl text-[16px] leading-8 text-white/68 sm:text-[18px]">
-              Auditly brings institutions, audit offices, and auditees into a shared workspace for planning, findings, remediation, and statutory reporting.
-            </p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Button asChild className="h-12 rounded-full bg-emerald-300 px-6 text-[#07110d] hover:bg-emerald-200">
-                <Link to="/register">Start institution setup <ArrowRight className="h-4 w-4" /></Link>
-              </Button>
-              <Button asChild variant="outline" className="h-12 rounded-full border-white/18 bg-white/[0.04] px-6 text-white hover:bg-white/10 hover:text-white">
-                <Link to="/login">Open workspace</Link>
-              </Button>
-            </div>
-          </div>
-
-          <div className="relative mx-auto w-full max-w-[620px] lg:max-w-none">
-            <div className="absolute -inset-6 rounded-[36px] bg-emerald-300/10 blur-3xl" />
-            <div className="relative overflow-hidden rounded-[28px] border border-white/12 bg-[#101a16]/92 p-3 shadow-[0_28px_90px_rgba(0,0,0,0.45)]">
-              <DashboardMockup />
-            </div>
-          </div>
+      <div className="relative z-10 mx-auto flex min-h-[560px] max-w-[850px] flex-col items-center justify-center px-5 text-center">
+        <div className="rounded-full border border-[#e7ebf0] bg-white/76 px-4 py-2 text-[9px] font-bold uppercase tracking-[0.18em] text-[#8893a3] shadow-[0_7px_20px_rgba(15,23,42,0.04)]">
+          Autonomous audit intelligence
+        </div>
+        <h1 className="mt-7 font-display text-[56px] font-medium leading-[0.96] tracking-normal text-[#17212d] sm:text-[68px]">
+          Audit.<span className="text-[#c5cbd4]">Perfectly.</span>
+        </h1>
+        <p className="mt-6 max-w-[560px] text-[18px] leading-[1.45] text-[#788393]">
+          Auditly uses deep operational reasoning to identify risk, evidence gaps, and reporting priorities while your team focuses on assurance.
+        </p>
+        <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row">
+          <Button asChild className="h-[42px] min-w-[180px] rounded-full bg-[#1d2836] px-8 text-[10px] font-bold uppercase tracking-[0.18em] text-white shadow-[0_12px_26px_rgba(15,23,42,0.16)] hover:bg-[#111820]">
+            <Link to="/register">Begin onboarding</Link>
+          </Button>
+          <Button asChild variant="outline" className="h-[42px] min-w-[194px] rounded-full border-white bg-white px-8 text-[10px] font-bold uppercase tracking-[0.18em] text-[#3d4652] shadow-[0_10px_24px_rgba(15,23,42,0.08)] hover:bg-white hover:text-[#111820]">
+            <a href="#story">Watch intelligence</a>
+          </Button>
         </div>
       </div>
     </section>
   );
 }
 
-function DashboardMockup() {
+function DemoSection() {
   return (
-    <div className="overflow-hidden rounded-[20px] bg-[#f6f7f3] text-[#111312]">
-      <div className="flex items-center justify-between border-b border-black/5 bg-white px-4 py-3">
-        <div className="flex items-center gap-2">
-          <span className="h-2.5 w-2.5 rounded-full bg-[#ef4444]" />
-          <span className="h-2.5 w-2.5 rounded-full bg-[#f59e0b]" />
-          <span className="h-2.5 w-2.5 rounded-full bg-[#10b981]" />
+    <section id="story" className="bg-white px-5 pb-24 pt-8">
+      <div className="mx-auto max-w-[980px] text-center">
+        <div className="inline-flex items-center gap-2 rounded-full border border-[#e8ecf1] bg-[#fbfcfd] px-3 py-1.5 text-[9px] font-bold uppercase tracking-[0.15em] text-[#758090]">
+          <span className="h-2 w-2 rounded-full bg-[#17212d]" />
+          Live platform demo
         </div>
-        <span className="rounded-full bg-[#eef3ec] px-3 py-1 text-[11px] font-medium text-[#587064]">Live audit board</span>
+        <h2 className="mt-5 font-display text-[36px] font-medium leading-none tracking-normal text-[#17212d] sm:text-[40px]">
+          See Auditly <span className="text-[#c9ced7]">in action.</span>
+        </h2>
+        <p className="mx-auto mt-4 max-w-[560px] text-[15px] leading-7 text-[#728091]">
+          Our AI processes engagement activity in seconds. Here is what your audit command center looks like.
+        </p>
       </div>
-      <div className="grid min-h-[440px] grid-cols-1 sm:grid-cols-[160px_1fr]">
-        <aside className="hidden border-r border-black/5 bg-[#101a16] p-4 text-white sm:block">
-          <div className="mb-7 flex items-center gap-2 text-[13px] font-semibold">
-            <ShieldCheck className="h-4 w-4 text-emerald-300" />
-            Internal Audit
+      <div className="mx-auto mt-12 max-w-[912px] overflow-hidden rounded-[22px] border border-[#dfe4ea] bg-white shadow-[0_24px_70px_rgba(15,23,42,0.06)]">
+        <ProductDemo />
+      </div>
+    </section>
+  );
+}
+
+function ProductDemo() {
+  return (
+    <div>
+      <div className="flex h-[38px] items-center gap-2 border-b border-[#edf0f4] bg-[#fafbfc] px-4">
+        <span className="h-9 w-9" />
+        <span className="h-2.5 w-2.5 rounded-full bg-[#ff8f8f]" />
+        <span className="h-2.5 w-2.5 rounded-full bg-[#f8d65d]" />
+        <span className="h-2.5 w-2.5 rounded-full bg-[#70d88c]" />
+        <div className="ml-4 h-[18px] flex-1 rounded-full border border-[#e5e9ee] bg-white px-3 text-left text-[9px] leading-[18px] text-[#c8ced7]">
+          app.auditly.ai/dashboard
+        </div>
+      </div>
+      <div className="grid min-h-[388px] grid-cols-1 md:grid-cols-[156px_1fr]">
+        <aside className="hidden border-r border-[#edf0f4] px-4 py-5 md:block">
+          <div className="flex items-center gap-2 border-b border-[#edf0f4] pb-4 text-[11px] font-bold text-[#17212d]">
+            <span className="flex h-4 w-4 items-center justify-center rounded-[4px] bg-[#1d2836]" />
+            Auditly
           </div>
-          {["Overview", "Engagements", "Findings", "Reports"].map((item, index) => (
-            <div key={item} className={`mb-2 rounded-lg px-3 py-2 text-[12px] ${index === 1 ? "bg-white/12 text-white" : "text-white/48"}`}>
+          {["Overview", "Audits", "Evidence", "Findings", "Reports", "Submissions"].map((item, index) => (
+            <div
+              key={item}
+              className={`mt-2 flex h-7 items-center gap-3 rounded-[8px] px-3 text-[11px] font-medium ${
+                index === 1 ? "bg-[#f0f2f5] text-[#17212d]" : "text-[#8792a2]"
+              }`}
+            >
+              <span className={`h-1.5 w-1.5 rounded-full ${index === 1 ? "bg-[#17212d]" : "bg-[#e0e5eb]"}`} />
               {item}
             </div>
           ))}
         </aside>
-        <div className="p-4 sm:p-5">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <p className="text-[12px] font-medium uppercase tracking-[0.08em] text-[#718078]">Q3 assurance plan</p>
-              <h2 className="mt-1 font-display text-[24px] font-semibold">Rwamagana District Audit</h2>
+        <div className="px-5 py-5">
+          <div className="flex items-start justify-between gap-4">
+            <div className="text-left">
+              <h3 className="text-[13px] font-bold text-[#17212d]">Active Audits</h3>
+              <p className="mt-1 text-[8px] font-bold uppercase tracking-[0.14em] text-[#9aa4b1]">3 engagements currently screening</p>
             </div>
-            <span className="rounded-full bg-emerald-100 px-3 py-1 text-[12px] font-medium text-emerald-800">On track</span>
+            <div className="flex gap-2">
+              <Button variant="ghost" className="h-7 rounded-full bg-[#f0f2f5] px-4 text-[8px] font-bold uppercase tracking-[0.05em] text-[#9aa4b1] hover:bg-[#e9edf2]">
+                Parse evidence
+              </Button>
+              <Button className="h-7 rounded-full bg-[#1d2836] px-4 text-[8px] font-bold uppercase tracking-[0.05em] text-white hover:bg-[#111820]">
+                + Create audit
+              </Button>
+            </div>
           </div>
 
-          <div className="mt-5 grid gap-3 sm:grid-cols-3">
-            {metrics.map(([value, label]) => (
-              <div key={label} className="rounded-xl border border-black/6 bg-white p-4">
-                <p className="font-display text-[24px] font-semibold">{value}</p>
-                <p className="mt-1 text-[11px] leading-4 text-[#68756f]">{label}</p>
+          <div className="mt-5 overflow-hidden rounded-[14px] border border-[#edf0f4]">
+            <div className="grid grid-cols-[1.4fr_1.1fr_0.8fr_1fr] bg-[#fafbfc] px-4 py-3 text-left text-[8px] font-bold uppercase tracking-[0.1em] text-[#a0a9b6]">
+              <span>Area</span>
+              <span>Type</span>
+              <span>AI score</span>
+              <span>Status</span>
+            </div>
+            {candidates.map(([initial, name, role, score, status], index) => (
+              <div key={name} className={`grid grid-cols-[1.4fr_1.1fr_0.8fr_1fr] items-center px-4 py-3 text-left text-[10px] ${index % 2 ? "bg-[#fbfcfd]" : "bg-white"}`}>
+                <span className="flex items-center gap-2 font-semibold text-[#17212d]">
+                  <span className="flex h-[21px] w-[21px] items-center justify-center rounded-full border border-[#dfe4ea] bg-[#f3f5f7] text-[9px] text-[#9aa4b1]">
+                    {initial}
+                  </span>
+                  {name}
+                </span>
+                <span className="text-[#6f7a8a]">{role}</span>
+                <span className="font-bold text-[#17212d]">
+                  <span className="mr-2 inline-block h-1.5 w-1.5 rounded-full bg-[#23c47b]" />
+                  {score}
+                </span>
+                <span>
+                  <span className={`rounded-full px-2 py-1 text-[7px] font-bold uppercase ${status === "DRAFT" ? "bg-[#f0f2f5] text-[#969fac]" : "bg-[#1d2836] text-white"}`}>
+                    {status}
+                  </span>
+                </span>
               </div>
             ))}
           </div>
 
-          <div className="mt-5 grid gap-4 lg:grid-cols-[1fr_0.72fr]">
-            <div className="rounded-xl border border-black/6 bg-white p-4">
-              <div className="mb-4 flex items-center justify-between">
-                <p className="text-[13px] font-semibold">Finding severity</p>
-                <BarChart3 className="h-4 w-4 text-[#68756f]" />
+          <div className="mt-4 grid gap-3 md:grid-cols-3">
+            {[
+              ["127", "audit tests today"],
+              ["84.3", "avg. readiness"],
+              ["38hrs", "time saved"],
+            ].map(([value, label]) => (
+              <div key={label} className="rounded-[9px] border border-[#edf0f4] p-4 text-left">
+                <p className="text-[16px] font-bold text-[#17212d]">{value}</p>
+                <p className="mt-1 text-[8px] font-bold uppercase tracking-[0.12em] text-[#a0a9b6]">{label}</p>
               </div>
-              <div className="flex h-40 items-end gap-3">
-                {[58, 36, 78, 48, 68, 32, 86].map((height, index) => (
-                  <span
-                    key={index}
-                    className="flex-1 rounded-t-md bg-[#101a16]"
-                    style={{ height: `${height}%`, opacity: 0.32 + index * 0.08 }}
-                  />
-                ))}
-              </div>
-            </div>
-            <div className="rounded-xl border border-black/6 bg-white p-4">
-              <div className="mb-4 flex items-center gap-2">
-                <MessageSquareText className="h-4 w-4 text-emerald-700" />
-                <p className="text-[13px] font-semibold">Assistant brief</p>
-              </div>
-              <div className="space-y-3 text-[12px] leading-5 text-[#5f6d66]">
-                <p className="rounded-lg bg-[#f1f5ef] p-3">Three procurement findings need management response before Friday.</p>
-                <p className="rounded-lg bg-[#f1f5ef] p-3">Evidence gaps detected in payroll testing step 4.2.</p>
-                <p className="rounded-lg bg-emerald-50 p-3 text-emerald-900">Draft report summary is ready for review.</p>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </div>
@@ -225,43 +261,29 @@ function DashboardMockup() {
   );
 }
 
-function LogoBand() {
+function SystemsSection() {
   return (
-    <section className="border-y border-black/6 bg-white py-8">
-      <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
-        <p className="text-center text-[12px] font-medium uppercase tracking-[0.12em] text-[#718078]">
-          Designed for every audit stakeholder
-        </p>
-        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-          {partners.map((partner) => (
-            <div key={partner} className="flex h-14 items-center justify-center rounded-xl border border-black/6 bg-[#f7f8f5] text-center text-[13px] font-semibold text-[#33443b]">
-              {partner}
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function FeatureSection() {
-  return (
-    <section id="platform" className="py-20 sm:py-24">
-      <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
-        <div className="max-w-2xl">
-          <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-emerald-700">Built-in intelligence</p>
-          <h2 className="mt-3 font-display text-[38px] font-semibold leading-tight sm:text-[50px]">
-            End-to-end audit management without scattered files.
+    <section id="systems" className="bg-[#fbfcfd] px-5 py-20">
+      <div className="mx-auto grid max-w-[915px] gap-12 lg:grid-cols-[0.9fr_1.1fr]">
+        <div id="scale" className="pt-8">
+          <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-[#a0a9b6]">Autonomous systems</p>
+          <h2 className="mt-6 max-w-[350px] font-display text-[38px] font-medium leading-[1.15] tracking-normal text-[#17212d]">
+            Audit work that <span className="text-[#a8b0bd]">reasons like you.</span>
           </h2>
+          <p className="mt-7 max-w-[330px] text-[14px] leading-7 text-[#788393]">
+            Stop chasing documents. Start building assurance. Auditly understands context, controls, evidence, and accountability at a human level.
+          </p>
         </div>
-        <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {features.map((feature) => (
-            <article key={feature.title} className="rounded-2xl border border-black/6 bg-white p-6 shadow-[0_10px_35px_rgba(15,23,18,0.05)]">
-              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#e8f4ed] text-emerald-800">
-                <feature.icon className="h-5 w-5" />
+
+        <div className="space-y-0">
+          {systems.map((item) => (
+            <article key={item.no} className="relative rounded-[28px] border border-[#f1f3f6] bg-white px-9 py-11 shadow-[0_20px_70px_rgba(15,23,42,0.05)]">
+              <span className="flex h-[39px] w-[39px] items-center justify-center rounded-[12px] bg-[#fbfcfd] text-[#263241]">
+                {item.no === "01" ? <FileCheck2 className="h-5 w-5" /> : <Zap className="h-5 w-5" />}
               </span>
-              <h3 className="mt-5 font-display text-[20px] font-semibold">{feature.title}</h3>
-              <p className="mt-3 text-[14px] leading-7 text-[#637069]">{feature.text}</p>
+              <span className="absolute right-9 top-9 text-[24px] font-black italic text-[#eef1f5]">{item.no}</span>
+              <h3 className="mt-7 text-[20px] font-black uppercase tracking-[-0.06em] text-[#17212d]">{item.title}</h3>
+              <p className="mt-4 max-w-[390px] text-[13px] leading-7 text-[#8a94a3]">{item.text}</p>
             </article>
           ))}
         </div>
@@ -270,111 +292,25 @@ function FeatureSection() {
   );
 }
 
-function WorkflowSection() {
+function FaqSection() {
   return (
-    <section id="workflow" className="bg-[#101a16] py-20 text-white sm:py-24">
-      <div className="mx-auto grid max-w-7xl gap-12 px-5 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:px-10">
-        <div>
-          <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-emerald-300">How it works</p>
-          <h2 className="mt-3 font-display text-[38px] font-semibold leading-tight sm:text-[50px]">
-            From annual plan to signed report.
-          </h2>
-          <p className="mt-5 text-[15px] leading-8 text-white/62">
-            Auditly keeps every handoff visible: auditors request evidence, auditees respond, managers review, and oversight offices receive clean submissions.
-          </p>
-        </div>
-        <div className="grid gap-3">
-          {[
-            ["Scope the engagement", "Create audits, steps, teams, deadlines, and documentation requirements."],
-            ["Collect and evaluate", "Track evidence, conversations, exceptions, and review notes together."],
-            ["Resolve findings", "Assign owners, verify action plans, and monitor remediation progress."],
-            ["Submit with confidence", "Generate reports and route them to the right portal with traceable status."],
-          ].map(([title, text], index) => (
-            <div key={title} className="grid grid-cols-[44px_1fr] gap-4 rounded-2xl border border-white/10 bg-white/[0.05] p-5">
-              <span className="flex h-11 w-11 items-center justify-center rounded-full bg-emerald-300 text-[14px] font-bold text-[#101a16]">
-                {index + 1}
-              </span>
-              <div>
-                <h3 className="font-display text-[19px] font-semibold">{title}</h3>
-                <p className="mt-2 text-[14px] leading-7 text-white/58">{text}</p>
-              </div>
-            </div>
-          ))}
-        </div>
+    <section id="support" className="bg-white px-5 pb-24 pt-14">
+      <div className="mx-auto max-w-[530px] text-center">
+        <p className="text-[11px] font-bold uppercase tracking-[0.35em] text-[#a0a9b6]">Support</p>
+        <h2 className="mt-2 font-display text-[27px] font-medium text-[#17212d]">FAQ</h2>
       </div>
-    </section>
-  );
-}
-
-function InsightsSection() {
-  const insightCards: Array<[typeof Workflow, string, string]> = [
-    [Workflow, "Workflow health", "12 active engagements"],
-    [UsersRound, "Owner response", "89% on time"],
-    [Building2, "Institution coverage", "24 units monitored"],
-    [FileText, "Report readiness", "7 drafts ready"],
-  ];
-
-  return (
-    <section id="insights" className="py-20 sm:py-24">
-      <div className="mx-auto grid max-w-7xl items-center gap-12 px-5 sm:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:px-10">
-        <div className="rounded-[28px] border border-black/6 bg-white p-4 shadow-[0_24px_70px_rgba(15,23,18,0.08)]">
-          <div className="rounded-[20px] bg-[#f2f5ef] p-5">
-            <div className="flex items-center justify-between">
-              <h3 className="font-display text-[22px] font-semibold">Risk intelligence</h3>
-              <Layers3 className="h-5 w-5 text-emerald-800" />
-            </div>
-            <div className="mt-5 grid gap-3 sm:grid-cols-2">
-              {insightCards.map(([Icon, title, text]) => (
-                <div key={title} className="rounded-2xl bg-white p-4">
-                  <Icon className="h-5 w-5 text-emerald-800" />
-                  <p className="mt-4 text-[13px] font-semibold">{title}</p>
-                  <p className="mt-1 text-[12px] text-[#6a776f]">{text}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-        <div>
-          <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-emerald-700">Measurable ROI</p>
-          <h2 className="mt-3 font-display text-[38px] font-semibold leading-tight sm:text-[50px]">
-            Turn audit activity into action leaders can trust.
-          </h2>
-          <p className="mt-5 text-[15px] leading-8 text-[#637069]">
-            Replace fragmented status chasing with a real-time operating layer for accountability, evidence, deadlines, and remediation.
-          </p>
-          <div className="mt-7 space-y-3">
-            {["Reduce manual reporting work", "Find stalled remediation earlier", "Keep oversight submissions consistent"].map((item) => (
-              <div key={item} className="flex items-center gap-3 text-[14px] font-medium">
-                <CheckCircle2 className="h-5 w-5 text-emerald-700" />
-                {item}
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function CtaSection() {
-  return (
-    <section className="px-5 pb-20 sm:px-8 lg:px-10">
-      <div className="mx-auto max-w-7xl overflow-hidden rounded-[32px] bg-[#07110d] px-6 py-12 text-center text-white sm:px-12 sm:py-16">
-        <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-emerald-300">Ready for a cleaner audit cycle?</p>
-        <h2 className="mx-auto mt-3 max-w-3xl font-display text-[38px] font-semibold leading-tight sm:text-[54px]">
-          Bring your institution onto Auditly.
-        </h2>
-        <p className="mx-auto mt-4 max-w-2xl text-[15px] leading-8 text-white/62">
-          Register your institution, invite your audit team, and start managing engagements from one secure workspace.
-        </p>
-        <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-          <Button asChild className="h-12 rounded-full bg-emerald-300 px-6 text-[#07110d] hover:bg-emerald-200">
-            <Link to="/register">Register institution <ArrowRight className="h-4 w-4" /></Link>
-          </Button>
-          <Button asChild variant="outline" className="h-12 rounded-full border-white/18 bg-white/[0.04] px-6 text-white hover:bg-white/10 hover:text-white">
-            <Link to="/login">Sign in</Link>
-          </Button>
-        </div>
+      <div className="mx-auto mt-16 max-w-[530px] border-t border-[#edf0f4]">
+        {faqs.map((faq) => (
+          <details key={faq} className="group border-b border-[#edf0f4] py-5">
+            <summary className="flex cursor-pointer list-none items-center justify-between text-left text-[14px] font-black uppercase tracking-[-0.06em] text-[#0d1b2a]">
+              {faq}
+              <ChevronDown className="h-4 w-4 text-[#a0a9b6] transition group-open:rotate-180" />
+            </summary>
+            <p className="mt-4 text-[13px] leading-7 text-[#7b8797]">
+              Auditly centralizes responsibilities, deadlines, evidence, and review notes so teams can see what is blocking progress before reporting is late.
+            </p>
+          </details>
+        ))}
       </div>
     </section>
   );
@@ -382,14 +318,40 @@ function CtaSection() {
 
 function Footer() {
   return (
-    <footer className="border-t border-black/6 bg-white py-8">
-      <div className="mx-auto flex max-w-7xl flex-col gap-4 px-5 text-[13px] text-[#68756f] sm:flex-row sm:items-center sm:justify-between sm:px-8 lg:px-10">
-        <Link to="/" className="flex items-center gap-2 font-semibold text-[#111312]">
-          <img src={PRODUCT_LOGO} alt="Auditly" className="h-6 w-6 object-contain" />
-          Auditly
-        </Link>
-        <span>© 2026 Auditly · Nema Technologies</span>
+    <footer className="border-t border-[#e5e9ee] bg-white px-5 py-24">
+      <div className="mx-auto grid max-w-[1000px] gap-12 md:grid-cols-[1.5fr_0.55fr_0.55fr_0.55fr]">
+        <div>
+          <Link to="/" className="flex items-center gap-3 text-[15px] font-black text-black">
+            <ShieldCheck className="h-4 w-4 text-[#6f7782]" />
+            Auditly
+          </Link>
+          <p className="mt-6 max-w-[360px] text-[11px] leading-6 text-[#5f6b7a]">
+            Autonomous audit intelligence for modern institutions. Build assurance faster, report smarter.
+          </p>
+          <div className="mt-6 flex gap-4 text-[#7a8492]">
+            <Twitter className="h-4 w-4" />
+            <Github className="h-4 w-4" />
+          </div>
+        </div>
+        <FooterColumn title="Product" items={["Intelligence", "Scale", "Systems"]} />
+        <FooterColumn title="Company" items={["Story", "Team"]} />
+        <FooterColumn title="Resources" items={["Support"]} />
       </div>
     </footer>
+  );
+}
+
+function FooterColumn({ title, items }: { title: string; items: string[] }) {
+  return (
+    <div>
+      <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#818b99]">{title}</p>
+      <div className="mt-5 space-y-4">
+        {items.map((item) => (
+          <a key={item} href={`#${item.toLowerCase()}`} className="block text-[12px] text-[#5f6b7a] hover:text-[#17212d]">
+            {item}
+          </a>
+        ))}
+      </div>
+    </div>
   );
 }
