@@ -12,6 +12,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { PRODUCT_LOGO } from "@/lib/auth-context";
 
+const demoSlides = [
+  { src: "/dashboard.png", alt: "Audit dashboard overview" },
+  { src: "/assistant.png", alt: "Audit assistant chat interface" },
+  { src: "/register.png", alt: "Registration flow" },
+  { src: "/login.png", alt: "Login screen" },
+];
+
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
@@ -161,7 +168,7 @@ function Hero() {
           </div>
         </div>
 
-        <div className="relative mx-auto w-full max-w-[560px]">
+        <div className="relative mx-auto w-full max-w-[600px]">
           <div className="absolute -left-4 top-10 hidden h-20 w-20 rounded-2xl border border-[#e7edf4] bg-white/85 p-3 shadow-[0_18px_40px_rgba(15,23,42,0.08)] sm:block">
             <div className="flex h-full w-full items-center justify-center rounded-xl bg-[#f4f7f9] text-[#152230]">
               <ShieldCheck className="h-8 w-8" />
@@ -183,59 +190,11 @@ function Hero() {
               </div>
             </div>
 
-            <div className="p-5 sm:p-6">
-              <div className="flex items-center justify-between gap-4 rounded-[18px] border border-[#edf1f5] bg-[#f9fafb] p-4">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#0f1720] p-2 shadow-[0_10px_24px_rgba(15,23,42,0.12)]">
-                    <img src={PRODUCT_LOGO} alt="Auditly" className="h-6 w-6 object-contain" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#8b98a8]">Institution portfolio</p>
-                    <p className="mt-1 text-[16px] font-black tracking-[-0.05em] text-[#17212d]">Audit command</p>
-                  </div>
-                </div>
-                <div className="rounded-full bg-[#ecf5f0] px-2.5 py-1 text-[8px] font-bold uppercase tracking-[0.12em] text-[#1b7a4a]">
-                  Live
-                </div>
-              </div>
-
-              <div className="mt-5 grid gap-3 sm:grid-cols-3">
-                {[
-                  ["127", "Audit tests"],
-                  ["84.3%", "Ready"],
-                  ["38hrs", "Saved"],
-                ].map(([value, label]) => (
-                  <div key={label} className="rounded-[16px] border border-[#edf2f6] bg-[#fbfcfd] p-4">
-                    <p className="text-[18px] font-black tracking-[-0.06em] text-[#181f29]">{value}</p>
-                    <p className="mt-1 text-[8px] font-bold uppercase tracking-[0.14em] text-[#8b97a8]">{label}</p>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-5 overflow-hidden rounded-[18px] border border-[#edf1f5] bg-white">
-                <div className="grid grid-cols-[1.3fr_1fr_0.9fr] bg-[#fafbfd] px-4 py-3 text-left text-[8px] font-bold uppercase tracking-[0.12em] text-[#99a5b6]">
-                  <span>Area</span>
-                  <span>Type</span>
-                  <span>Status</span>
-                </div>
-                {candidates.slice(0, 3).map(([initial, name, role, score, status], index) => (
-                  <div key={name} className={`grid grid-cols-[1.3fr_1fr_0.9fr] items-center px-4 py-3 text-left text-[10px] ${index % 2 ? "bg-[#fbfcfd]" : "bg-white"}`}>
-                    <span className="flex items-center gap-2 font-semibold text-[#17212d]">
-                      <span className="flex h-[22px] w-[22px] items-center justify-center rounded-full border border-[#dfe4ea] bg-[#f3f5f7] text-[9px] text-[#9aa4b1]">
-                        {initial}
-                      </span>
-                      {name}
-                    </span>
-                    <span className="text-[#6d7a8a]">{role}</span>
-                    <span>
-                      <span className={`rounded-full px-2 py-1 text-[7px] font-bold uppercase ${status === "DRAFT" ? "bg-[#f0f2f5] text-[#8f9aa8]" : "bg-[#1d2836] text-white"}`}>
-                        {status}
-                      </span>
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <img
+              src="/dashboard.png"
+              alt="Auditly dashboard"
+              className="h-[440px] w-full object-cover object-top"
+            />
           </div>
         </div>
       </div>
@@ -266,92 +225,54 @@ function DemoSection() {
 }
 
 function ProductDemo() {
+  const [activeIndex, setActiveIndex] = React.useState(0);
+
+  React.useEffect(() => {
+    const timer = window.setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % demoSlides.length);
+    }, 3500);
+
+    return () => window.clearInterval(timer);
+  }, []);
+
   return (
-    <div>
+    <div className="relative overflow-hidden rounded-[22px]">
       <div className="flex h-[38px] items-center gap-2 border-b border-[#edf0f4] bg-[#fafbfc] px-4">
         <span className="h-9 w-9" />
         <span className="h-2.5 w-2.5 rounded-full bg-[#ff8f8f]" />
         <span className="h-2.5 w-2.5 rounded-full bg-[#f8d65d]" />
         <span className="h-2.5 w-2.5 rounded-full bg-[#70d88c]" />
         <div className="ml-4 h-[18px] flex-1 rounded-full border border-[#e5e9ee] bg-white px-3 text-left text-[9px] leading-[18px] text-[#c8ced7]">
-          app.auditly.ai/dashboard
+          app.auditly.ai/{demoSlides[activeIndex].alt.toLowerCase().replace(/\s+/g, "-")}
         </div>
       </div>
-      <div className="grid min-h-[388px] grid-cols-1 md:grid-cols-[156px_1fr]">
-        <aside className="hidden border-r border-[#edf0f4] px-4 py-5 md:block">
-          <div className="flex items-center gap-2 border-b border-[#edf0f4] pb-4 text-[11px] font-bold text-[#17212d]">
-            <span className="flex h-4 w-4 items-center justify-center rounded-[4px] bg-[#1d2836]" />
-            Auditly
-          </div>
-          {["Overview", "Audits", "Evidence", "Findings", "Reports", "Submissions"].map((item, index) => (
-            <div
-              key={item}
-              className={`mt-2 flex h-7 items-center gap-3 rounded-[8px] px-3 text-[11px] font-medium ${
-                index === 1 ? "bg-[#f0f2f5] text-[#17212d]" : "text-[#8792a2]"
+
+      <div className="relative">
+        <div className="relative h-[410px] overflow-hidden bg-[#f7f8fa]">
+          {demoSlides.map((slide, index) => (
+            <img
+              key={slide.src}
+              src={slide.src}
+              alt={slide.alt}
+              className={`absolute inset-0 h-full w-full object-cover object-top transition-all duration-700 ${
+                index === activeIndex ? "translate-x-0 opacity-100" : index < activeIndex ? "-translate-x-full opacity-0" : "translate-x-full opacity-0"
               }`}
-            >
-              <span className={`h-1.5 w-1.5 rounded-full ${index === 1 ? "bg-[#17212d]" : "bg-[#e0e5eb]"}`} />
-              {item}
-            </div>
+            />
           ))}
-        </aside>
-        <div className="px-5 py-5">
-          <div className="flex items-start justify-between gap-4">
-            <div className="text-left">
-              <h3 className="text-[13px] font-bold text-[#17212d]">Active Audits</h3>
-              <p className="mt-1 text-[8px] font-bold uppercase tracking-[0.14em] text-[#9aa4b1]">3 engagements currently screening</p>
-            </div>
-            <div className="flex gap-2">
-              <Button variant="ghost" className="h-7 rounded-full bg-[#f0f2f5] px-4 text-[8px] font-bold uppercase tracking-[0.05em] text-[#9aa4b1] hover:bg-[#e9edf2]">
-                Parse evidence
-              </Button>
-              <Button className="h-7 rounded-full bg-[#1d2836] px-4 text-[8px] font-bold uppercase tracking-[0.05em] text-white hover:bg-[#111820]">
-                + Create audit
-              </Button>
-            </div>
-          </div>
+        </div>
 
-          <div className="mt-5 overflow-hidden rounded-[14px] border border-[#edf0f4]">
-            <div className="grid grid-cols-[1.4fr_1.1fr_0.8fr_1fr] bg-[#fafbfc] px-4 py-3 text-left text-[8px] font-bold uppercase tracking-[0.1em] text-[#a0a9b6]">
-              <span>Area</span>
-              <span>Type</span>
-              <span>AI score</span>
-              <span>Status</span>
-            </div>
-            {candidates.map(([initial, name, role, score, status], index) => (
-              <div key={name} className={`grid grid-cols-[1.4fr_1.1fr_0.8fr_1fr] items-center px-4 py-3 text-left text-[10px] ${index % 2 ? "bg-[#fbfcfd]" : "bg-white"}`}>
-                <span className="flex items-center gap-2 font-semibold text-[#17212d]">
-                  <span className="flex h-[21px] w-[21px] items-center justify-center rounded-full border border-[#dfe4ea] bg-[#f3f5f7] text-[9px] text-[#9aa4b1]">
-                    {initial}
-                  </span>
-                  {name}
-                </span>
-                <span className="text-[#6f7a8a]">{role}</span>
-                <span className="font-bold text-[#17212d]">
-                  <span className="mr-2 inline-block h-1.5 w-1.5 rounded-full bg-[#23c47b]" />
-                  {score}
-                </span>
-                <span>
-                  <span className={`rounded-full px-2 py-1 text-[7px] font-bold uppercase ${status === "DRAFT" ? "bg-[#f0f2f5] text-[#969fac]" : "bg-[#1d2836] text-white"}`}>
-                    {status}
-                  </span>
-                </span>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-4 grid gap-3 md:grid-cols-3">
-            {[
-              ["127", "audit tests today"],
-              ["84.3", "avg. readiness"],
-              ["38hrs", "time saved"],
-            ].map(([value, label]) => (
-              <div key={label} className="rounded-[9px] border border-[#edf0f4] p-4 text-left">
-                <p className="text-[16px] font-bold text-[#17212d]">{value}</p>
-                <p className="mt-1 text-[8px] font-bold uppercase tracking-[0.12em] text-[#a0a9b6]">{label}</p>
-              </div>
-            ))}
-          </div>
+        <div className="absolute inset-x-0 bottom-4 flex justify-center gap-2">
+          {demoSlides.map((slide, index) => (
+            <button
+              key={slide.src}
+              type="button"
+              aria-label={`Show slide ${index + 1}`}
+              onClick={() => setActiveIndex(index)}
+              className={`h-2.5 rounded-full transition-all ${
+                index === activeIndex ? "w-8 bg-[#111827]" : "w-2.5 bg-white/80"
+              }`}
+            />
+          ))}
         </div>
       </div>
     </div>
