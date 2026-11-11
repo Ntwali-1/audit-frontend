@@ -88,7 +88,9 @@ function EvaluationsPage() {
             {q ? "No evaluations match your search" : "No audits assigned to you yet"}
           </h3>
           <p className="mt-1 text-[13px]" style={{ color: "var(--text-muted)" }}>
-            {q ? "Try clearing your search." : "You'll see audits here once you're added to a team."}
+            {q
+              ? "Try clearing your search."
+              : "You'll see audits here once you're added to a team."}
           </p>
         </div>
       ) : (
@@ -138,7 +140,10 @@ function EvaluationCard({ audit, myId }: { audit: ApiAudit; myId: string }) {
             </span>
           )}
         </div>
-        <div className="mt-1 truncate text-[15px] font-medium" style={{ color: "var(--brown-800)" }}>
+        <div
+          className="mt-1 truncate text-[15px] font-medium"
+          style={{ color: "var(--brown-800)" }}
+        >
           {audit.title}
         </div>
 
@@ -181,15 +186,23 @@ function EvaluationCard({ audit, myId }: { audit: ApiAudit; myId: string }) {
           style={{ color: "var(--text-muted)" }}
         >
           <span>Overall progress</span>
-          <span className="font-medium" style={{ color: "var(--brown-600)" }}>{progress}%</span>
+          <span className="font-medium" style={{ color: "var(--brown-600)" }}>
+            {progress}%
+          </span>
         </div>
-        <div className="h-1.5 overflow-hidden rounded-full" style={{ backgroundColor: "var(--brown-50)" }}>
+        <div
+          className="h-1.5 overflow-hidden rounded-full"
+          style={{ backgroundColor: "var(--brown-50)" }}
+        >
           <div
             className="h-full rounded-full"
             style={{ width: `${progress}%`, backgroundColor: "var(--brown-400)" }}
           />
         </div>
-        <div className="mt-2 flex items-center gap-3 text-[12px]" style={{ color: "var(--text-muted)" }}>
+        <div
+          className="mt-2 flex items-center gap-3 text-[12px]"
+          style={{ color: "var(--text-muted)" }}
+        >
           {mySteps.length > 0 && (
             <span>
               My steps: {myCompleted}/{mySteps.length}
@@ -202,7 +215,10 @@ function EvaluationCard({ audit, myId }: { audit: ApiAudit; myId: string }) {
           )}
         </div>
         {nextStep && (
-          <div className="mt-1.5 flex items-center gap-1.5 text-[12px]" style={{ color: "var(--brown-600)" }}>
+          <div
+            className="mt-1.5 flex items-center gap-1.5 text-[12px]"
+            style={{ color: "var(--brown-600)" }}
+          >
             {nextStep.status === "IN_PROGRESS" ? (
               <Clock className="h-3 w-3" />
             ) : (

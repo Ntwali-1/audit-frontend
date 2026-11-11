@@ -2,12 +2,33 @@ import * as React from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AppShell } from "@/components/app-shell";
-import { auditsApi, auditStepsApi, AUDIT_STATUS_LABEL, getUserDisplayName, getUserInitials, resolveFileUrl, ApiAuditStep } from "@/lib/api";
+import {
+  auditsApi,
+  auditStepsApi,
+  AUDIT_STATUS_LABEL,
+  getUserDisplayName,
+  getUserInitials,
+  resolveFileUrl,
+  ApiAuditStep,
+} from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Spinner } from "@/components/ui/spinner";
-import { ArrowLeft, Check, CheckCircle2, Circle, Clock, Lock, AlertTriangle, FileText, ChevronRight, UploadCloud, Trash2, ExternalLink } from "lucide-react";
+import {
+  ArrowLeft,
+  Check,
+  CheckCircle2,
+  Circle,
+  Clock,
+  Lock,
+  AlertTriangle,
+  FileText,
+  ChevronRight,
+  UploadCloud,
+  Trash2,
+  ExternalLink,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -39,7 +60,9 @@ function EvaluationDetailPage() {
 
   // Default to first IN_PROGRESS step assigned to me, else first IN_PROGRESS, else first TODO
   const defaultIdx = React.useMemo(() => {
-    const myInProgress = steps.findIndex((s) => s.assigneeId === myId && s.status === "IN_PROGRESS");
+    const myInProgress = steps.findIndex(
+      (s) => s.assigneeId === myId && s.status === "IN_PROGRESS",
+    );
     if (myInProgress >= 0) return myInProgress;
     const anyInProgress = steps.findIndex((s) => s.status === "IN_PROGRESS");
     if (anyInProgress >= 0) return anyInProgress;
@@ -96,12 +119,19 @@ function EvaluationDetailPage() {
                 </span>
                 <span
                   className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium"
-                  style={{ backgroundColor: "#F4F4F5", color: "#27272A", border: "0.5px solid #D4D4D8" }}
+                  style={{
+                    backgroundColor: "#F4F4F5",
+                    color: "#27272A",
+                    border: "0.5px solid #D4D4D8",
+                  }}
                 >
                   {AUDIT_STATUS_LABEL[audit.status] ?? audit.status}
                 </span>
               </div>
-              <h2 className="mt-1 text-[22px] font-medium tracking-tight" style={{ color: "var(--brown-800)" }}>
+              <h2
+                className="mt-1 text-[22px] font-medium tracking-tight"
+                style={{ color: "var(--brown-800)" }}
+              >
                 {audit.title}
               </h2>
               <p className="text-[13px]" style={{ color: "var(--text-muted)" }}>
@@ -117,7 +147,12 @@ function EvaluationDetailPage() {
 
         {/* ── Top stepper ── */}
         {steps.length > 0 && (
-          <StepStepper steps={steps} selectedIdx={selectedIdx} onSelect={setSelectedIdx} myId={myId} />
+          <StepStepper
+            steps={steps}
+            selectedIdx={selectedIdx}
+            onSelect={setSelectedIdx}
+            myId={myId}
+          />
         )}
 
         {/* ── Body: sidebar + workspace ── */}
@@ -287,10 +322,7 @@ function StepSidebar({
       className="hidden w-[220px] shrink-0 overflow-hidden rounded-2xl border bg-white lg:flex lg:flex-col"
       style={{ borderColor: "var(--border-subtle)", boxShadow: "var(--shadow-card)" }}
     >
-      <div
-        className="border-b px-4 py-3"
-        style={{ borderColor: "var(--border-subtle)" }}
-      >
+      <div className="border-b px-4 py-3" style={{ borderColor: "var(--border-subtle)" }}>
         <p
           className="text-[10px] font-semibold uppercase tracking-[0.18em]"
           style={{ color: "var(--text-hint)" }}
@@ -312,11 +344,13 @@ function StepSidebar({
               onClick={() => onSelect(i)}
               className={cn(
                 "group flex w-full items-start gap-3 px-4 py-2.5 text-left transition-colors",
-                isActive
-                  ? "border-r-2"
-                  : "hover:bg-stone-50",
+                isActive ? "border-r-2" : "hover:bg-stone-50",
               )}
-              style={isActive ? { borderRightColor: "var(--brown-600)", backgroundColor: "var(--brown-50)" } : {}}
+              style={
+                isActive
+                  ? { borderRightColor: "var(--brown-600)", backgroundColor: "var(--brown-50)" }
+                  : {}
+              }
             >
               {/* Status icon */}
               <div className="mt-0.5 shrink-0">
@@ -352,7 +386,10 @@ function StepSidebar({
               </div>
 
               {isActive && (
-                <ChevronRight className="h-3.5 w-3.5 shrink-0 mt-0.5" style={{ color: "var(--brown-600)" }} />
+                <ChevronRight
+                  className="h-3.5 w-3.5 shrink-0 mt-0.5"
+                  style={{ color: "var(--brown-600)" }}
+                />
               )}
             </button>
           );
@@ -395,19 +432,28 @@ function StepWorkspace({
 
   const startMutation = useMutation({
     mutationFn: () => auditStepsApi.start(auditId, step.id),
-    onSuccess: () => { invalidate(); toast.success("Step started — it's yours to work on."); },
+    onSuccess: () => {
+      invalidate();
+      toast.success("Step started — it's yours to work on.");
+    },
     onError: (e: Error) => toast.error(e.message),
   });
 
   const draftMutation = useMutation({
     mutationFn: () => auditStepsApi.saveDraft(auditId, step.id, notes),
-    onSuccess: () => { invalidate(); toast.success("Draft saved."); },
+    onSuccess: () => {
+      invalidate();
+      toast.success("Draft saved.");
+    },
     onError: (e: Error) => toast.error(e.message),
   });
 
   const completeMutation = useMutation({
     mutationFn: () => auditStepsApi.complete(auditId, step.id, notes || undefined),
-    onSuccess: () => { invalidate(); toast.success("Step marked as complete!"); },
+    onSuccess: () => {
+      invalidate();
+      toast.success("Step marked as complete!");
+    },
     onError: (e: Error) => toast.error(e.message),
   });
 
@@ -422,8 +468,8 @@ function StepWorkspace({
       await auditStepsApi.uploadEvidence(auditId, step.id, file);
       invalidate();
       toast.success(`"${file.name}" uploaded.`);
-    } catch (err: any) {
-      toast.error(err.message ?? "Upload failed.");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Upload failed.");
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -432,7 +478,10 @@ function StepWorkspace({
 
   const deleteEvidenceMutation = useMutation({
     mutationFn: (fileId: string) => auditStepsApi.deleteEvidence(auditId, step.id, fileId),
-    onSuccess: () => { invalidate(); toast.success("File removed."); },
+    onSuccess: () => {
+      invalidate();
+      toast.success("File removed.");
+    },
     onError: (e: Error) => toast.error(e.message),
   });
 
@@ -451,7 +500,10 @@ function StepWorkspace({
         style={{ borderColor: "var(--border-subtle)" }}
       >
         <div className="min-w-0">
-          <p className="text-[11px] font-medium uppercase tracking-[0.18em]" style={{ color: "var(--text-hint)" }}>
+          <p
+            className="text-[11px] font-medium uppercase tracking-[0.18em]"
+            style={{ color: "var(--text-hint)" }}
+          >
             Step {stepNumber} of {totalSteps}
           </p>
           <h3 className="mt-1 text-[18px] font-medium" style={{ color: "var(--brown-800)" }}>
@@ -493,7 +545,9 @@ function StepWorkspace({
           </div>
           <div className="text-[12px]" style={{ color: "var(--brown-700)" }}>
             {isMyStep ? (
-              <span>Assigned to <strong>you</strong></span>
+              <span>
+                Assigned to <strong>you</strong>
+              </span>
             ) : (
               <span>
                 Working on this: <strong>{getUserDisplayName(step.assignee)}</strong>
@@ -508,7 +562,6 @@ function StepWorkspace({
 
       {/* Main content */}
       <div className="flex flex-1 flex-col gap-5 overflow-y-auto p-6">
-
         {/* Locked by other auditor */}
         {isLockedByOther && isInProgress && (
           <div
@@ -517,7 +570,8 @@ function StepWorkspace({
           >
             <Lock className="h-4 w-4 shrink-0" style={{ color: "#854F0B" }} />
             <p className="text-[13px]" style={{ color: "#854F0B" }}>
-              <strong>{getUserDisplayName(step.assignee)}</strong> is currently working on this step.
+              <strong>{getUserDisplayName(step.assignee)}</strong> is currently working on this
+              step.
             </p>
           </div>
         )}
@@ -594,7 +648,9 @@ function StepWorkspace({
                   {uploading ? (
                     <Spinner size={12} />
                   ) : (
-                    <><UploadCloud className="mr-1.5 h-3.5 w-3.5" /> Upload file</>
+                    <>
+                      <UploadCloud className="mr-1.5 h-3.5 w-3.5" /> Upload file
+                    </>
                   )}
                 </Button>
               </>
@@ -608,7 +664,9 @@ function StepWorkspace({
             >
               <FileText className="h-7 w-7 mb-1.5" style={{ color: "var(--brown-200)" }} />
               <p className="text-[12px]" style={{ color: "var(--text-hint)" }}>
-                {canUpload ? "Upload PDFs, documents, or images as evidence." : "No evidence uploaded yet."}
+                {canUpload
+                  ? "Upload PDFs, documents, or images as evidence."
+                  : "No evidence uploaded yet."}
               </p>
             </div>
           ) : (
@@ -620,7 +678,10 @@ function StepWorkspace({
                   style={{ borderColor: "var(--border-subtle)" }}
                 >
                   <FileText className="h-4 w-4 shrink-0" style={{ color: "var(--brown-400)" }} />
-                  <span className="flex-1 truncate text-[12px]" style={{ color: "var(--brown-800)" }}>
+                  <span
+                    className="flex-1 truncate text-[12px]"
+                    style={{ color: "var(--brown-800)" }}
+                  >
                     {ev.fileName}
                   </span>
                   <a

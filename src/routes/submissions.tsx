@@ -10,17 +10,23 @@ import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogClose,
 } from "@/components/ui/dialog";
-import {
-  Send, CalendarClock, FileText, AlertTriangle, Lock, Info, X,
-} from "lucide-react";
+import { Send, CalendarClock, FileText, AlertTriangle, Lock, Info, X } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
 import { reportsApi, getUserDisplayName } from "@/lib/api";
 import { StatusChip } from "@/components/filings-inbox";
 import {
-  submissionsApi, SUBMISSION_STATUS_LABEL, type ApiObligation, type ApiSubmission,
+  submissionsApi,
+  SUBMISSION_STATUS_LABEL,
+  type ApiObligation,
+  type ApiSubmission,
 } from "@/lib/api-portals";
 
 export const Route = createFileRoute("/submissions")({
@@ -34,7 +40,9 @@ function Submissions() {
   const [openId, setOpenId] = React.useState<string | null>(null);
 
   const {
-    data: obligations, isLoading: oblLoading, error: oblError,
+    data: obligations,
+    isLoading: oblLoading,
+    error: oblError,
   } = useQuery({
     queryKey: ["submissions", "obligations"],
     queryFn: () => submissionsApi.obligations(),
@@ -59,7 +67,9 @@ function Submissions() {
       />
 
       {oblLoading || filingsLoading ? (
-        <div className="flex h-48 items-center justify-center"><Spinner size={28} /></div>
+        <div className="flex h-48 items-center justify-center">
+          <Spinner size={28} />
+        </div>
       ) : (
         <>
           <section>
@@ -68,8 +78,10 @@ function Submissions() {
             </h2>
 
             {(obligations ?? []).length === 0 ? (
-              <div className="flex flex-col items-center rounded-2xl border bg-white px-6 py-10 text-center"
-                style={{ borderColor: "var(--border-subtle)" }}>
+              <div
+                className="flex flex-col items-center rounded-2xl border bg-white px-6 py-10 text-center"
+                style={{ borderColor: "var(--border-subtle)" }}
+              >
                 <Lock className="h-7 w-7" style={{ color: "var(--text-hint)" }} />
                 <p className="mt-2 text-[14px] font-medium" style={{ color: "var(--brown-800)" }}>
                   Nothing owed
@@ -83,8 +95,12 @@ function Submissions() {
             ) : (
               <div className="space-y-2">
                 {(obligations ?? []).map((o) => (
-                  <ObligationRow key={o.cycle.id} obligation={o} canFile={isManager}
-                    onOpen={(id) => setOpenId(id)} />
+                  <ObligationRow
+                    key={o.cycle.id}
+                    obligation={o}
+                    canFile={isManager}
+                    onOpen={(id) => setOpenId(id)}
+                  />
                 ))}
               </div>
             )}
@@ -97,18 +113,31 @@ function Submissions() {
               </h2>
               <div className="space-y-2">
                 {(filings ?? []).map((s) => (
-                  <button key={s.id} onClick={() => setOpenId(s.id)}
+                  <button
+                    key={s.id}
+                    onClick={() => setOpenId(s.id)}
                     className="flex w-full items-center gap-4 rounded-2xl border bg-white p-4 text-left transition hover:shadow-md"
-                    style={{ borderColor: "var(--border-subtle)", boxShadow: "var(--shadow-card)" }}>
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
-                      style={{ backgroundColor: "var(--brown-50)" }}>
+                    style={{ borderColor: "var(--border-subtle)", boxShadow: "var(--shadow-card)" }}
+                  >
+                    <div
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
+                      style={{ backgroundColor: "var(--brown-50)" }}
+                    >
                       <Send className="h-5 w-5" style={{ color: "var(--brown-600)" }} />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-[14px] font-medium" style={{ color: "var(--brown-800)" }}>{s.title}</p>
+                      <p
+                        className="truncate text-[14px] font-medium"
+                        style={{ color: "var(--brown-800)" }}
+                      >
+                        {s.title}
+                      </p>
                       <p className="text-[12px]" style={{ color: "var(--text-muted)" }}>
-                        To {s.recipient} · {s.reports.length} report{s.reports.length === 1 ? "" : "s"}
-                        {s.submittedAt ? ` · filed ${new Date(s.submittedAt).toLocaleDateString()}` : ""}
+                        To {s.recipient} · {s.reports.length} report
+                        {s.reports.length === 1 ? "" : "s"}
+                        {s.submittedAt
+                          ? ` · filed ${new Date(s.submittedAt).toLocaleDateString()}`
+                          : ""}
                       </p>
                     </div>
                     <StatusChip status={s.status} />
@@ -119,7 +148,10 @@ function Submissions() {
           )}
 
           {!isManager && (obligations ?? []).length > 0 && (
-            <p className="mt-4 flex items-start gap-2 text-[12px]" style={{ color: "var(--text-muted)" }}>
+            <p
+              className="mt-4 flex items-start gap-2 text-[12px]"
+              style={{ color: "var(--text-muted)" }}
+            >
               <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
               Filing a report with OAG or OCIA requires an audit manager.
             </p>
@@ -133,14 +165,19 @@ function Submissions() {
 }
 
 function ObligationRow({
-  obligation, canFile, onOpen,
-}: { obligation: ApiObligation; canFile: boolean; onOpen: (id: string) => void }) {
+  obligation,
+  canFile,
+  onOpen,
+}: {
+  obligation: ApiObligation;
+  canFile: boolean;
+  onOpen: (id: string) => void;
+}) {
   const qc = useQueryClient();
   const { cycle, submissionId, status, overdue, daysRemaining } = obligation;
 
   const start = useMutation({
-    mutationFn: () =>
-      submissionsApi.create({ cycleId: cycle.id, title: `${cycle.title}` }),
+    mutationFn: () => submissionsApi.create({ cycleId: cycle.id, title: `${cycle.title}` }),
     onSuccess: (s) => {
       qc.invalidateQueries({ queryKey: ["submissions"] });
       onOpen(s.id);
@@ -149,26 +186,41 @@ function ObligationRow({
   });
 
   return (
-    <div className="flex items-center gap-4 rounded-2xl border bg-white p-4"
-      style={{ borderColor: overdue ? "#F0C97A" : "var(--border-subtle)", boxShadow: "var(--shadow-card)" }}>
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
-        style={{ backgroundColor: overdue ? "#FEF3E2" : "var(--brown-50)" }}>
-        {overdue
-          ? <AlertTriangle className="h-5 w-5" style={{ color: "#854F0B" }} />
-          : <CalendarClock className="h-5 w-5" style={{ color: "var(--brown-600)" }} />}
+    <div
+      className="flex items-center gap-4 rounded-2xl border bg-white p-4"
+      style={{
+        borderColor: overdue ? "#F0C97A" : "var(--border-subtle)",
+        boxShadow: "var(--shadow-card)",
+      }}
+    >
+      <div
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
+        style={{ backgroundColor: overdue ? "#FEF3E2" : "var(--brown-50)" }}
+      >
+        {overdue ? (
+          <AlertTriangle className="h-5 w-5" style={{ color: "#854F0B" }} />
+        ) : (
+          <CalendarClock className="h-5 w-5" style={{ color: "var(--brown-600)" }} />
+        )}
       </div>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-[14px] font-medium" style={{ color: "var(--brown-800)" }}>{cycle.title}</p>
+        <p className="truncate text-[14px] font-medium" style={{ color: "var(--brown-800)" }}>
+          {cycle.title}
+        </p>
         <p className="text-[12px]" style={{ color: overdue ? "#854F0B" : "var(--text-muted)" }}>
           To {cycle.recipient} · due {new Date(cycle.dueDate).toLocaleDateString()}
           {overdue
             ? " · overdue"
-            : daysRemaining >= 0 ? ` · ${daysRemaining} day${daysRemaining === 1 ? "" : "s"} left` : ""}
+            : daysRemaining >= 0
+              ? ` · ${daysRemaining} day${daysRemaining === 1 ? "" : "s"} left`
+              : ""}
         </p>
       </div>
       <StatusChip status={status ?? "NOT_STARTED"} />
       {submissionId ? (
-        <Button variant="outline" size="sm" onClick={() => onOpen(submissionId)}>Open</Button>
+        <Button variant="outline" size="sm" onClick={() => onOpen(submissionId)}>
+          Open
+        </Button>
       ) : canFile ? (
         <Button size="sm" onClick={() => start.mutate()} disabled={start.isPending}>
           {start.isPending ? <Spinner size={14} invert /> : "Start filing"}
@@ -240,10 +292,14 @@ function FilingEditor({ id, onClose }: { id: string; onClose: () => void }) {
     <Dialog open onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-h-[85vh] max-w-2xl overflow-y-auto">
         {isLoading || !filing ? (
-          <div className="flex h-40 items-center justify-center"><Spinner size={24} /></div>
+          <div className="flex h-40 items-center justify-center">
+            <Spinner size={24} />
+          </div>
         ) : (
           <>
-            <DialogHeader><DialogTitle>{filing.title}</DialogTitle></DialogHeader>
+            <DialogHeader>
+              <DialogTitle>{filing.title}</DialogTitle>
+            </DialogHeader>
 
             <div className="flex flex-wrap items-center gap-2">
               <StatusChip status={filing.status} />
@@ -254,34 +310,53 @@ function FilingEditor({ id, onClose }: { id: string; onClose: () => void }) {
             </div>
 
             {filing.status === "RETURNED" && filing.reviewNote && (
-              <div className="rounded-xl border px-3 py-2 text-[13px]"
-                style={{ borderColor: "#F5B5B5", backgroundColor: "#FDECEC", color: "#9B2C2C" }}>
+              <div
+                className="rounded-xl border px-3 py-2 text-[13px]"
+                style={{ borderColor: "#F5B5B5", backgroundColor: "#FDECEC", color: "#9B2C2C" }}
+              >
                 <strong>Returned for correction:</strong> {filing.reviewNote}
               </div>
             )}
 
             {filing.status === "ACCEPTED" && (
-              <div className="rounded-xl border px-3 py-2 text-[13px]"
-                style={{ borderColor: "#A8D5BA", backgroundColor: "#E6F4ED", color: "#1A6638" }}>
+              <div
+                className="rounded-xl border px-3 py-2 text-[13px]"
+                style={{ borderColor: "#A8D5BA", backgroundColor: "#E6F4ED", color: "#1A6638" }}
+              >
                 Accepted{filing.reviewedBy ? ` by ${getUserDisplayName(filing.reviewedBy)}` : ""}
-                {filing.reviewedAt ? ` on ${new Date(filing.reviewedAt).toLocaleDateString()}` : ""}.
+                {filing.reviewedAt ? ` on ${new Date(filing.reviewedAt).toLocaleDateString()}` : ""}
+                .
               </div>
             )}
 
             <div className="space-y-4">
               <div>
                 <Label>Title</Label>
-                <Input className="mt-1.5" value={title} disabled={!editable}
-                  onChange={(e) => setTitle(e.target.value)} />
+                <Input
+                  className="mt-1.5"
+                  value={title}
+                  disabled={!editable}
+                  onChange={(e) => setTitle(e.target.value)}
+                />
               </div>
               <div>
                 <Label>Covering report</Label>
-                <Textarea className="mt-1.5" rows={5} value={narrative} disabled={!editable}
+                <Textarea
+                  className="mt-1.5"
+                  rows={5}
+                  value={narrative}
+                  disabled={!editable}
                   placeholder="Summarise the internal audit work carried out this year…"
-                  onChange={(e) => setNarrative(e.target.value)} />
+                  onChange={(e) => setNarrative(e.target.value)}
+                />
               </div>
               {editable && (
-                <Button variant="outline" size="sm" onClick={() => save.mutate()} disabled={save.isPending}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => save.mutate()}
+                  disabled={save.isPending}
+                >
                   {save.isPending ? <Spinner size={14} /> : "Save draft"}
                 </Button>
               )}
@@ -293,16 +368,24 @@ function FilingEditor({ id, onClose }: { id: string; onClose: () => void }) {
               </p>
               <div className="space-y-2">
                 {filing.reports.map((r) => (
-                  <div key={r.id} className="flex items-center gap-3 rounded-xl border bg-white p-3"
-                    style={{ borderColor: "var(--border-subtle)" }}>
+                  <div
+                    key={r.id}
+                    className="flex items-center gap-3 rounded-xl border bg-white p-3"
+                    style={{ borderColor: "var(--border-subtle)" }}
+                  >
                     <FileText className="h-4 w-4" style={{ color: "var(--brown-600)" }} />
-                    <span className="min-w-0 flex-1 truncate text-[13px]" style={{ color: "var(--brown-800)" }}>
+                    <span
+                      className="min-w-0 flex-1 truncate text-[13px]"
+                      style={{ color: "var(--brown-800)" }}
+                    >
                       {r.report.title}
                     </span>
                     {editable && (
-                      <button onClick={() => detach.mutate(r.reportId)}
+                      <button
+                        onClick={() => detach.mutate(r.reportId)}
                         className="flex h-7 w-7 items-center justify-center rounded-lg hover:bg-red-50"
-                        style={{ color: "var(--text-muted)" }}>
+                        style={{ color: "var(--text-muted)" }}
+                      >
                         <X className="h-3.5 w-3.5" />
                       </button>
                     )}
@@ -311,16 +394,27 @@ function FilingEditor({ id, onClose }: { id: string; onClose: () => void }) {
               </div>
 
               {editable && available.length > 0 && (
-                <AttachPicker reports={available} onAttach={(ids) => attach.mutate(ids)}
-                  pending={attach.isPending} />
+                <AttachPicker
+                  reports={available}
+                  onAttach={(ids) => attach.mutate(ids)}
+                  pending={attach.isPending}
+                />
               )}
             </div>
 
             <DialogFooter className="gap-2">
-              <DialogClose asChild><Button variant="outline">Close</Button></DialogClose>
+              <DialogClose asChild>
+                <Button variant="outline">Close</Button>
+              </DialogClose>
               {editable && isManager && (
                 <Button onClick={() => submit.mutate()} disabled={submit.isPending}>
-                  {submit.isPending ? <Spinner size={14} invert /> : <><Send className="mr-2 h-4 w-4" /> File with {filing.recipient}</>}
+                  {submit.isPending ? (
+                    <Spinner size={14} invert />
+                  ) : (
+                    <>
+                      <Send className="mr-2 h-4 w-4" /> File with {filing.recipient}
+                    </>
+                  )}
                 </Button>
               )}
             </DialogFooter>
@@ -332,7 +426,9 @@ function FilingEditor({ id, onClose }: { id: string; onClose: () => void }) {
 }
 
 function AttachPicker({
-  reports, onAttach, pending,
+  reports,
+  onAttach,
+  pending,
 }: {
   reports: Array<{ id: string; title: string; createdAt: string }>;
   onAttach: (ids: string[]) => void;
@@ -351,15 +447,24 @@ function AttachPicker({
         {reports.map((r) => (
           <label key={r.id} className="flex cursor-pointer items-center gap-2 text-[13px]">
             <Checkbox checked={selected.includes(r.id)} onCheckedChange={() => toggle(r.id)} />
-            <span className="min-w-0 flex-1 truncate" style={{ color: "var(--brown-800)" }}>{r.title}</span>
+            <span className="min-w-0 flex-1 truncate" style={{ color: "var(--brown-800)" }}>
+              {r.title}
+            </span>
             <span className="text-[11px]" style={{ color: "var(--text-hint)" }}>
               {new Date(r.createdAt).toLocaleDateString()}
             </span>
           </label>
         ))}
       </div>
-      <Button className="mt-3" size="sm" disabled={selected.length === 0 || pending}
-        onClick={() => { onAttach(selected); setSelected([]); }}>
+      <Button
+        className="mt-3"
+        size="sm"
+        disabled={selected.length === 0 || pending}
+        onClick={() => {
+          onAttach(selected);
+          setSelected([]);
+        }}
+      >
         {pending ? <Spinner size={14} invert /> : `Attach ${selected.length || ""}`.trim()}
       </Button>
     </div>

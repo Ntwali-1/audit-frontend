@@ -3,7 +3,14 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { AppShell } from "@/components/app-shell";
 import { PageHeader, StatTile } from "@/components/page-header";
-import { auditsApi, findingsApi, usersApi, AUDIT_STATUS_LABEL, SEVERITY_LABEL, getUserDisplayName } from "@/lib/api";
+import {
+  auditsApi,
+  findingsApi,
+  usersApi,
+  AUDIT_STATUS_LABEL,
+  SEVERITY_LABEL,
+  getUserDisplayName,
+} from "@/lib/api";
 import { ChartPie, ShieldCheck, TrendingUp, Users } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import {
@@ -46,32 +53,36 @@ function AnalyticsPage() {
   const byStatus = dashboard?.byStatus ?? {};
 
   const bySeverity = findings.reduce<Record<string, number>>(
-    (acc, f) => ((acc[f.severity] = (acc[f.severity] ?? 0) + 1), acc), {},
+    (acc, f) => ((acc[f.severity] = (acc[f.severity] ?? 0) + 1), acc),
+    {},
   );
 
-  const resolvedCount = findings.filter((f) => f.status === "RESOLVED" || f.status === "CLOSED").length;
+  const resolvedCount = findings.filter(
+    (f) => f.status === "RESOLVED" || f.status === "CLOSED",
+  ).length;
   const totalFindings = findings.length;
   const totalAudits = dashboard?.total ?? 0;
   const completedAudits = byStatus["COMPLETED"] ?? 0;
 
-  const complianceScore = totalAudits === 0 && totalFindings === 0
-    ? 0
-    : Math.round(
-        (completedAudits / Math.max(1, totalAudits)) * 60 +
-        (resolvedCount / Math.max(1, totalFindings)) * 40,
-      );
+  const complianceScore =
+    totalAudits === 0 && totalFindings === 0
+      ? 0
+      : Math.round(
+          (completedAudits / Math.max(1, totalAudits)) * 60 +
+            (resolvedCount / Math.max(1, totalFindings)) * 40,
+        );
 
-  const activeAuditors = users.filter((u) =>
-    u.role === "AUDITOR" || u.role === "LEAD_AUDITOR",
+  const activeAuditors = users.filter(
+    (u) => u.role === "AUDITOR" || u.role === "LEAD_AUDITOR",
   ).length;
 
   // Color palette for charts - Black and white
   const COLORS = ["#1f2937", "#4b5563", "#6b7280", "#9ca3af", "#d1d5db"];
   const STATUS_COLORS: Record<string, string> = {
-    "NOT_STARTED": "#d1d5db",
-    "IN_PROGRESS": "#6b7280",
-    "COMPLETED": "#1f2937",
-    "ON_HOLD": "#9ca3af",
+    NOT_STARTED: "#d1d5db",
+    IN_PROGRESS: "#6b7280",
+    COMPLETED: "#1f2937",
+    ON_HOLD: "#9ca3af",
   };
 
   // Transform data for pie charts
@@ -106,7 +117,13 @@ function AnalyticsPage() {
       ) : (
         <>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <StatTile label="Compliance score" value={`${complianceScore}`} hint="out of 100" icon={ShieldCheck} tone={1} />
+            <StatTile
+              label="Compliance score"
+              value={`${complianceScore}`}
+              hint="out of 100"
+              icon={ShieldCheck}
+              tone={1}
+            />
             <StatTile label="Total audits" value={totalAudits} icon={ChartPie} tone={2} />
             <StatTile label="Total findings" value={totalFindings} icon={TrendingUp} tone={3} />
             <StatTile label="Active auditors" value={activeAuditors} icon={Users} tone={4} />
@@ -177,10 +194,7 @@ function AnalyticsPage() {
                     <Tooltip />
                     <Bar dataKey="value" fill="#3b82f6">
                       {findingStatusData.map((entry, index) => (
-                        <Cell
-                          key={`cell-${index}`}
-                          fill={index === 0 ? "#22c55e" : "#ef4444"}
-                        />
+                        <Cell key={`cell-${index}`} fill={index === 0 ? "#22c55e" : "#ef4444"} />
                       ))}
                     </Bar>
                   </BarChart>
@@ -194,7 +208,7 @@ function AnalyticsPage() {
                   const findingsLogged = findings.filter(
                     (f) => f.assigneeId === u.id || f.createdById === u.id,
                   ).length;
-                  const pts = 40 + (i * 11) % 50 + findingsLogged * 5;
+                  const pts = 40 + ((i * 11) % 50) + findingsLogged * 5;
                   return (
                     <div key={u.id}>
                       <div className="flex justify-between text-sm">
@@ -227,13 +241,21 @@ function AnalyticsPage() {
   );
 }
 
-function Panel({ title, children, className = "" }: { title: string; children: React.ReactNode; className?: string }) {
+function Panel({
+  title,
+  children,
+  className = "",
+}: {
+  title: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
   return (
-    <div className={`rounded-2xl border border-border/60 bg-card/70 p-5 backdrop-blur-xl ${className}`}>
+    <div
+      className={`rounded-2xl border border-border/60 bg-card/70 p-5 backdrop-blur-xl ${className}`}
+    >
       <h3 className="text-sm font-semibold tracking-tight">{title}</h3>
       <div className="mt-4 space-y-3">{children}</div>
     </div>
   );
 }
-
-

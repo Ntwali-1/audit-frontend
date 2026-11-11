@@ -6,21 +6,29 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Spinner } from "@/components/ui/spinner";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import {
-  ClipboardList, UsersRound, UserPlus, CheckCircle2, ArrowLeft, ArrowRight,
-  Plus, X, Mail, Info, AlertTriangle,
+  ClipboardList,
+  UsersRound,
+  UserPlus,
+  CheckCircle2,
+  ArrowLeft,
+  ArrowRight,
+  Plus,
+  X,
+  Mail,
+  Info,
+  AlertTriangle,
 } from "lucide-react";
 import { toast } from "sonner";
-import {
-  auditsApi, teamsApi, usersApi, getUserDisplayName,
-  type ApiUser,
-} from "@/lib/api";
+import { auditsApi, teamsApi, usersApi, getUserDisplayName, type ApiUser } from "@/lib/api";
 import { InviteAuditorsForm } from "@/components/invite-auditors";
 
 /**
@@ -41,7 +49,14 @@ const STEPS = [
   { label: "Review", hint: "Check and create", icon: CheckCircle2 },
 ];
 
-const AUDIT_TYPES = ["Compliance", "Financial", "Operational", "IT / Systems", "Procurement", "Performance"];
+const AUDIT_TYPES = [
+  "Compliance",
+  "Financial",
+  "Operational",
+  "IT / Systems",
+  "Procurement",
+  "Performance",
+];
 
 export function CreateAuditWizard({ onClose }: { onClose: () => void }) {
   const qc = useQueryClient();
@@ -127,7 +142,8 @@ export function CreateAuditWizard({ onClose }: { onClose: () => void }) {
       });
       onClose();
     },
-    onError: (e) => toast.error("Could not create the audit", { description: (e as Error).message }),
+    onError: (e) =>
+      toast.error("Could not create the audit", { description: (e as Error).message }),
   });
 
   const stepValid: Record<Step, boolean> = {
@@ -142,7 +158,7 @@ export function CreateAuditWizard({ onClose }: { onClose: () => void }) {
 
   const resolvedTeamName =
     teamMode === "existing"
-      ? teams.find((t) => t.id === teamId)?.name ?? "—"
+      ? (teams.find((t) => t.id === teamId)?.name ?? "—")
       : teamMode === "new"
         ? newTeamName || "—"
         : "No team";
@@ -158,33 +174,56 @@ export function CreateAuditWizard({ onClose }: { onClose: () => void }) {
 
         <div className="min-h-[19rem] pt-2">
           {step === 0 && (
-            <Pane title="What is being audited"
-              blurb="The basics. Four standard steps — planning, information gathering, testing, reporting — are created automatically.">
+            <Pane
+              title="What is being audited"
+              blurb="The basics. Four standard steps — planning, information gathering, testing, reporting — are created automatically."
+            >
               <Row label="Title" required>
-                <Input value={title} onChange={(e) => setTitle(e.target.value)}
-                  placeholder="FY2026 Procurement Compliance Review" autoFocus />
+                <Input
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="FY2026 Procurement Compliance Review"
+                  autoFocus
+                />
               </Row>
               <div className="grid gap-4 sm:grid-cols-2">
                 <Row label="Type">
                   <Select value={type} onValueChange={setType}>
-                    <SelectTrigger><SelectValue placeholder="Choose a type…" /></SelectTrigger>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choose a type…" />
+                    </SelectTrigger>
                     <SelectContent>
-                      {AUDIT_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                      {AUDIT_TYPES.map((t) => (
+                        <SelectItem key={t} value={t}>
+                          {t}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </Row>
                 <Row label="Scope">
-                  <Input value={scope} onChange={(e) => setScope(e.target.value)}
-                    placeholder="Procurement department" />
+                  <Input
+                    value={scope}
+                    onChange={(e) => setScope(e.target.value)}
+                    placeholder="Procurement department"
+                  />
                 </Row>
               </div>
               <Row label="Description">
-                <Textarea rows={3} value={description} onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Objectives and the risks this audit is aimed at." />
+                <Textarea
+                  rows={3}
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Objectives and the risks this audit is aimed at."
+                />
               </Row>
               <div className="grid gap-4 sm:grid-cols-2">
                 <Row label="Start date">
-                  <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+                  <Input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                  />
                 </Row>
                 <Row label="Due date">
                   <Input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
@@ -194,15 +233,20 @@ export function CreateAuditWizard({ onClose }: { onClose: () => void }) {
           )}
 
           {step === 1 && (
-            <Pane title="Who runs this audit"
-              blurb="An audit belongs to a team. Pick one, or build it here.">
+            <Pane
+              title="Who runs this audit"
+              blurb="An audit belongs to a team. Pick one, or build it here."
+            >
               {hasNobody ? (
                 <NobodyYet />
               ) : (
                 <div className="space-y-4">
                   <div className="flex flex-wrap gap-2">
-                    <ModeChip active={teamMode === "existing"} disabled={teams.length === 0}
-                      onClick={() => setTeamMode("existing")}>
+                    <ModeChip
+                      active={teamMode === "existing"}
+                      disabled={teams.length === 0}
+                      onClick={() => setTeamMode("existing")}
+                    >
                       Use an existing team{teams.length === 0 ? " (none yet)" : ""}
                     </ModeChip>
                     <ModeChip active={teamMode === "new"} onClick={() => setTeamMode("new")}>
@@ -216,11 +260,14 @@ export function CreateAuditWizard({ onClose }: { onClose: () => void }) {
                   {teamMode === "existing" && (
                     <Row label="Team" required>
                       <Select value={teamId} onValueChange={setTeamId}>
-                        <SelectTrigger><SelectValue placeholder="Choose a team…" /></SelectTrigger>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Choose a team…" />
+                        </SelectTrigger>
                         <SelectContent>
                           {teams.map((t) => (
                             <SelectItem key={t.id} value={t.id}>
-                              {t.name}{t.teamLead ? ` · led by ${getUserDisplayName(t.teamLead)}` : ""}
+                              {t.name}
+                              {t.teamLead ? ` · led by ${getUserDisplayName(t.teamLead)}` : ""}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -231,36 +278,46 @@ export function CreateAuditWizard({ onClose }: { onClose: () => void }) {
                   {teamMode === "new" && (
                     <div className="space-y-4">
                       <Row label="Team name" required>
-                        <Input value={newTeamName} onChange={(e) => setNewTeamName(e.target.value)}
-                          placeholder="Procurement Audit Team" />
+                        <Input
+                          value={newTeamName}
+                          onChange={(e) => setNewTeamName(e.target.value)}
+                          placeholder="Procurement Audit Team"
+                        />
                       </Row>
                       <Row label="Team lead" required>
                         <Select value={newTeamLeadId} onValueChange={setNewTeamLeadId}>
                           <SelectTrigger>
-                            <SelectValue placeholder={leads.length ? "Choose a lead…" : "Any auditor…"} />
+                            <SelectValue
+                              placeholder={leads.length ? "Choose a lead…" : "Any auditor…"}
+                            />
                           </SelectTrigger>
                           <SelectContent>
                             {(leads.length ? leads : auditors).map((u) => (
                               <SelectItem key={u.id} value={u.id}>
-                                {getUserDisplayName(u)}{u.role === "LEAD_AUDITOR" ? " · Lead" : ""}
+                                {getUserDisplayName(u)}
+                                {u.role === "LEAD_AUDITOR" ? " · Lead" : ""}
                               </SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
                         {leads.length === 0 && (
                           <Hint>
-                            No lead auditors yet — you can appoint one from the Auditors step,
-                            or use any auditor for now.
+                            No lead auditors yet — you can appoint one from the Auditors step, or
+                            use any auditor for now.
                           </Hint>
                         )}
                       </Row>
                       <Row label="Members">
-                        <PeoplePicker people={auditors} selected={newTeamMemberIds}
+                        <PeoplePicker
+                          people={auditors}
+                          selected={newTeamMemberIds}
                           onToggle={(id) =>
                             setNewTeamMemberIds((p) =>
                               p.includes(id) ? p.filter((x) => x !== id) : [...p, id],
-                            )}
-                          excludeId={newTeamLeadId} />
+                            )
+                          }
+                          excludeId={newTeamLeadId}
+                        />
                       </Row>
                     </div>
                   )}
@@ -277,15 +334,23 @@ export function CreateAuditWizard({ onClose }: { onClose: () => void }) {
           )}
 
           {step === 2 && (
-            <Pane title="Auditors on this audit"
-              blurb="Individuals assigned directly, on top of the team. Optional.">
+            <Pane
+              title="Auditors on this audit"
+              blurb="Individuals assigned directly, on top of the team. Optional."
+            >
               {hasNobody ? (
                 <NobodyYet />
               ) : (
                 <>
-                  <PeoplePicker people={auditors} selected={assignedUserIds}
+                  <PeoplePicker
+                    people={auditors}
+                    selected={assignedUserIds}
                     onToggle={(id) =>
-                      setAssignedUserIds((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]))} />
+                      setAssignedUserIds((p) =>
+                        p.includes(id) ? p.filter((x) => x !== id) : [...p, id],
+                      )
+                    }
+                  />
                   <div className="mt-4">
                     <InvitePanel />
                   </div>
@@ -296,18 +361,25 @@ export function CreateAuditWizard({ onClose }: { onClose: () => void }) {
 
           {step === 3 && (
             <Pane title="Check and create" blurb="Nothing has been created yet.">
-              <Summary rows={[
-                ["Title", title],
-                ["Type", type || "—"],
-                ["Scope", scope || "—"],
-                ["Start", startDate || "—"],
-                ["Due", dueDate || "—"],
-                ["Team", resolvedTeamName],
-                ["Auditors assigned", assignedUserIds.length === 0 ? "None" : String(assignedUserIds.length)],
-              ]} />
+              <Summary
+                rows={[
+                  ["Title", title],
+                  ["Type", type || "—"],
+                  ["Scope", scope || "—"],
+                  ["Start", startDate || "—"],
+                  ["Due", dueDate || "—"],
+                  ["Team", resolvedTeamName],
+                  [
+                    "Auditors assigned",
+                    assignedUserIds.length === 0 ? "None" : String(assignedUserIds.length),
+                  ],
+                ]}
+              />
               {teamMode === "none" && assignedUserIds.length === 0 && (
-                <div className="mt-3 flex items-start gap-2 rounded-lg border px-3 py-2 text-[12px]"
-                  style={{ borderColor: "#F0C97A", backgroundColor: "#FEF3E2", color: "#854F0B" }}>
+                <div
+                  className="mt-3 flex items-start gap-2 rounded-lg border px-3 py-2 text-[12px]"
+                  style={{ borderColor: "#F0C97A", backgroundColor: "#FEF3E2", color: "#854F0B" }}
+                >
                   <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                   Nobody is on this audit yet, so it will not appear in anyone's queue.
                 </div>
@@ -316,10 +388,15 @@ export function CreateAuditWizard({ onClose }: { onClose: () => void }) {
           )}
         </div>
 
-        <div className="flex items-center justify-between border-t pt-4"
-          style={{ borderColor: "var(--border-subtle)" }}>
-          <Button variant="outline" onClick={() => setStep((s) => (s - 1) as Step)}
-            disabled={step === 0 || create.isPending}>
+        <div
+          className="flex items-center justify-between border-t pt-4"
+          style={{ borderColor: "var(--border-subtle)" }}
+        >
+          <Button
+            variant="outline"
+            onClick={() => setStep((s) => (s - 1) as Step)}
+            disabled={step === 0 || create.isPending}
+          >
             <ArrowLeft className="mr-2 h-4 w-4" /> Back
           </Button>
 
@@ -329,9 +406,13 @@ export function CreateAuditWizard({ onClose }: { onClose: () => void }) {
             </Button>
           ) : (
             <Button onClick={() => create.mutate()} disabled={create.isPending || !stepValid[0]}>
-              {create.isPending
-                ? <><Spinner size={14} invert /> <span className="ml-2">Creating…</span></>
-                : "Create audit"}
+              {create.isPending ? (
+                <>
+                  <Spinner size={14} invert /> <span className="ml-2">Creating…</span>
+                </>
+              ) : (
+                "Create audit"
+              )}
             </Button>
           )}
         </div>
@@ -358,8 +439,11 @@ function InvitePanel() {
         <p className="text-[13px] font-medium" style={{ color: "var(--brown-800)" }}>
           Invite to your institution
         </p>
-        <button onClick={() => setOpen(false)} className="rounded-md p-1 hover:bg-stone-100"
-          style={{ color: "var(--text-muted)" }}>
+        <button
+          onClick={() => setOpen(false)}
+          className="rounded-md p-1 hover:bg-stone-100"
+          style={{ color: "var(--text-muted)" }}
+        >
           <X className="h-3.5 w-3.5" />
         </button>
       </div>
@@ -374,12 +458,14 @@ function InvitePanel() {
 function NobodyYet() {
   return (
     <div className="space-y-4">
-      <div className="flex items-start gap-2 rounded-xl border px-4 py-3 text-[13px]"
-        style={{ borderColor: "#F0C97A", backgroundColor: "#FEF3E2", color: "#854F0B" }}>
+      <div
+        className="flex items-start gap-2 rounded-xl border px-4 py-3 text-[13px]"
+        style={{ borderColor: "#F0C97A", backgroundColor: "#FEF3E2", color: "#854F0B" }}
+      >
         <Info className="mt-0.5 h-4 w-4 shrink-0" />
         <span>
-          Your institution has no auditors yet. Invite at least one before an audit can
-          actually be worked — you can still create it, but nobody will be able to pick it up.
+          Your institution has no auditors yet. Invite at least one before an audit can actually be
+          worked — you can still create it, but nobody will be able to pick it up.
         </span>
       </div>
       <InvitePanel />
@@ -388,7 +474,10 @@ function NobodyYet() {
 }
 
 function PeoplePicker({
-  people, selected, onToggle, excludeId,
+  people,
+  selected,
+  onToggle,
+  excludeId,
 }: {
   people: ApiUser[];
   selected: string[];
@@ -400,13 +489,20 @@ function PeoplePicker({
     return <Hint>Nobody available yet.</Hint>;
   }
   return (
-    <div className="max-h-52 space-y-1.5 overflow-y-auto rounded-xl border p-2"
-      style={{ borderColor: "var(--border-subtle)" }}>
+    <div
+      className="max-h-52 space-y-1.5 overflow-y-auto rounded-xl border p-2"
+      style={{ borderColor: "var(--border-subtle)" }}
+    >
       {list.map((p) => (
-        <label key={p.id}
-          className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-stone-50">
+        <label
+          key={p.id}
+          className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-stone-50"
+        >
           <Checkbox checked={selected.includes(p.id)} onCheckedChange={() => onToggle(p.id)} />
-          <span className="min-w-0 flex-1 truncate text-[13px]" style={{ color: "var(--brown-800)" }}>
+          <span
+            className="min-w-0 flex-1 truncate text-[13px]"
+            style={{ color: "var(--brown-800)" }}
+          >
             {getUserDisplayName(p)}
           </span>
           <span className="shrink-0 text-[11px]" style={{ color: "var(--text-hint)" }}>
@@ -426,22 +522,33 @@ function Stepper({ current, onJump }: { current: number; onJump: (i: number) => 
         const active = i === current;
         return (
           <React.Fragment key={s.label}>
-            <button onClick={() => onJump(i)} disabled={i >= current}
+            <button
+              onClick={() => onJump(i)}
+              disabled={i >= current}
               className="flex min-w-0 items-center gap-2 rounded-lg border px-2.5 py-1.5 disabled:cursor-default"
               style={{
                 borderColor: active ? "var(--brown-400)" : "var(--border-subtle)",
                 backgroundColor: active ? "var(--brown-50)" : done ? "#E6F4ED" : "transparent",
-              }}>
-              <s.icon className="h-3.5 w-3.5 shrink-0"
-                style={{ color: active ? "var(--brown-800)" : done ? "#1A6638" : "var(--text-hint)" }} />
-              <span className="hidden truncate text-[12px] font-medium sm:block"
-                style={{ color: active || done ? "var(--brown-800)" : "var(--text-muted)" }}>
+              }}
+            >
+              <s.icon
+                className="h-3.5 w-3.5 shrink-0"
+                style={{
+                  color: active ? "var(--brown-800)" : done ? "#1A6638" : "var(--text-hint)",
+                }}
+              />
+              <span
+                className="hidden truncate text-[12px] font-medium sm:block"
+                style={{ color: active || done ? "var(--brown-800)" : "var(--text-muted)" }}
+              >
                 {s.label}
               </span>
             </button>
             {i < STEPS.length - 1 && (
-              <span className="h-px flex-1"
-                style={{ backgroundColor: i < current ? "#A8D5BA" : "var(--border-subtle)" }} />
+              <span
+                className="h-px flex-1"
+                style={{ backgroundColor: i < current ? "#A8D5BA" : "var(--border-subtle)" }}
+              />
             )}
           </React.Fragment>
         );
@@ -450,36 +557,70 @@ function Stepper({ current, onJump }: { current: number; onJump: (i: number) => 
   );
 }
 
-function Pane({ title, blurb, children }: { title: string; blurb: string; children: React.ReactNode }) {
+function Pane({
+  title,
+  blurb,
+  children,
+}: {
+  title: string;
+  blurb: string;
+  children: React.ReactNode;
+}) {
   return (
     <div>
-      <h3 className="text-[15px] font-semibold" style={{ color: "var(--brown-800)" }}>{title}</h3>
-      <p className="mt-0.5 text-[12px]" style={{ color: "var(--text-muted)" }}>{blurb}</p>
+      <h3 className="text-[15px] font-semibold" style={{ color: "var(--brown-800)" }}>
+        {title}
+      </h3>
+      <p className="mt-0.5 text-[12px]" style={{ color: "var(--text-muted)" }}>
+        {blurb}
+      </p>
       <div className="mt-4 space-y-4">{children}</div>
     </div>
   );
 }
 
-function Row({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
+function Row({
+  label,
+  required,
+  children,
+}: {
+  label: string;
+  required?: boolean;
+  children: React.ReactNode;
+}) {
   return (
     <div>
-      <Label>{label}{required && <span style={{ color: "#9B2C2C" }}> *</span>}</Label>
+      <Label>
+        {label}
+        {required && <span style={{ color: "#9B2C2C" }}> *</span>}
+      </Label>
       <div className="mt-1.5">{children}</div>
     </div>
   );
 }
 
 function ModeChip({
-  active, disabled, onClick, children,
-}: { active: boolean; disabled?: boolean; onClick: () => void; children: React.ReactNode }) {
+  active,
+  disabled,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  disabled?: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
   return (
-    <button onClick={onClick} disabled={disabled}
+    <button
+      onClick={onClick}
+      disabled={disabled}
       className="rounded-full border px-3 py-1.5 text-[12px] transition disabled:opacity-40"
       style={{
         borderColor: active ? "var(--brown-400)" : "var(--border-subtle)",
         backgroundColor: active ? "var(--brown-50)" : "transparent",
         color: active ? "var(--brown-800)" : "var(--text-muted)",
-      }}>
+      }}
+    >
       {children}
     </button>
   );
@@ -487,8 +628,10 @@ function ModeChip({
 
 function Hint({ children }: { children: React.ReactNode }) {
   return (
-    <p className="mt-1.5 rounded-lg border px-3 py-2 text-[12px]"
-      style={{ borderColor: "var(--border-subtle)", color: "var(--text-muted)" }}>
+    <p
+      className="mt-1.5 rounded-lg border px-3 py-2 text-[12px]"
+      style={{ borderColor: "var(--border-subtle)", color: "var(--text-muted)" }}
+    >
       {children}
     </p>
   );
@@ -500,8 +643,12 @@ function Summary({ rows }: { rows: [string, string][] }) {
       <div className="space-y-1.5">
         {rows.map(([k, v]) => (
           <div key={k} className="flex gap-3 text-[13px]">
-            <span className="w-40 shrink-0" style={{ color: "var(--text-muted)" }}>{k}</span>
-            <span className="min-w-0 flex-1 break-words" style={{ color: "var(--brown-800)" }}>{v}</span>
+            <span className="w-40 shrink-0" style={{ color: "var(--text-muted)" }}>
+              {k}
+            </span>
+            <span className="min-w-0 flex-1 break-words" style={{ color: "var(--brown-800)" }}>
+              {v}
+            </span>
           </div>
         ))}
       </div>

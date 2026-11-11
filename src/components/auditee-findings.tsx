@@ -1,7 +1,15 @@
+import type { LucideIcon } from "lucide-react";
 import * as React from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  AlertTriangle, CheckCircle2, ClipboardCheck, Clock, Hourglass, Play, RotateCcw, Send,
+  AlertTriangle,
+  CheckCircle2,
+  ClipboardCheck,
+  Clock,
+  Hourglass,
+  Play,
+  RotateCcw,
+  Send,
 } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/page-header";
@@ -9,10 +17,18 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Spinner } from "@/components/ui/spinner";
 import {
-  Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  findingsApi, findingsApi2, FINDING_STATUS_LABEL, SEVERITY_LABEL, getUserDisplayName,
+  findingsApi,
+  findingsApi2,
+  FINDING_STATUS_LABEL,
+  SEVERITY_LABEL,
+  getUserDisplayName,
   type AssignedFinding,
 } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
@@ -96,7 +112,13 @@ export function AuditeeFindings() {
       />
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <Tally label="To do" value={todo.length} icon={ClipboardCheck} alert={overdue > 0} hint={overdue ? `${overdue} past the deadline` : undefined} />
+        <Tally
+          label="To do"
+          value={todo.length}
+          icon={ClipboardCheck}
+          alert={overdue > 0}
+          hint={overdue ? `${overdue} past the deadline` : undefined}
+        />
         <Tally label="In progress" value={doing.length} icon={Play} />
         <Tally label="With the auditor" value={waiting.length} icon={Hourglass} />
         <Tally label="Closed" value={done.length} icon={CheckCircle2} />
@@ -121,9 +143,13 @@ export function AuditeeFindings() {
             {(f) => (
               <Button size="sm" onClick={() => start.mutate(f.id)} disabled={start.isPending}>
                 {f.status === "REJECTED_REOPENED" || f.status === "PARTIALLY_RESOLVED" ? (
-                  <><RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Work on it again</>
+                  <>
+                    <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Work on it again
+                  </>
                 ) : (
-                  <><Play className="mr-1.5 h-3.5 w-3.5" /> Start work</>
+                  <>
+                    <Play className="mr-1.5 h-3.5 w-3.5" /> Start work
+                  </>
                 )}
               </Button>
             )}
@@ -137,9 +163,16 @@ export function AuditeeFindings() {
             )}
           </Group>
 
-          <Group title="Waiting for the auditor" rows={waiting} empty="Nothing waiting to be checked.">
+          <Group
+            title="Waiting for the auditor"
+            rows={waiting}
+            empty="Nothing waiting to be checked."
+          >
             {(f) => (
-              <span className="inline-flex items-center gap-1.5 text-[12px]" style={{ color: "var(--text-muted)" }}>
+              <span
+                className="inline-flex items-center gap-1.5 text-[12px]"
+                style={{ color: "var(--text-muted)" }}
+              >
                 <Hourglass className="h-3.5 w-3.5" />
                 {getUserDisplayName(f.createdBy)} is checking it
               </span>
@@ -148,15 +181,21 @@ export function AuditeeFindings() {
 
           <Group title="Closed" rows={done} empty="Nothing closed yet." muted>
             {(f) => (
-              <span className="inline-flex items-center gap-1.5 text-[12px]" style={{ color: "#067647" }}>
-                <CheckCircle2 className="h-3.5 w-3.5" /> {FINDING_STATUS_LABEL[f.status] ?? f.status}
+              <span
+                className="inline-flex items-center gap-1.5 text-[12px]"
+                style={{ color: "#067647" }}
+              >
+                <CheckCircle2 className="h-3.5 w-3.5" />{" "}
+                {FINDING_STATUS_LABEL[f.status] ?? f.status}
               </span>
             )}
           </Group>
         </div>
       )}
 
-      {fixing && <MarkFixedDialog finding={fixing} onClose={() => setFixing(null)} onDone={refresh} />}
+      {fixing && (
+        <MarkFixedDialog finding={fixing} onClose={() => setFixing(null)} onDone={refresh} />
+      )}
     </>
   );
 }
@@ -164,7 +203,11 @@ export function AuditeeFindings() {
 /* -------------------------------------------------------------------------- */
 
 function Group({
-  title, rows, empty, muted = false, children,
+  title,
+  rows,
+  empty,
+  muted = false,
+  children,
 }: {
   title: string;
   rows: AssignedFinding[];
@@ -224,7 +267,9 @@ function Group({
         ))}
       </ul>
       {rows.length === 0 && (
-        <p className="text-[13px]" style={{ color: "var(--text-muted)" }}>{empty}</p>
+        <p className="text-[13px]" style={{ color: "var(--text-muted)" }}>
+          {empty}
+        </p>
       )}
     </section>
   );
@@ -236,28 +281,42 @@ function Deadline({ deadline, settled }: { deadline: string | null; settled: boo
   const date = new Date(deadline).toLocaleDateString();
 
   if (settled) {
-    return <span className="text-[11px]" style={{ color: "var(--text-hint)" }}>due {date}</span>;
+    return (
+      <span className="text-[11px]" style={{ color: "var(--text-hint)" }}>
+        due {date}
+      </span>
+    );
   }
   if (days < 0) {
     return (
-      <span className="inline-flex items-center gap-1 text-[11px] font-medium" style={{ color: "#9B2C2C" }}>
+      <span
+        className="inline-flex items-center gap-1 text-[11px] font-medium"
+        style={{ color: "#9B2C2C" }}
+      >
         <AlertTriangle className="h-3 w-3" /> {Math.abs(days)} days overdue
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center gap-1 text-[11px]" style={{ color: days <= 7 ? "#854F0B" : "var(--text-muted)" }}>
+    <span
+      className="inline-flex items-center gap-1 text-[11px]"
+      style={{ color: days <= 7 ? "#854F0B" : "var(--text-muted)" }}
+    >
       <Clock className="h-3 w-3" /> due in {days} {days === 1 ? "day" : "days"}
     </span>
   );
 }
 
 function Tally({
-  label, value, icon: Icon, alert, hint,
+  label,
+  value,
+  icon: Icon,
+  alert,
+  hint,
 }: {
   label: string;
   value: number;
-  icon: React.ComponentType<any>;
+  icon: LucideIcon;
   alert?: boolean;
   hint?: string;
 }) {
@@ -267,7 +326,11 @@ function Tally({
       style={{ borderColor: "var(--border-subtle)", boxShadow: "var(--shadow-card)" }}
     >
       <div className="flex items-center gap-2">
-        <Icon className="h-[14px] w-[14px]" strokeWidth={1.75} style={{ color: "var(--text-hint)" }} />
+        <Icon
+          className="h-[14px] w-[14px]"
+          strokeWidth={1.75}
+          style={{ color: "var(--text-hint)" }}
+        />
         <span className="data-label">{label}</span>
       </div>
       <div
@@ -277,7 +340,10 @@ function Tally({
         {value}
       </div>
       {hint && (
-        <div className="mt-1.5 text-[12px]" style={{ color: alert ? "#9B2C2C" : "var(--text-muted)" }}>
+        <div
+          className="mt-1.5 text-[12px]"
+          style={{ color: alert ? "#9B2C2C" : "var(--text-muted)" }}
+        >
           {hint}
         </div>
       )}
@@ -291,7 +357,9 @@ function Tally({
  * straight back.
  */
 function MarkFixedDialog({
-  finding, onClose, onDone,
+  finding,
+  onClose,
+  onDone,
 }: {
   finding: AssignedFinding;
   onClose: () => void;
@@ -319,7 +387,9 @@ function MarkFixedDialog({
         </DialogHeader>
 
         <p className="text-[13px]" style={{ color: "var(--text-muted)" }}>
-          <span className="font-medium" style={{ color: "var(--brown-800)" }}>{finding.title}</span>
+          <span className="font-medium" style={{ color: "var(--brown-800)" }}>
+            {finding.title}
+          </span>
         </p>
 
         <Textarea
@@ -334,9 +404,20 @@ function MarkFixedDialog({
         </p>
 
         <DialogFooter className="gap-2">
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button onClick={() => submit.mutate()} disabled={note.trim().length < 10 || submit.isPending}>
-            {submit.isPending ? <Spinner size={14} invert /> : <><Send className="mr-1.5 h-3.5 w-3.5" /> Send for checking</>}
+          <Button variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button
+            onClick={() => submit.mutate()}
+            disabled={note.trim().length < 10 || submit.isPending}
+          >
+            {submit.isPending ? (
+              <Spinner size={14} invert />
+            ) : (
+              <>
+                <Send className="mr-1.5 h-3.5 w-3.5" /> Send for checking
+              </>
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>

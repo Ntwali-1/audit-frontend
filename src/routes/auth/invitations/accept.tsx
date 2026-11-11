@@ -38,15 +38,21 @@ function AcceptInvitationPage() {
   const [submitError, setSubmitError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
-    if (!token) { setPrefilling(false); return; }
-    authApi.getInvitationInfo(token)
+    if (!token) {
+      setPrefilling(false);
+      return;
+    }
+    authApi
+      .getInvitationInfo(token)
       .then((info) => {
         setEmail(info.email);
         setFullName(info.fullName);
         setPhone(info.phone);
       })
       .catch((err) => {
-        setTokenError(err instanceof Error ? err.message : "This invitation link is invalid or has expired.");
+        setTokenError(
+          err instanceof Error ? err.message : "This invitation link is invalid or has expired.",
+        );
       })
       .finally(() => setPrefilling(false));
   }, [token]);
@@ -58,7 +64,10 @@ function AcceptInvitationPage() {
           className="w-full max-w-md rounded-3xl border bg-white p-10 text-center"
           style={{ borderColor: "var(--border-subtle)", boxShadow: "var(--shadow-modal)" }}
         >
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center overflow-hidden rounded-full" style={{ backgroundColor: "var(--brown-100)" }}>
+          <div
+            className="mx-auto mb-4 flex h-12 w-12 items-center justify-center overflow-hidden rounded-full"
+            style={{ backgroundColor: "var(--brown-100)" }}
+          >
             <img src={PRODUCT_LOGO} alt="Auditly" className="h-7 w-7 object-contain" />
           </div>
           <h2 className="text-[20px] font-medium" style={{ color: "var(--brown-800)" }}>
@@ -115,7 +124,9 @@ function AcceptInvitationPage() {
       setAuth(data.accessToken, data.refreshToken, data.user);
       navigate({ to: "/dashboard" });
     } catch (err) {
-      setSubmitError(err instanceof Error ? err.message : "Could not complete setup. Please try again.");
+      setSubmitError(
+        err instanceof Error ? err.message : "Could not complete setup. Please try again.",
+      );
     } finally {
       setLoading(false);
     }
@@ -129,9 +140,7 @@ function AcceptInvitationPage() {
         style={{ backgroundColor: "var(--brown-800)" }}
       >
         <div className="relative z-10 flex items-center gap-3">
-          <div
-            className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl bg-white/95"
-          >
+          <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl bg-white/95">
             <img src={PRODUCT_LOGO} alt="Auditly" className="h-6 w-6 object-contain" />
           </div>
           <span className="text-[16px] font-semibold text-white">Auditly</span>
@@ -139,7 +148,8 @@ function AcceptInvitationPage() {
 
         <div className="relative z-10 space-y-6">
           <h1 className="text-[40px] font-medium leading-[1.1] tracking-tight text-white">
-            You've been invited<br />
+            You've been invited
+            <br />
             <span style={{ color: "var(--brown-200)" }}>to Auditly.</span>
           </h1>
           <p className="max-w-md text-[14px] leading-relaxed text-white/65">
@@ -147,7 +157,9 @@ function AcceptInvitationPage() {
           </p>
         </div>
 
-        <p className="relative z-10 text-[11px] text-white/40">© 2026 Auditly · Nema Technologies</p>
+        <p className="relative z-10 text-[11px] text-white/40">
+          © 2026 Auditly · Nema Technologies
+        </p>
       </div>
 
       {/* Right — form */}
@@ -157,7 +169,10 @@ function AcceptInvitationPage() {
           style={{ borderColor: "var(--border-subtle)", boxShadow: "var(--shadow-modal)" }}
         >
           <div className="data-label">Account setup</div>
-          <h2 className="mt-2 text-[24px] font-medium tracking-tight" style={{ color: "var(--brown-800)" }}>
+          <h2
+            className="mt-2 text-[24px] font-medium tracking-tight"
+            style={{ color: "var(--brown-800)" }}
+          >
             Complete your profile
           </h2>
           <p className="mt-2 text-[13px]" style={{ color: "var(--text-muted)" }}>
@@ -171,7 +186,11 @@ function AcceptInvitationPage() {
           <form onSubmit={onSubmit} className="mt-6 space-y-4">
             {/* Full name — pre-filled, editable */}
             <div>
-              <Label htmlFor="fullName" className="mb-1 block text-[12px] font-medium" style={{ color: "var(--brown-600)" }}>
+              <Label
+                htmlFor="fullName"
+                className="mb-1 block text-[12px] font-medium"
+                style={{ color: "var(--brown-600)" }}
+              >
                 Full name
               </Label>
               <Input
@@ -185,7 +204,11 @@ function AcceptInvitationPage() {
 
             {/* Phone — pre-filled, editable */}
             <div>
-              <Label htmlFor="phone" className="mb-1 block text-[12px] font-medium" style={{ color: "var(--brown-600)" }}>
+              <Label
+                htmlFor="phone"
+                className="mb-1 block text-[12px] font-medium"
+                style={{ color: "var(--brown-600)" }}
+              >
                 Phone number
               </Label>
               <Input
@@ -199,7 +222,11 @@ function AcceptInvitationPage() {
 
             {/* Email — pre-filled, read-only */}
             <div>
-              <Label htmlFor="email" className="mb-1 block text-[12px] font-medium" style={{ color: "var(--brown-600)" }}>
+              <Label
+                htmlFor="email"
+                className="mb-1 block text-[12px] font-medium"
+                style={{ color: "var(--brown-600)" }}
+              >
                 Email address
               </Label>
               <Input
@@ -213,7 +240,11 @@ function AcceptInvitationPage() {
 
             {/* Password */}
             <div>
-              <Label htmlFor="password" className="mb-1 block text-[12px] font-medium" style={{ color: "var(--brown-600)" }}>
+              <Label
+                htmlFor="password"
+                className="mb-1 block text-[12px] font-medium"
+                style={{ color: "var(--brown-600)" }}
+              >
                 Password
               </Label>
               <div className="relative">
@@ -239,7 +270,11 @@ function AcceptInvitationPage() {
 
             {/* Confirm password */}
             <div>
-              <Label htmlFor="confirm" className="mb-1 block text-[12px] font-medium" style={{ color: "var(--brown-600)" }}>
+              <Label
+                htmlFor="confirm"
+                className="mb-1 block text-[12px] font-medium"
+                style={{ color: "var(--brown-600)" }}
+              >
                 Confirm password
               </Label>
               <Input

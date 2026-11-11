@@ -52,13 +52,33 @@ Strict output contract (mandatory):
 When answering questions about counts, lists, or specific records, use ONLY the data provided in the LIVE WORKSPACE DATA block below. Do not invent or estimate numbers.`;
 
 function buildWorkspaceContext(
-  dashboard: { total: number; overdue: number; upcoming: number; byStatus: Record<string, number> } | undefined,
-  audits: { data: { title: string; status: string; dueDate: string | null; type: string | null }[]; total: number } | undefined,
-  findings: { data: { title: string; severity: string; status: string; deadline: string | null; assignee?: { firstName: string | null; lastName: string | null; email: string } | null }[]; total: number } | undefined,
+  dashboard:
+    | { total: number; overdue: number; upcoming: number; byStatus: Record<string, number> }
+    | undefined,
+  audits:
+    | {
+        data: { title: string; status: string; dueDate: string | null; type: string | null }[];
+        total: number;
+      }
+    | undefined,
+  findings:
+    | {
+        data: {
+          title: string;
+          severity: string;
+          status: string;
+          deadline: string | null;
+          assignee?: { firstName: string | null; lastName: string | null; email: string } | null;
+        }[];
+        total: number;
+      }
+    | undefined,
 ): string {
   if (!dashboard && !audits && !findings) return "";
 
-  const lines: string[] = ["\n\nLIVE WORKSPACE DATA (real data from the database, fetched this session):"];
+  const lines: string[] = [
+    "\n\nLIVE WORKSPACE DATA (real data from the database, fetched this session):",
+  ];
 
   if (dashboard) {
     lines.push("\nDASHBOARD SUMMARY:");
@@ -75,7 +95,9 @@ function buildWorkspaceContext(
     lines.push(`\nAUDITS (${audits.total} total, showing ${audits.data.length}):`);
     audits.data.forEach((a, i) => {
       const due = a.dueDate ? new Date(a.dueDate).toLocaleDateString() : "No due date";
-      lines.push(`${i + 1}. ${a.title} | Status: ${a.status} | Due: ${due}${a.type ? ` | Type: ${a.type}` : ""}`);
+      lines.push(
+        `${i + 1}. ${a.title} | Status: ${a.status} | Due: ${due}${a.type ? ` | Type: ${a.type}` : ""}`,
+      );
     });
   } else if (audits) {
     lines.push("\nAUDITS: None found.");
@@ -87,9 +109,13 @@ function buildWorkspaceContext(
       const due = f.deadline ? new Date(f.deadline).toLocaleDateString() : "No deadline";
       const a = f.assignee;
       const assignee = a
-        ? (a.firstName && a.lastName ? `${a.firstName} ${a.lastName}` : a.firstName ?? a.email)
+        ? a.firstName && a.lastName
+          ? `${a.firstName} ${a.lastName}`
+          : (a.firstName ?? a.email)
         : "Unassigned";
-      lines.push(`${i + 1}. ${f.title} | Severity: ${f.severity} | Status: ${f.status} | Assigned to: ${assignee} | Deadline: ${due}`);
+      lines.push(
+        `${i + 1}. ${f.title} | Severity: ${f.severity} | Status: ${f.status} | Assigned to: ${assignee} | Deadline: ${due}`,
+      );
     });
   } else if (findings) {
     lines.push("\nFINDINGS: None found.");
@@ -115,11 +141,19 @@ function renderInlineMarkdown(text: string): React.ReactNode[] {
     }
 
     if (token.startsWith("__") && token.endsWith("__")) {
-      return <span key={`${token}-${index}`} className="underline decoration-1 underline-offset-2">{token.slice(2, -2)}</span>;
+      return (
+        <span key={`${token}-${index}`} className="underline decoration-1 underline-offset-2">
+          {token.slice(2, -2)}
+        </span>
+      );
     }
 
     if (token.startsWith("<u>") && token.endsWith("</u>")) {
-      return <span key={`${token}-${index}`} className="underline decoration-1 underline-offset-2">{token.slice(3, -4)}</span>;
+      return (
+        <span key={`${token}-${index}`} className="underline decoration-1 underline-offset-2">
+          {token.slice(3, -4)}
+        </span>
+      );
     }
 
     return <React.Fragment key={`${token}-${index}`}>{token}</React.Fragment>;
@@ -137,13 +171,18 @@ function parseStructuredAssistantReply(raw: string): StructuredReply | null {
   const trimmed = raw.trim();
   if (!trimmed) return null;
 
-  const cleaned = trimmed.replace(/^```json\s*/i, "").replace(/\s*```$/i, "").trim();
+  const cleaned = trimmed
+    .replace(/^```json\s*/i, "")
+    .replace(/\s*```$/i, "")
+    .trim();
 
   try {
     const parsed = JSON.parse(cleaned) as Partial<StructuredReply>;
     if (!parsed || typeof parsed !== "object") return null;
 
-    const bullets = Array.isArray(parsed.bullets) ? parsed.bullets.filter((item): item is string => typeof item === "string") : [];
+    const bullets = Array.isArray(parsed.bullets)
+      ? parsed.bullets.filter((item): item is string => typeof item === "string")
+      : [];
     if (!parsed.heading && !parsed.intro && bullets.length === 0) return null;
 
     return {
@@ -167,7 +206,9 @@ function renderStructuredReply(reply: StructuredReply): React.ReactNode {
       )}
 
       {reply.intro && (
-        <p className="mb-2 leading-6 text-sm text-foreground/90">{renderInlineMarkdown(reply.intro)}</p>
+        <p className="mb-2 leading-6 text-sm text-foreground/90">
+          {renderInlineMarkdown(reply.intro)}
+        </p>
       )}
 
       {reply.bullets && reply.bullets.length > 0 && (
@@ -300,15 +341,24 @@ function AssistantPage() {
 
       if (!response.ok) {
         const err = await response.json().catch(() => ({}));
-        throw new Error((err as { error?: { message?: string } })?.error?.message ?? `API error ${response.status}`);
+        throw new Error(
+          (err as { error?: { message?: string } })?.error?.message ??
+            `API error ${response.status}`,
+        );
       }
 
       const data = await response.json();
-      const reply: string = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "I couldn't generate a response. Please try again.";
+      const reply: string =
+        data.candidates?.[0]?.content?.parts?.[0]?.text ??
+        "I couldn't generate a response. Please try again.";
       setMessages((m) => [...m, { role: "assistant", text: reply }]);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Something went wrong. Please try again.";
-      setMessages((m) => [...m, { role: "assistant", text: `Sorry, I ran into an error: ${message}` }]);
+      const message =
+        err instanceof Error ? err.message : "Something went wrong. Please try again.";
+      setMessages((m) => [
+        ...m,
+        { role: "assistant", text: `Sorry, I ran into an error: ${message}` },
+      ]);
     } finally {
       setThinking(false);
     }
@@ -350,7 +400,10 @@ function AssistantPage() {
             <div ref={bottomRef} />
           </div>
           <form
-            onSubmit={(e) => { e.preventDefault(); send(input); }}
+            onSubmit={(e) => {
+              e.preventDefault();
+              send(input);
+            }}
             className="flex items-center gap-2 border-t border-border/60 p-3"
           >
             <Input
@@ -359,7 +412,9 @@ function AssistantPage() {
               placeholder="Ask in plain English…"
               className="flex-1"
             />
-            <Button type="submit" disabled={thinking}><Send className="h-4 w-4" /></Button>
+            <Button type="submit" disabled={thinking}>
+              <Send className="h-4 w-4" />
+            </Button>
           </form>
         </div>
 

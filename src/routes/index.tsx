@@ -1,14 +1,6 @@
 import * as React from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import {
-  ChevronDown,
-  FileCheck2,
-  Github,
-  Home,
-  ShieldCheck,
-  Twitter,
-  Zap,
-} from "lucide-react";
+import { ChevronDown, FileCheck2, Github, Home, ShieldCheck, Twitter, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PRODUCT_LOGO } from "@/lib/auth-context";
 
@@ -25,7 +17,8 @@ export const Route = createFileRoute("/")({
       { title: "Auditly - Intelligent audit management" },
       {
         name: "description",
-        content: "Autonomous audit intelligence for engagements, evidence, findings, and statutory reporting.",
+        content:
+          "Autonomous audit intelligence for engagements, evidence, findings, and statutory reporting.",
       },
     ],
   }),
@@ -96,23 +89,39 @@ function FloatingNav() {
   return (
     <header className="fixed left-0 right-0 top-3 z-50 px-4">
       <nav className="mx-auto flex h-10 max-w-[670px] items-center justify-between rounded-[20px] border border-[#dfe4eb] bg-white/88 px-3 shadow-[0_9px_24px_rgba(15,23,42,0.12)] backdrop-blur-xl">
-        <Link to="/" className="flex min-w-[112px] items-center gap-2 text-[14px] font-bold text-[#17212d]">
+        <Link
+          to="/"
+          className="flex min-w-[112px] items-center gap-2 text-[14px] font-bold text-[#17212d]"
+        >
           <img src={PRODUCT_LOGO} alt="Auditly" className="h-4 w-4 object-contain" />
           Auditly
         </Link>
         <div className="hidden items-center gap-7 text-[11px] font-medium text-[#536070] md:flex">
-          <a href="#intelligence" className="transition hover:text-[#17212d]">Intelligence</a>
-          <a href="#story" className="transition hover:text-[#17212d]">Story</a>
-          <a href="#scale" className="transition hover:text-[#17212d]">Scale</a>
-          <a href="#systems" className="transition hover:text-[#17212d]">Systems</a>
-          <a href="#support" className="transition hover:text-[#17212d]">Support</a>
+          <a href="#intelligence" className="transition hover:text-[#17212d]">
+            Intelligence
+          </a>
+          <a href="#story" className="transition hover:text-[#17212d]">
+            Story
+          </a>
+          <a href="#scale" className="transition hover:text-[#17212d]">
+            Scale
+          </a>
+          <a href="#systems" className="transition hover:text-[#17212d]">
+            Systems
+          </a>
+          <a href="#support" className="transition hover:text-[#17212d]">
+            Support
+          </a>
         </div>
         <div className="flex items-center gap-3">
           <span className="hidden h-4 w-px bg-[#d7dce3] md:block" />
           <Link to="/login" className="text-[11px] font-semibold text-[#111820]">
             Sign In
           </Link>
-          <Button asChild className="h-7 rounded-[8px] bg-[#121417] px-4 text-[10px] font-bold tracking-[0.12em] text-white shadow-none hover:bg-black">
+          <Button
+            asChild
+            className="h-7 rounded-[8px] bg-[#121417] px-4 text-[10px] font-bold tracking-[0.12em] text-white shadow-none hover:bg-black"
+          >
             <Link to="/register">GET STARTED</Link>
           </Button>
         </div>
@@ -123,7 +132,10 @@ function FloatingNav() {
 
 function Hero() {
   return (
-    <section id="intelligence" className="relative overflow-hidden bg-[#f7f8fa] pb-20 pt-28 sm:pb-24">
+    <section
+      id="intelligence"
+      className="relative overflow-hidden bg-[#f7f8fa] pb-20 pt-28 sm:pb-24"
+    >
       <div className="pointer-events-none absolute inset-x-0 top-0 h-full">
         <div className="absolute left-[-10%] top-12 h-[520px] w-[55%] rounded-[32px] bg-gradient-to-br from-[#eef1f4] via-[#f7f8fa] to-transparent blur-[2px]" />
         <div className="absolute right-[-6%] top-20 h-[380px] w-[50%] rounded-full bg-gradient-to-r from-[#eef3f8] via-[#f9fafb] to-[#edf1f5] shadow-[0_30px_80px_rgba(15,23,42,0.08)]" />
@@ -143,25 +155,32 @@ function Hero() {
           </h1>
 
           <p className="mt-6 max-w-[470px] text-[16px] leading-[1.55] text-[#667385] sm:text-[18px]">
-            Auditly turns fragmented evidence, risk indicators, and reporting tasks into one intelligent workflow designed for modern institutions.
+            Auditly turns fragmented evidence, risk indicators, and reporting tasks into one
+            intelligent workflow designed for modern institutions.
           </p>
 
           <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:items-center">
-            <Button asChild className="h-[46px] min-w-[184px] rounded-full bg-[#141b22] px-7 text-[10px] font-bold uppercase tracking-[0.18em] text-white shadow-[0_16px_30px_rgba(15,23,42,0.18)] hover:bg-[#0d1218]">
+            <Button
+              asChild
+              className="h-[46px] min-w-[184px] rounded-full bg-[#141b22] px-7 text-[10px] font-bold uppercase tracking-[0.18em] text-white shadow-[0_16px_30px_rgba(15,23,42,0.18)] hover:bg-[#0d1218]"
+            >
               <Link to="/register">Begin onboarding</Link>
             </Button>
-            <Button asChild variant="outline" className="h-[46px] min-w-[188px] rounded-full border-[#e7ebef] bg-white/90 px-7 text-[10px] font-bold uppercase tracking-[0.18em] text-[#374152] shadow-[0_10px_25px_rgba(15,23,42,0.06)] hover:bg-white hover:text-[#111820]">
+            <Button
+              asChild
+              variant="outline"
+              className="h-[46px] min-w-[188px] rounded-full border-[#e7ebef] bg-white/90 px-7 text-[10px] font-bold uppercase tracking-[0.18em] text-[#374152] shadow-[0_10px_25px_rgba(15,23,42,0.06)] hover:bg-white hover:text-[#111820]"
+            >
               <a href="#story">Watch intelligence</a>
             </Button>
           </div>
 
           <div className="mt-8 flex flex-wrap gap-3 text-[10px] font-bold uppercase tracking-[0.14em] text-[#7b8794]">
-            {[
-              "Evidence flow",
-              "Risk detection",
-              "Board reporting",
-            ].map((item) => (
-              <span key={item} className="rounded-full border border-[#e8edf2] bg-white/80 px-3 py-2">
+            {["Evidence flow", "Risk detection", "Board reporting"].map((item) => (
+              <span
+                key={item}
+                className="rounded-full border border-[#e8edf2] bg-white/80 px-3 py-2"
+              >
                 {item}
               </span>
             ))}
@@ -205,7 +224,8 @@ function DemoSection() {
           See Auditly <span className="text-[#c9ced7]">in action.</span>
         </h2>
         <p className="mx-auto mt-4 max-w-[560px] text-[15px] leading-7 text-[#728091]">
-          Our AI processes engagement activity in seconds. Here is what your audit command center looks like.
+          Our AI processes engagement activity in seconds. Here is what your audit command center
+          looks like.
         </p>
       </div>
       <div className="mx-auto mt-12 max-w-[912px] overflow-hidden rounded-[22px] border border-[#dfe4ea] bg-white shadow-[0_24px_70px_rgba(15,23,42,0.06)]">
@@ -246,7 +266,11 @@ function ProductDemo() {
               src={slide.src}
               alt={slide.alt}
               className={`absolute inset-0 h-full w-full object-cover object-top transition-all duration-700 ${
-                index === activeIndex ? "translate-x-0 opacity-100" : index < activeIndex ? "-translate-x-full opacity-0" : "translate-x-full opacity-0"
+                index === activeIndex
+                  ? "translate-x-0 opacity-100"
+                  : index < activeIndex
+                    ? "-translate-x-full opacity-0"
+                    : "translate-x-full opacity-0"
               }`}
             />
           ))}
@@ -399,12 +423,15 @@ function SystemsSection() {
     <section id="systems" className="bg-[#fbfcfd] px-5 py-16 sm:py-20">
       <div className="mx-auto grid max-w-[1180px] gap-8 lg:grid-cols-[0.7fr_1.3fr] lg:items-start">
         <div id="scale" className="pt-4 lg:sticky lg:top-24 lg:pb-10">
-          <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-[#a0a9b6]">Autonomous systems</p>
+          <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-[#a0a9b6]">
+            Autonomous systems
+          </p>
           <h2 className="mt-6 max-w-[330px] font-display text-[38px] font-medium leading-[1.12] tracking-normal text-[#17212d]">
             Audit work that <span className="text-[#a8b0bd]">reasons like you.</span>
           </h2>
           <p className="mt-7 max-w-[330px] text-[14px] leading-7 text-[#788393]">
-            Stop chasing documents. Start building assurance. Auditly understands context, controls, evidence, and accountability at a human level.
+            Stop chasing documents. Start building assurance. Auditly understands context, controls,
+            evidence, and accountability at a human level.
           </p>
         </div>
 
@@ -418,11 +445,21 @@ function SystemsSection() {
                 <div className="grid gap-5 lg:grid-cols-[0.92fr_1.08fr] lg:items-center">
                   <div>
                     <span className="flex h-[39px] w-[39px] items-center justify-center rounded-[12px] bg-[#fbfcfd] text-[#263241]">
-                      {item.no === "01" ? <FileCheck2 className="h-5 w-5" /> : <Zap className="h-5 w-5" />}
+                      {item.no === "01" ? (
+                        <FileCheck2 className="h-5 w-5" />
+                      ) : (
+                        <Zap className="h-5 w-5" />
+                      )}
                     </span>
-                    <span className="mt-5 block text-[24px] font-black italic text-[#eef1f5]">{item.no}</span>
-                    <h3 className="mt-3 text-[20px] font-black uppercase tracking-[-0.06em] text-[#17212d]">{item.title}</h3>
-                    <p className="mt-3 max-w-[390px] text-[13px] leading-7 text-[#8a94a3]">{item.text}</p>
+                    <span className="mt-5 block text-[24px] font-black italic text-[#eef1f5]">
+                      {item.no}
+                    </span>
+                    <h3 className="mt-3 text-[20px] font-black uppercase tracking-[-0.06em] text-[#17212d]">
+                      {item.title}
+                    </h3>
+                    <p className="mt-3 max-w-[390px] text-[13px] leading-7 text-[#8a94a3]">
+                      {item.text}
+                    </p>
                   </div>
 
                   <div className="min-h-[200px]">{renderSystemPreview(item.variant)}</div>
@@ -451,7 +488,8 @@ function FaqSection() {
               <ChevronDown className="h-4 w-4 text-[#a0a9b6] transition group-open:rotate-180" />
             </summary>
             <p className="mt-4 text-[13px] leading-7 text-[#7b8797]">
-              Auditly centralizes responsibilities, deadlines, evidence, and review notes so teams can see what is blocking progress before reporting is late.
+              Auditly centralizes responsibilities, deadlines, evidence, and review notes so teams
+              can see what is blocking progress before reporting is late.
             </p>
           </details>
         ))}
@@ -470,7 +508,8 @@ function Footer() {
             Auditly
           </Link>
           <p className="mt-6 max-w-[360px] text-[11px] leading-6 text-[#5f6b7a]">
-            Autonomous audit intelligence for modern institutions. Build assurance faster, report smarter.
+            Autonomous audit intelligence for modern institutions. Build assurance faster, report
+            smarter.
           </p>
           <div className="mt-6 flex gap-4 text-[#7a8492]">
             <Twitter className="h-4 w-4" />
@@ -491,7 +530,11 @@ function FooterColumn({ title, items }: { title: string; items: string[] }) {
       <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#818b99]">{title}</p>
       <div className="mt-5 space-y-4">
         {items.map((item) => (
-          <a key={item} href={`#${item.toLowerCase()}`} className="block text-[12px] text-[#5f6b7a] hover:text-[#17212d]">
+          <a
+            key={item}
+            href={`#${item.toLowerCase()}`}
+            className="block text-[12px] text-[#5f6b7a] hover:text-[#17212d]"
+          >
             {item}
           </a>
         ))}

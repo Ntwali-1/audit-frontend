@@ -43,9 +43,17 @@ function ResetPassword() {
   if (!token) {
     return (
       <Shell>
-        <State icon={XCircle} tone="bad" title="No reset token"
-          body="This link is missing its token. Open the link from your email exactly as it was sent." />
-        <Link to="/"><Button variant="outline" className="mt-5 w-full">Back to sign in</Button></Link>
+        <State
+          icon={XCircle}
+          tone="bad"
+          title="No reset token"
+          body="This link is missing its token. Open the link from your email exactly as it was sent."
+        />
+        <Link to="/">
+          <Button variant="outline" className="mt-5 w-full">
+            Back to sign in
+          </Button>
+        </Link>
       </Shell>
     );
   }
@@ -53,9 +61,15 @@ function ResetPassword() {
   if (done) {
     return (
       <Shell>
-        <State icon={CheckCircle2} tone="good" title="Password updated"
-          body="You can sign in with your new password now." />
-        <Link to="/"><Button className="mt-5 w-full">Go to sign in</Button></Link>
+        <State
+          icon={CheckCircle2}
+          tone="good"
+          title="Password updated"
+          body="You can sign in with your new password now."
+        />
+        <Link to="/">
+          <Button className="mt-5 w-full">Go to sign in</Button>
+        </Link>
       </Shell>
     );
   }
@@ -71,24 +85,46 @@ function ResetPassword() {
 
       <form
         className="mt-5 space-y-3 text-left"
-        onSubmit={(e) => { e.preventDefault(); reset.mutate(); }}
+        onSubmit={(e) => {
+          e.preventDefault();
+          reset.mutate();
+        }}
       >
         <div>
           <Label>New password</Label>
-          <Input className="mt-1.5" type="password" value={password}
-            onChange={(e) => setPassword(e.target.value)} autoFocus />
-          {tooShort && <p className="mt-1 text-[12px]" style={{ color: "#9B2C2C" }}>Too short.</p>}
+          <Input
+            className="mt-1.5"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            autoFocus
+          />
+          {tooShort && (
+            <p className="mt-1 text-[12px]" style={{ color: "#9B2C2C" }}>
+              Too short.
+            </p>
+          )}
         </div>
         <div>
           <Label>Confirm password</Label>
-          <Input className="mt-1.5" type="password" value={confirm}
-            onChange={(e) => setConfirm(e.target.value)} />
-          {mismatch && <p className="mt-1 text-[12px]" style={{ color: "#9B2C2C" }}>Passwords do not match.</p>}
+          <Input
+            className="mt-1.5"
+            type="password"
+            value={confirm}
+            onChange={(e) => setConfirm(e.target.value)}
+          />
+          {mismatch && (
+            <p className="mt-1 text-[12px]" style={{ color: "#9B2C2C" }}>
+              Passwords do not match.
+            </p>
+          )}
         </div>
 
         {reset.error && (
-          <p className="rounded-lg border px-3 py-2 text-[12px]"
-            style={{ borderColor: "#F5B5B5", backgroundColor: "#FDECEC", color: "#9B2C2C" }}>
+          <p
+            className="rounded-lg border px-3 py-2 text-[12px]"
+            style={{ borderColor: "#F5B5B5", backgroundColor: "#FDECEC", color: "#9B2C2C" }}
+          >
             {(reset.error as Error).message}
           </p>
         )}
@@ -99,7 +135,9 @@ function ResetPassword() {
       </form>
 
       <Link to="/">
-        <Button variant="outline" className="mt-3 w-full">Back to sign in</Button>
+        <Button variant="outline" className="mt-3 w-full">
+          Back to sign in
+        </Button>
       </Link>
     </Shell>
   );

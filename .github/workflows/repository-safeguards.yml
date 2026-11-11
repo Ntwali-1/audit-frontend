@@ -1,0 +1,65 @@
+name: Repository safeguards
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: repository-safeguards-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  repository-safety:
+    name: Repository safety
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out candidate as data
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          path: candidate
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Check out reviewed scanner policy
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: 88eb898dc5d0caf5d4257f059d4157e670a014fb
+          path: security-policy
+          persist-credentials: false
+          fetch-depth: 1
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Test the reviewed scanner
+        run: python -I -S -m unittest discover -s security-policy/.github/security -p 'test_*.py' -v
+      - name: Inspect candidate Git blobs without running project code
+        run: python -I -S security-policy/.github/security/check_repository.py --repository candidate
+
+  code-quality:
+    name: Code quality
+    needs: repository-safety
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - name: Use the reviewed lockfile package-manager version
+        run: npm install --global npm@11.11.0 --ignore-scripts --no-audit --no-fund
+      - name: Install locked dependencies without lifecycle hooks
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Lint
+        run: npm run lint
+      - name: Type check
+        run: ./node_modules/.bin/tsc --noEmit
+      - name: Production build
+        run: npm run build

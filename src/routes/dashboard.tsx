@@ -3,7 +3,13 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { AppShell } from "@/components/app-shell";
 import { PageHeader, StatTile } from "@/components/page-header";
-import { auditsApi, AUDIT_STATUS_LABEL, getAuditProgress, getUserDisplayName, ApiAudit } from "@/lib/api";
+import {
+  auditsApi,
+  AUDIT_STATUS_LABEL,
+  getAuditProgress,
+  getUserDisplayName,
+  ApiAudit,
+} from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import { NoAuditorsPrompt } from "@/components/invite-auditors";
 import { AdminDashboard } from "@/components/admin-dashboard";
@@ -42,9 +48,7 @@ function Dashboard() {
   const { user } = useAuth();
 
   return (
-    <AppShell>
-      {user?.role === "ADMIN" ? <AdminDashboard /> : <WorkspaceDashboard />}
-    </AppShell>
+    <AppShell>{user?.role === "ADMIN" ? <AdminDashboard /> : <WorkspaceDashboard />}</AppShell>
   );
 }
 
@@ -92,10 +96,25 @@ function WorkspaceDashboard() {
       <NoAuditorsPrompt />
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <StatTile label="Total audits" value={total} icon={ClipboardList} trend={{ value: "+12%", positive: true }} />
+        <StatTile
+          label="Total audits"
+          value={total}
+          icon={ClipboardList}
+          trend={{ value: "+12%", positive: true }}
+        />
         <StatTile label="In flight" value={openCount} icon={Clock} hint="active engagements" />
-        <StatTile label="Overdue" value={overdue} icon={AlertTriangle} trend={{ value: overdue > 0 ? `${overdue} late` : "On track", positive: overdue === 0 }} />
-        <StatTile label="Completed" value={completedCount} icon={CheckCircle2} hint="this quarter" />
+        <StatTile
+          label="Overdue"
+          value={overdue}
+          icon={AlertTriangle}
+          trend={{ value: overdue > 0 ? `${overdue} late` : "On track", positive: overdue === 0 }}
+        />
+        <StatTile
+          label="Completed"
+          value={completedCount}
+          icon={CheckCircle2}
+          hint="this quarter"
+        />
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-3">
@@ -157,7 +176,9 @@ function WorkspaceDashboard() {
                 );
               })}
               {Object.keys(byStatus).length === 0 && (
-                <li className="text-[13px]" style={{ color: "var(--text-muted)" }}>No data yet</li>
+                <li className="text-[13px]" style={{ color: "var(--text-muted)" }}>
+                  No data yet
+                </li>
               )}
             </ul>
           </div>
@@ -195,7 +216,10 @@ function AuditRow({ audit }: { audit: ApiAudit }) {
             {AUDIT_STATUS_LABEL[audit.status] ?? audit.status}
           </span>
         </div>
-        <div className="mt-1 truncate text-[14px] font-medium" style={{ color: "var(--brown-800)" }}>
+        <div
+          className="mt-1 truncate text-[14px] font-medium"
+          style={{ color: "var(--brown-800)" }}
+        >
           {audit.title}
         </div>
         <div className="text-[13px]" style={{ color: "var(--text-muted)" }}>
@@ -203,11 +227,19 @@ function AuditRow({ audit }: { audit: ApiAudit }) {
         </div>
       </div>
       <div className="hidden w-44 shrink-0 sm:block">
-        <div className="mb-1 flex justify-between text-[11px]" style={{ color: "var(--text-muted)" }}>
+        <div
+          className="mb-1 flex justify-between text-[11px]"
+          style={{ color: "var(--text-muted)" }}
+        >
           <span>Progress</span>
-          <span className="font-medium" style={{ color: "var(--brown-600)" }}>{progress}%</span>
+          <span className="font-medium" style={{ color: "var(--brown-600)" }}>
+            {progress}%
+          </span>
         </div>
-        <div className="h-1.5 overflow-hidden rounded-full" style={{ backgroundColor: "var(--brown-50)" }}>
+        <div
+          className="h-1.5 overflow-hidden rounded-full"
+          style={{ backgroundColor: "var(--brown-50)" }}
+        >
           <div
             className="h-full rounded-full transition-all"
             style={{ width: `${progress}%`, backgroundColor: "var(--brown-400)" }}

@@ -1,30 +1,35 @@
-const API_URL = typeof window !== 'undefined'
-  ? (import.meta.env.VITE_API_URL ?? 'http://localhost:3000')
-  : 'http://localhost:3000';
+const API_URL =
+  typeof window !== "undefined"
+    ? (import.meta.env.VITE_API_URL ?? "http://localhost:3000")
+    : "http://localhost:3000";
 
 export function getToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  return localStorage.getItem('access_token');
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem("access_token");
 }
 
 function getRefreshToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  return localStorage.getItem('refresh_token');
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem("refresh_token");
 }
 
 function clearSession() {
-  if (typeof window === 'undefined') return;
-  localStorage.removeItem('access_token');
-  localStorage.removeItem('refresh_token');
-  localStorage.removeItem('auth_user');
-  window.location.href = '/';
+  if (typeof window === "undefined") return;
+  localStorage.removeItem("access_token");
+  localStorage.removeItem("refresh_token");
+  localStorage.removeItem("auth_user");
+  window.location.href = "/";
 }
 
-export async function doFetch(path: string, token: string | null, options?: RequestInit): Promise<Response> {
+export async function doFetch(
+  path: string,
+  token: string | null,
+  options?: RequestInit,
+): Promise<Response> {
   return fetch(`${API_URL}${path}`, {
     ...options,
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(options?.headers ?? {}),
     },
@@ -38,29 +43,31 @@ export async function apiFetch<T>(path: string, options?: RequestInit): Promise<
     const refreshToken = getRefreshToken();
     if (refreshToken) {
       const refreshRes = await fetch(`${API_URL}/auth/refresh`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ refreshToken }),
       });
 
       if (refreshRes.ok) {
         const tokens = await refreshRes.json();
-        localStorage.setItem('access_token', tokens.accessToken);
-        if (tokens.refreshToken) localStorage.setItem('refresh_token', tokens.refreshToken);
+        localStorage.setItem("access_token", tokens.accessToken);
+        if (tokens.refreshToken) localStorage.setItem("refresh_token", tokens.refreshToken);
         res = await doFetch(path, tokens.accessToken, options);
       } else {
         clearSession();
-        throw new Error('Session expired. Please log in again.');
+        throw new Error("Session expired. Please log in again.");
       }
     } else {
       clearSession();
-      throw new Error('Session expired. Please log in again.');
+      throw new Error("Session expired. Please log in again.");
     }
   }
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({ message: `HTTP ${res.status}` }));
-    const msg = Array.isArray(body.message) ? body.message[0] : (body.message || `HTTP ${res.status}`);
+    const msg = Array.isArray(body.message)
+      ? body.message[0]
+      : body.message || `HTTP ${res.status}`;
     throw new Error(msg);
   }
 
@@ -75,6 +82,7 @@ export interface LoginResponse {
 }
 
 export interface ApiUser {
+  deactivatedAt?: string | null;
   id: string;
   email: string;
   firstName: string | null;
@@ -234,23 +242,29 @@ export interface CreateFindingInput {
 // --- API functions ---
 export const authApi = {
   login: (email: string, password: string) =>
-    apiFetch<LoginResponse>('/auth/login', {
-      method: 'POST',
+    apiFetch<LoginResponse>("/auth/login", {
+      method: "POST",
       body: JSON.stringify({ email, password }),
     }),
   getInvitationInfo: (token: string) =>
     apiFetch<{ email: string; fullName: string; phone: string; role: string }>(
       `/auth/invitations/info?token=${encodeURIComponent(token)}`,
     ),
-  acceptInvitation: (data: { token: string; firstName: string; lastName: string; phone?: string; password: string }) =>
-    apiFetch<LoginResponse>('/auth/invitations/accept', {
-      method: 'POST',
+  acceptInvitation: (data: {
+    token: string;
+    firstName: string;
+    lastName: string;
+    phone?: string;
+    password: string;
+  }) =>
+    apiFetch<LoginResponse>("/auth/invitations/accept", {
+      method: "POST",
       body: JSON.stringify(data),
     }),
-  getProfile: () => apiFetch<ApiUser>('/auth/me'),
+  getProfile: () => apiFetch<ApiUser>("/auth/me"),
   updateProfile: (data: { firstName?: string; lastName?: string }) =>
-    apiFetch<ApiUser>('/auth/profile', {
-      method: 'PATCH',
+    apiFetch<ApiUser>("/auth/profile", {
+      method: "PATCH",
       body: JSON.stringify(data),
     }),
 };
@@ -258,69 +272,94 @@ export const authApi = {
 export const auditsApi = {
   getAll: (params?: { skip?: number; take?: number; status?: string }) => {
     const qs = params
-      ? '?' + new URLSearchParams(
+      ? "?" +
+        new URLSearchParams(
           Object.entries(params)
             .filter(([, v]) => v !== undefined)
-            .map(([k, v]) => [k, String(v)])
+            .map(([k, v]) => [k, String(v)]),
         ).toString()
-      : '';
+      : "";
     return apiFetch<AuditListResponse>(`/audits${qs}`);
   },
-  getMyAudits: () => apiFetch<ApiAudit[]>('/audits/my'),
+  getMyAudits: () => apiFetch<ApiAudit[]>("/audits/my"),
   getById: (id: string) => apiFetch<ApiAudit>(`/audits/${id}`),
-  getDashboard: () => apiFetch<DashboardResponse>('/audits/dashboard'),
+  getDashboard: () => apiFetch<DashboardResponse>("/audits/dashboard"),
   create: (data: CreateAuditInput) =>
-    apiFetch<ApiAudit>('/audits', { method: 'POST', body: JSON.stringify(data) }),
+    apiFetch<ApiAudit>("/audits", { method: "POST", body: JSON.stringify(data) }),
   update: (id: string, data: Partial<CreateAuditInput>) =>
-    apiFetch<ApiAudit>(`/audits/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
-  updateStatus: (id: string) =>
-    apiFetch<ApiAudit>(`/audits/${id}/status`, { method: 'PATCH' }),
+    apiFetch<ApiAudit>(`/audits/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
+  updateStatus: (id: string) => apiFetch<ApiAudit>(`/audits/${id}/status`, { method: "PATCH" }),
   getTimeline: (id: string) =>
-    apiFetch<Array<{ id: string; eventType: string; message: string; actor?: ApiUser; createdAt: string }>>(`/audits/${id}/timeline`),
+    apiFetch<
+      Array<{ id: string; eventType: string; message: string; actor?: ApiUser; createdAt: string }>
+    >(`/audits/${id}/timeline`),
   /** Staff an audit with individual auditors and/or whole teams. */
   assign: (id: string, data: { userIds?: string[]; teamIds?: string[] }) =>
-    apiFetch<unknown>(`/audits/${id}/assign`, { method: 'POST', body: JSON.stringify(data) }),
+    apiFetch<unknown>(`/audits/${id}/assign`, { method: "POST", body: JSON.stringify(data) }),
 };
 
 export const auditStepsApi = {
   // Manager CRUD
-  create: (auditId: string, data: { title: string; description?: string; assigneeId?: string; dueDate?: string }) =>
-    apiFetch<ApiAuditStep>(`/audits/${auditId}/steps`, { method: 'POST', body: JSON.stringify(data) }),
-  update: (auditId: string, stepId: string, data: { title?: string; description?: string; status?: string; assigneeId?: string; dueDate?: string }) =>
-    apiFetch<ApiAuditStep>(`/audits/${auditId}/steps/${stepId}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  create: (
+    auditId: string,
+    data: { title: string; description?: string; assigneeId?: string; dueDate?: string },
+  ) =>
+    apiFetch<ApiAuditStep>(`/audits/${auditId}/steps`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  update: (
+    auditId: string,
+    stepId: string,
+    data: {
+      title?: string;
+      description?: string;
+      status?: string;
+      assigneeId?: string;
+      dueDate?: string;
+    },
+  ) =>
+    apiFetch<ApiAuditStep>(`/audits/${auditId}/steps/${stepId}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }),
   remove: (auditId: string, stepId: string) =>
-    apiFetch<{ message: string }>(`/audits/${auditId}/steps/${stepId}`, { method: 'DELETE' }),
+    apiFetch<{ message: string }>(`/audits/${auditId}/steps/${stepId}`, { method: "DELETE" }),
 
   // Auditor actions
   start: (auditId: string, stepId: string) =>
-    apiFetch<ApiAuditStep>(`/audits/${auditId}/steps/${stepId}/start`, { method: 'PATCH' }),
+    apiFetch<ApiAuditStep>(`/audits/${auditId}/steps/${stepId}/start`, { method: "PATCH" }),
   saveDraft: (auditId: string, stepId: string, notes: string) =>
     apiFetch<ApiAuditStep>(`/audits/${auditId}/steps/${stepId}/draft`, {
-      method: 'PATCH',
+      method: "PATCH",
       body: JSON.stringify({ notes }),
     }),
   complete: (auditId: string, stepId: string, notes?: string) =>
     apiFetch<ApiAuditStep>(`/audits/${auditId}/steps/${stepId}/complete`, {
-      method: 'PATCH',
+      method: "PATCH",
       body: JSON.stringify({ notes }),
     }),
 
   deleteEvidence: (auditId: string, stepId: string, fileId: string) =>
-    apiFetch<{ message: string }>(`/audits/${auditId}/steps/${stepId}/evidence/${fileId}`, { method: 'DELETE' }),
+    apiFetch<{ message: string }>(`/audits/${auditId}/steps/${stepId}/evidence/${fileId}`, {
+      method: "DELETE",
+    }),
 
   // File upload
   uploadEvidence: async (auditId: string, stepId: string, file: File): Promise<ApiEvidence> => {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+    const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
     const form = new FormData();
-    form.append('file', file);
+    form.append("file", file);
     const res = await fetch(`${API_URL}/audits/${auditId}/steps/${stepId}/evidence/upload`, {
-      method: 'POST',
+      method: "POST",
       headers: token ? { Authorization: `Bearer ${token}` } : {},
       body: form,
     });
     if (!res.ok) {
       const body = await res.json().catch(() => ({ message: `HTTP ${res.status}` }));
-      throw new Error(Array.isArray(body.message) ? body.message[0] : (body.message ?? `HTTP ${res.status}`));
+      throw new Error(
+        Array.isArray(body.message) ? body.message[0] : (body.message ?? `HTTP ${res.status}`),
+      );
     }
     return res.json();
   },
@@ -329,22 +368,23 @@ export const auditStepsApi = {
 export const findingsApi = {
   getAll: (params?: { auditId?: string; status?: string; skip?: number; take?: number }) => {
     const qs = params
-      ? '?' + new URLSearchParams(
+      ? "?" +
+        new URLSearchParams(
           Object.entries(params)
             .filter(([, v]) => v !== undefined)
-            .map(([k, v]) => [k, String(v)])
+            .map(([k, v]) => [k, String(v)]),
         ).toString()
-      : '';
+      : "";
     return apiFetch<FindingListResponse>(`/findings${qs}`);
   },
   create: (data: CreateFindingInput) =>
-    apiFetch<ApiFinding>('/findings', { method: 'POST', body: JSON.stringify(data) }),
+    apiFetch<ApiFinding>("/findings", { method: "POST", body: JSON.stringify(data) }),
   /**
    * Findings assigned to the signed-in user — their remediation queue, and for
    * an auditee the entire product. Carries the audit it came from and who
    * raised it, because an auditee has no access to the audit itself.
    */
-  getMyFindings: () => apiFetch<AssignedFinding[]>('/findings/my'),
+  getMyFindings: () => apiFetch<AssignedFinding[]>("/findings/my"),
 };
 
 export interface ApiReport {
@@ -359,105 +399,125 @@ export interface ApiReport {
 
 export const teamsApi = {
   getAll: () =>
-    apiFetch<{ data: ApiTeam[]; total: number; skip: number; take: number }>('/teams?take=100').then(
-      (res) => res.data,
-    ),
+    apiFetch<{ data: ApiTeam[]; total: number; skip: number; take: number }>(
+      "/teams?take=100",
+    ).then((res) => res.data),
   /**
    * The caller's own teams. Auditors are not given the whole directory, so this
    * is what they get instead — the same shape, just their teams.
    */
   getMine: () =>
-    apiFetch<{ data: ApiTeam[]; total: number; skip: number; take: number }>('/teams/my').then(
+    apiFetch<{ data: ApiTeam[]; total: number; skip: number; take: number }>("/teams/my").then(
       (res) => res.data,
     ),
   getById: (id: string) => apiFetch<ApiTeam>(`/teams/${id}`),
   create: (data: { name: string; description?: string; teamLeadId: string; memberIds: string[] }) =>
-    apiFetch<ApiTeam>('/teams', { method: 'POST', body: JSON.stringify(data) }),
+    apiFetch<ApiTeam>("/teams", { method: "POST", body: JSON.stringify(data) }),
   update: (id: string, data: { name?: string; description?: string }) =>
-    apiFetch<ApiTeam>(`/teams/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
-  delete: (id: string) =>
-    apiFetch<{ message: string }>(`/teams/${id}`, { method: 'DELETE' }),
+    apiFetch<ApiTeam>(`/teams/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
+  delete: (id: string) => apiFetch<{ message: string }>(`/teams/${id}`, { method: "DELETE" }),
   addMember: (teamId: string, userId: string) =>
-    apiFetch<ApiTeamMember>(`/teams/${teamId}/members`, { method: 'POST', body: JSON.stringify({ userId }) }),
+    apiFetch<ApiTeamMember>(`/teams/${teamId}/members`, {
+      method: "POST",
+      body: JSON.stringify({ userId }),
+    }),
   removeMember: (teamId: string, userId: string) =>
-    apiFetch<{ message: string }>(`/teams/${teamId}/members/${userId}`, { method: 'DELETE' }),
+    apiFetch<{ message: string }>(`/teams/${teamId}/members/${userId}`, { method: "DELETE" }),
   assignLead: (teamId: string, teamLeadId: string) =>
-    apiFetch<ApiTeam>(`/teams/${teamId}/lead`, { method: 'PATCH', body: JSON.stringify({ teamLeadId }) }),
+    apiFetch<ApiTeam>(`/teams/${teamId}/lead`, {
+      method: "PATCH",
+      body: JSON.stringify({ teamLeadId }),
+    }),
 };
 
 export const usersApi = {
   getAll: () =>
-    apiFetch<{ data: ApiUser[]; total: number; skip: number; take: number }>('/users?take=100'),
+    apiFetch<{ data: ApiUser[]; total: number; skip: number; take: number }>("/users?take=100"),
   changeRole: (id: string, role: string) =>
-    apiFetch<ApiUser>(`/users/${id}/role`, { method: 'PATCH', body: JSON.stringify({ role }) }),
-  deactivate: (id: string) =>
-    apiFetch<{ message: string }>(`/users/${id}`, { method: 'DELETE' }),
+    apiFetch<ApiUser>(`/users/${id}/role`, { method: "PATCH", body: JSON.stringify({ role }) }),
+  deactivate: (id: string) => apiFetch<{ message: string }>(`/users/${id}`, { method: "DELETE" }),
 };
 
 export const reportsApi = {
   getAll: (params?: { auditId?: string }) => {
-    const qs = params?.auditId ? `?auditId=${params.auditId}` : '';
-    return apiFetch<{ data: ApiReport[]; total: number; skip: number; take: number }>(`/reports${qs}`);
+    const qs = params?.auditId ? `?auditId=${params.auditId}` : "";
+    return apiFetch<{ data: ApiReport[]; total: number; skip: number; take: number }>(
+      `/reports${qs}`,
+    );
   },
   generate: (auditId: string) =>
-    apiFetch<ApiReport>('/reports/generate', { method: 'POST', body: JSON.stringify({ auditId }) }),
-  delete: (id: string) =>
-    apiFetch<{ message: string }>(`/reports/${id}`, { method: 'DELETE' }),
+    apiFetch<ApiReport>("/reports/generate", { method: "POST", body: JSON.stringify({ auditId }) }),
+  delete: (id: string) => apiFetch<{ message: string }>(`/reports/${id}`, { method: "DELETE" }),
 };
 
 export const findingsApi2 = {
-  update: (id: string, data: { title?: string; description?: string; severity?: string; deadline?: string }) =>
-    apiFetch<ApiFinding>(`/findings/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  update: (
+    id: string,
+    data: { title?: string; description?: string; severity?: string; deadline?: string },
+  ) => apiFetch<ApiFinding>(`/findings/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
   transitionStatus: (id: string, status: string, note?: string) =>
     apiFetch<ApiFinding>(`/findings/${id}/status`, {
-      method: 'PATCH',
+      method: "PATCH",
       body: JSON.stringify({ status, ...(note ? { note } : {}) }),
     }),
-  delete: (id: string) =>
-    apiFetch<{ message: string }>(`/findings/${id}`, { method: 'DELETE' }),
+  delete: (id: string) => apiFetch<{ message: string }>(`/findings/${id}`, { method: "DELETE" }),
 
   /** Institution attaches evidence of a fix. Moves to PENDING_VERIFICATION. */
   resolve: (id: string, note?: string) =>
     apiFetch<ApiFinding>(`/findings/${id}/resolve`, {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify({ ...(note ? { note } : {}) }),
     }),
 
   /** Auditor rules on the evidence. Never the person who remediated it. */
   verify: (id: string, status: string, note?: string) =>
     apiFetch<ApiFinding>(`/findings/${id}/verify`, {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify({ status, ...(note ? { note } : {}) }),
     }),
 
   timeline: (id: string) =>
-    apiFetch<Array<{
-      id: string;
-      message: string;
-      eventType: string;
-      fromFindingStatus: string | null;
-      toFindingStatus: string | null;
-      actor: ApiUser | null;
-      createdAt: string;
-    }>>(`/findings/${id}/timeline`),
+    apiFetch<
+      Array<{
+        id: string;
+        message: string;
+        eventType: string;
+        fromFindingStatus: string | null;
+        toFindingStatus: string | null;
+        actor: ApiUser | null;
+        createdAt: string;
+      }>
+    >(`/findings/${id}/timeline`),
 };
 
 export const inviteApi = {
   inviteAuditManager: (email: string, fullName?: string, phone?: string) =>
-    apiFetch<{ message: string }>('/auth/invitations/audit-managers', {
-      method: 'POST',
-      body: JSON.stringify({ email, ...(fullName ? { fullName } : {}), ...(phone ? { phone } : {}) }),
+    apiFetch<{ message: string }>("/auth/invitations/audit-managers", {
+      method: "POST",
+      body: JSON.stringify({
+        email,
+        ...(fullName ? { fullName } : {}),
+        ...(phone ? { phone } : {}),
+      }),
     }),
   inviteAuditor: (email: string, fullName?: string, phone?: string) =>
-    apiFetch<{ message: string }>('/auth/invitations/auditors', {
-      method: 'POST',
-      body: JSON.stringify({ email, ...(fullName ? { fullName } : {}), ...(phone ? { phone } : {}) }),
+    apiFetch<{ message: string }>("/auth/invitations/auditors", {
+      method: "POST",
+      body: JSON.stringify({
+        email,
+        ...(fullName ? { fullName } : {}),
+        ...(phone ? { phone } : {}),
+      }),
     }),
   /** Audit managers can appoint lead auditors themselves, without an ADMIN. */
   inviteLeadAuditor: (email: string, fullName?: string, phone?: string) =>
-    apiFetch<{ message: string }>('/auth/invitations/lead-auditors', {
-      method: 'POST',
-      body: JSON.stringify({ email, ...(fullName ? { fullName } : {}), ...(phone ? { phone } : {}) }),
+    apiFetch<{ message: string }>("/auth/invitations/lead-auditors", {
+      method: "POST",
+      body: JSON.stringify({
+        email,
+        ...(fullName ? { fullName } : {}),
+        ...(phone ? { phone } : {}),
+      }),
     }),
 };
 
@@ -466,58 +526,60 @@ export const inviteApi = {
 // closes itself: the institution can only reach PENDING_VERIFICATION, and an
 // auditor decides the outcome from there.
 export const FINDING_TRANSITIONS: Record<string, string[]> = {
-  OPEN: ['IN_REMEDIATION', 'ACCEPTED_RISK'],
-  IN_REMEDIATION: ['PENDING_VERIFICATION', 'ACCEPTED_RISK'],
-  PENDING_VERIFICATION: ['VERIFIED_CLOSED', 'REJECTED_REOPENED', 'PARTIALLY_RESOLVED'],
-  REJECTED_REOPENED: ['IN_REMEDIATION'],
-  PARTIALLY_RESOLVED: ['IN_REMEDIATION', 'VERIFIED_CLOSED'],
-  VERIFIED_CLOSED: ['CLOSED'],
-  ACCEPTED_RISK: ['CLOSED'],
-  RESOLVED: ['CLOSED'], // legacy rows only
+  OPEN: ["IN_REMEDIATION", "ACCEPTED_RISK"],
+  IN_REMEDIATION: ["PENDING_VERIFICATION", "ACCEPTED_RISK"],
+  PENDING_VERIFICATION: ["VERIFIED_CLOSED", "REJECTED_REOPENED", "PARTIALLY_RESOLVED"],
+  REJECTED_REOPENED: ["IN_REMEDIATION"],
+  PARTIALLY_RESOLVED: ["IN_REMEDIATION", "VERIFIED_CLOSED"],
+  VERIFIED_CLOSED: ["CLOSED"],
+  ACCEPTED_RISK: ["CLOSED"],
+  RESOLVED: ["CLOSED"], // legacy rows only
   CLOSED: [],
 };
 
 // --- Display helpers ---
 export const AUDIT_STATUS_LABEL: Record<string, string> = {
-  DRAFT: 'Draft',
-  PLANNING: 'Planning',
-  IN_PROGRESS: 'In Progress',
-  UNDER_REVIEW: 'Under Review',
-  COMPLETED: 'Completed',
-  CLOSED: 'Closed',
+  DRAFT: "Draft",
+  PLANNING: "Planning",
+  IN_PROGRESS: "In Progress",
+  UNDER_REVIEW: "Under Review",
+  COMPLETED: "Completed",
+  CLOSED: "Closed",
 };
 
 export const FINDING_STATUS_LABEL: Record<string, string> = {
-  OPEN: 'Open',
-  IN_REMEDIATION: 'In Remediation',
-  PENDING_VERIFICATION: 'Pending Verification',
-  VERIFIED_CLOSED: 'Verified & Closed',
-  REJECTED_REOPENED: 'Rejected — Reopened',
-  PARTIALLY_RESOLVED: 'Partially Resolved',
-  RESOLVED: 'Resolved',
-  ACCEPTED_RISK: 'Accepted Risk',
-  CLOSED: 'Closed',
+  OPEN: "Open",
+  IN_REMEDIATION: "In Remediation",
+  PENDING_VERIFICATION: "Pending Verification",
+  VERIFIED_CLOSED: "Verified & Closed",
+  REJECTED_REOPENED: "Rejected — Reopened",
+  PARTIALLY_RESOLVED: "Partially Resolved",
+  RESOLVED: "Resolved",
+  ACCEPTED_RISK: "Accepted Risk",
+  CLOSED: "Closed",
 };
 
 export const SEVERITY_LABEL: Record<string, string> = {
-  LOW: 'Low',
-  MEDIUM: 'Medium',
-  HIGH: 'High',
-  CRITICAL: 'Critical',
+  LOW: "Low",
+  MEDIUM: "Medium",
+  HIGH: "High",
+  CRITICAL: "Critical",
 };
 
 export function getAuditProgress(audit: ApiAudit): number {
   if (!audit.steps || audit.steps.length === 0) {
-    if (audit.status === 'COMPLETED' || audit.status === 'CLOSED') return 100;
-    if (audit.status === 'DRAFT') return 0;
+    if (audit.status === "COMPLETED" || audit.status === "CLOSED") return 100;
+    if (audit.status === "DRAFT") return 0;
     return 25;
   }
-  const completed = audit.steps.filter((s) => s.status === 'COMPLETED').length;
+  const completed = audit.steps.filter((s) => s.status === "COMPLETED").length;
   return Math.round((completed / audit.steps.length) * 100);
 }
 
-export function getUserDisplayName(user?: ApiUser | null): string {
-  if (!user) return 'Unknown';
+export function getUserDisplayName(
+  user?: Pick<ApiUser, "firstName" | "lastName" | "email"> | null,
+): string {
+  if (!user) return "Unknown";
   if (user.firstName && user.lastName) return `${user.firstName} ${user.lastName}`;
   if (user.firstName) return user.firstName;
   return user.email;
@@ -532,16 +594,17 @@ export function getUserDisplayName(user?: ApiUser | null): string {
  * anything containing `/uploads/` is re-pointed at the API.
  */
 export function resolveFileUrl(url?: string | null): string {
-  if (!url) return '';
-  const marker = url.indexOf('/uploads/');
+  if (!url) return "";
+  const marker = url.indexOf("/uploads/");
   if (marker >= 0) return `${API_URL}${url.slice(marker)}`;
   if (/^https?:\/\//i.test(url)) return url;
-  return `${API_URL}${url.startsWith('/') ? '' : '/'}${url}`;
+  return `${API_URL}${url.startsWith("/") ? "" : "/"}${url}`;
 }
 
 export function getUserInitials(user?: ApiUser | null): string {
-  if (!user) return '?';
-  if (user.firstName && user.lastName) return `${user.firstName[0]}${user.lastName[0]}`.toUpperCase();
+  if (!user) return "?";
+  if (user.firstName && user.lastName)
+    return `${user.firstName[0]}${user.lastName[0]}`.toUpperCase();
   if (user.firstName) return user.firstName[0].toUpperCase();
   return user.email[0].toUpperCase();
 }
