@@ -1,3 +1,4 @@
+import type { LucideIcon } from "lucide-react";
 import * as React from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -10,14 +11,23 @@ import { Textarea } from "@/components/ui/textarea";
 import { Spinner } from "@/components/ui/spinner";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogClose,
 } from "@/components/ui/dialog";
 import { ClipboardCheck, Plus, CalendarClock, CheckCircle2, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { StatusChip } from "@/components/filings-inbox";
 import {
-  ociaApi, cyclesApi, ORG_TYPE_LABEL, PUBLIC_ORG_TYPES,
-  type OciaComplianceCycle, type OrganizationType,
+  ociaApi,
+  cyclesApi,
+  ORG_TYPE_LABEL,
+  PUBLIC_ORG_TYPES,
+  type OciaComplianceCycle,
+  type OrganizationType,
 } from "@/lib/api-portals";
 
 export const Route = createFileRoute("/ocia/compliance")({
@@ -48,10 +58,14 @@ function Compliance() {
       />
 
       {isLoading ? (
-        <div className="flex h-48 items-center justify-center"><Spinner size={28} /></div>
+        <div className="flex h-48 items-center justify-center">
+          <Spinner size={28} />
+        </div>
       ) : (cycles ?? []).length === 0 ? (
-        <div className="flex flex-col items-center rounded-2xl border bg-white px-6 py-14 text-center"
-          style={{ borderColor: "var(--border-subtle)" }}>
+        <div
+          className="flex flex-col items-center rounded-2xl border bg-white px-6 py-14 text-center"
+          style={{ borderColor: "var(--border-subtle)" }}
+        >
           <ClipboardCheck className="h-8 w-8" style={{ color: "var(--text-hint)" }} />
           <p className="mt-2 text-[14px] font-medium" style={{ color: "var(--brown-800)" }}>
             No reporting obligations for {year}
@@ -65,7 +79,9 @@ function Compliance() {
         </div>
       ) : (
         <div className="space-y-6">
-          {(cycles ?? []).map((c) => <CycleBlock key={c.cycle.id} data={c} />)}
+          {(cycles ?? []).map((c) => (
+            <CycleBlock key={c.cycle.id} data={c} />
+          ))}
         </div>
       )}
 
@@ -85,44 +101,67 @@ function CycleBlock({ data }: { data: OciaComplianceCycle }) {
           <h2 className="text-[15px] font-semibold" style={{ color: "var(--brown-800)" }}>
             {data.cycle.title}
           </h2>
-          <p className="flex items-center gap-1.5 text-[12px]" style={{ color: overdue ? "#854F0B" : "var(--text-muted)" }}>
+          <p
+            className="flex items-center gap-1.5 text-[12px]"
+            style={{ color: overdue ? "#854F0B" : "var(--text-muted)" }}
+          >
             <CalendarClock className="h-3 w-3" />
             Due {new Date(data.cycle.dueDate).toLocaleDateString()}
-            {" · "}{data.cycle.appliesTo.map((t) => ORG_TYPE_LABEL[t] ?? t).join(", ")}
+            {" · "}
+            {data.cycle.appliesTo.map((t) => ORG_TYPE_LABEL[t] ?? t).join(", ")}
           </p>
         </div>
         <div className="flex items-center gap-2">
           <Pill icon={CheckCircle2} tone="good" label={`${data.filed} filed`} />
-          <Pill icon={AlertTriangle} tone={data.outstanding > 0 ? "warn" : "neutral"}
-            label={`${data.outstanding} outstanding`} />
-          <span className="rounded-full border px-2.5 py-1 text-[11px]"
-            style={{ borderColor: "var(--border-subtle)", color: "var(--text-muted)" }}>
+          <Pill
+            icon={AlertTriangle}
+            tone={data.outstanding > 0 ? "warn" : "neutral"}
+            label={`${data.outstanding} outstanding`}
+          />
+          <span
+            className="rounded-full border px-2.5 py-1 text-[11px]"
+            style={{ borderColor: "var(--border-subtle)", color: "var(--text-muted)" }}
+          >
             {data.complianceRate}% compliant
           </span>
         </div>
       </div>
 
       {/* Progress across every eligible institution */}
-      <div className="mb-3 h-2 w-full overflow-hidden rounded-full" style={{ backgroundColor: "var(--brown-100)" }}>
-        <div className="h-full rounded-full transition-all"
-          style={{ width: `${data.complianceRate}%`, backgroundColor: "#A8D5BA" }} />
+      <div
+        className="mb-3 h-2 w-full overflow-hidden rounded-full"
+        style={{ backgroundColor: "var(--brown-100)" }}
+      >
+        <div
+          className="h-full rounded-full transition-all"
+          style={{ width: `${data.complianceRate}%`, backgroundColor: "#A8D5BA" }}
+        />
       </div>
 
-      <div className="overflow-hidden rounded-2xl border bg-white" style={{ borderColor: "var(--border-subtle)" }}>
+      <div
+        className="overflow-hidden rounded-2xl border bg-white"
+        style={{ borderColor: "var(--border-subtle)" }}
+      >
         {data.institutions.map((i, idx) => (
-          <div key={i.organizationId}
+          <div
+            key={i.organizationId}
             className="flex items-center gap-3 px-4 py-3"
-            style={{ borderTop: idx === 0 ? "none" : "1px solid var(--border-subtle)" }}>
+            style={{ borderTop: idx === 0 ? "none" : "1px solid var(--border-subtle)" }}
+          >
             <div className="min-w-0 flex-1">
-              <p className="truncate text-[13px]" style={{ color: "var(--brown-800)" }}>{i.name}</p>
+              <p className="truncate text-[13px]" style={{ color: "var(--brown-800)" }}>
+                {i.name}
+              </p>
               <p className="text-[11px]" style={{ color: "var(--text-muted)" }}>
                 {ORG_TYPE_LABEL[i.type] ?? i.type}
                 {i.submittedAt ? ` · filed ${new Date(i.submittedAt).toLocaleDateString()}` : ""}
               </p>
             </div>
             {i.late && (
-              <span className="shrink-0 rounded-full px-2.5 py-1 text-[11px]"
-                style={{ backgroundColor: "#FDECEC", color: "#9B2C2C" }}>
+              <span
+                className="shrink-0 rounded-full px-2.5 py-1 text-[11px]"
+                style={{ backgroundColor: "#FDECEC", color: "#9B2C2C" }}
+              >
                 Late
               </span>
             )}
@@ -141,16 +180,24 @@ function CycleBlock({ data }: { data: OciaComplianceCycle }) {
 }
 
 function Pill({
-  icon: Icon, label, tone,
-}: { icon: React.ComponentType<any>; label: string; tone: "good" | "warn" | "neutral" }) {
+  icon: Icon,
+  label,
+  tone,
+}: {
+  icon: LucideIcon;
+  label: string;
+  tone: "good" | "warn" | "neutral";
+}) {
   const map = {
     good: { bg: "#E6F4ED", fg: "#1A6638", border: "#A8D5BA" },
     warn: { bg: "#FEF3E2", fg: "#854F0B", border: "#F0C97A" },
     neutral: { bg: "transparent", fg: "var(--text-muted)", border: "var(--border-subtle)" },
   }[tone];
   return (
-    <span className="flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px]"
-      style={{ backgroundColor: map.bg, color: map.fg, borderColor: map.border }}>
+    <span
+      className="flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px]"
+      style={{ backgroundColor: map.bg, color: map.fg, borderColor: map.border }}
+    >
       <Icon className="h-3 w-3" /> {label}
     </span>
   );
@@ -187,7 +234,9 @@ function PublishCycleModal({ onClose }: { onClose: () => void }) {
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-w-md">
-        <DialogHeader><DialogTitle>Publish a reporting obligation</DialogTitle></DialogHeader>
+        <DialogHeader>
+          <DialogTitle>Publish a reporting obligation</DialogTitle>
+        </DialogHeader>
         <div className="space-y-4">
           <div>
             <Label>Title</Label>
@@ -195,11 +244,21 @@ function PublishCycleModal({ onClose }: { onClose: () => void }) {
           </div>
           <div>
             <Label>Description</Label>
-            <Textarea className="mt-1.5" rows={2} value={description} onChange={(e) => setDescription(e.target.value)} />
+            <Textarea
+              className="mt-1.5"
+              rows={2}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
           </div>
           <div>
             <Label>Due date</Label>
-            <Input className="mt-1.5" type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
+            <Input
+              className="mt-1.5"
+              type="date"
+              value={dueDate}
+              onChange={(e) => setDueDate(e.target.value)}
+            />
           </div>
           <div>
             <Label>Who owes this</Label>
@@ -218,8 +277,13 @@ function PublishCycleModal({ onClose }: { onClose: () => void }) {
           {error && <p className="text-sm text-destructive">{(error as Error).message}</p>}
         </div>
         <DialogFooter className="gap-2">
-          <DialogClose asChild><Button variant="outline">Cancel</Button></DialogClose>
-          <Button onClick={() => mutate()} disabled={isPending || appliesTo.length === 0 || title.length < 3}>
+          <DialogClose asChild>
+            <Button variant="outline">Cancel</Button>
+          </DialogClose>
+          <Button
+            onClick={() => mutate()}
+            disabled={isPending || appliesTo.length === 0 || title.length < 3}
+          >
             {isPending ? <Spinner size={14} invert /> : "Publish"}
           </Button>
         </DialogFooter>

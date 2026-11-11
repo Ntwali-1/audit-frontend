@@ -1,3 +1,4 @@
+import type { LucideIcon } from "lucide-react";
 import * as React from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -6,16 +7,28 @@ import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import {
-  Bell, AlertOctagon, ClipboardCheck, Clock, ChevronRight, Send, Inbox,
-  CalendarClock, ShieldCheck, Undo2,
+  Bell,
+  AlertOctagon,
+  ClipboardCheck,
+  Clock,
+  ChevronRight,
+  Send,
+  Inbox,
+  CalendarClock,
+  ShieldCheck,
+  Undo2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth-context";
 import { markAllSeen, markOneSeen, getSeenIds } from "@/components/orbital-sidebar";
 import { findingsApi, SEVERITY_LABEL, FINDING_STATUS_LABEL } from "@/lib/api";
 import {
-  externalFindingsApi, submissionsApi, engagementsApi, ociaApi,
-  isEngagementActive, SUBMISSION_STATUS_LABEL,
+  externalFindingsApi,
+  submissionsApi,
+  engagementsApi,
+  ociaApi,
+  isEngagementActive,
+  SUBMISSION_STATUS_LABEL,
 } from "@/lib/api-portals";
 
 export const Route = createFileRoute("/notifications")({
@@ -35,7 +48,7 @@ type Tone = "urgent" | "attention" | "info";
 interface InboxItem {
   id: string;
   tone: Tone;
-  icon: React.ComponentType<any>;
+  icon: LucideIcon;
   title: string;
   detail: string;
   at?: string | null;
@@ -60,7 +73,8 @@ function NotificationsPage() {
   const isInstitution = portal === "INSTITUTION";
   const isOag = portal === "OAG";
   const isOcia = portal === "OCIA";
-  const canVerify = user?.role === "AUDIT_MANAGER" || user?.role === "ADMIN" || user?.role === "LEAD_AUDITOR";
+  const canVerify =
+    user?.role === "AUDIT_MANAGER" || user?.role === "ADMIN" || user?.role === "LEAD_AUDITOR";
 
   // -- Institution ----------------------------------------------------------
   const myFindings = useQuery({
@@ -127,15 +141,24 @@ function NotificationsPage() {
         detail:
           `${SEVERITY_LABEL[f.severity] ?? f.severity} · ${FINDING_STATUS_LABEL[f.status] ?? f.status}` +
           (f.status === "REJECTED_REOPENED" ? " · sent back to you" : "") +
-          (late ? " · overdue" : f.deadline ? ` · due ${new Date(f.deadline).toLocaleDateString()}` : ""),
+          (late
+            ? " · overdue"
+            : f.deadline
+              ? ` · due ${new Date(f.deadline).toLocaleDateString()}`
+              : ""),
         at: f.deadline ?? f.createdAt,
-        onOpen: () => { markOneSeen(f.id); navigate({ to: "/findings" }); },
+        onOpen: () => {
+          markOneSeen(f.id);
+          navigate({ to: "/findings" });
+        },
       });
     }
 
     // Evidence waiting on an auditor's decision.
     if (canVerify) {
-      for (const f of (allFindings.data?.data ?? []).filter((x) => x.status === "PENDING_VERIFICATION")) {
+      for (const f of (allFindings.data?.data ?? []).filter(
+        (x) => x.status === "PENDING_VERIFICATION",
+      )) {
         items.push({
           id: `v-${f.id}`,
           tone: "attention",
@@ -225,8 +248,9 @@ function NotificationsPage() {
 
   if (isOcia) {
     for (const c of compliance.data ?? []) {
-      const late = c.institutions.filter((i: { late: boolean; submittedAt: string | null }) =>
-        i.late && !i.submittedAt);
+      const late = c.institutions.filter(
+        (i: { late: boolean; submittedAt: string | null }) => i.late && !i.submittedAt,
+      );
       if (late.length === 0) continue;
       items.push({
         id: `comp-${c.cycle.id}`,
@@ -248,8 +272,14 @@ function NotificationsPage() {
   });
 
   const loading = [
-    myFindings, allFindings, myExternal, obligations, mySubmissions,
-    engagements, inboxFilings, compliance,
+    myFindings,
+    allFindings,
+    myExternal,
+    obligations,
+    mySubmissions,
+    engagements,
+    inboxFilings,
+    compliance,
   ].some((q) => q.isLoading && q.fetchStatus !== "idle");
 
   const urgent = items.filter((i) => i.tone === "urgent").length;
@@ -283,10 +313,14 @@ function NotificationsPage() {
       />
 
       {loading && items.length === 0 ? (
-        <div className="flex h-48 items-center justify-center"><Spinner size={28} /></div>
+        <div className="flex h-48 items-center justify-center">
+          <Spinner size={28} />
+        </div>
       ) : items.length === 0 ? (
-        <div className="rounded-2xl border border-dashed p-12 text-center"
-          style={{ borderColor: "var(--border-subtle)", color: "var(--text-muted)" }}>
+        <div
+          className="rounded-2xl border border-dashed p-12 text-center"
+          style={{ borderColor: "var(--border-subtle)", color: "var(--text-muted)" }}
+        >
           <Bell className="mx-auto h-6 w-6" />
           <p className="mt-2 text-[14px] font-medium" style={{ color: "var(--brown-800)" }}>
             You are all caught up
@@ -307,18 +341,25 @@ function NotificationsPage() {
                 )}
                 style={{ borderColor: "var(--border-subtle)", boxShadow: "var(--shadow-card)" }}
               >
-                <span className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
-                  style={{ backgroundColor: tone.bg }}>
+                <span
+                  className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
+                  style={{ backgroundColor: tone.bg }}
+                >
                   <item.icon className="h-4 w-4" style={{ color: tone.fg }} />
                   {unread && item.tone === "urgent" && (
-                    <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full ring-2 ring-white"
-                      style={{ backgroundColor: "#9B2C2C" }} />
+                    <span
+                      className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full ring-2 ring-white"
+                      style={{ backgroundColor: "#9B2C2C" }}
+                    />
                   )}
                 </span>
 
                 <span className="min-w-0 flex-1">
                   <span className="flex items-start justify-between gap-3">
-                    <span className="truncate text-[14px] font-medium" style={{ color: "var(--brown-800)" }}>
+                    <span
+                      className="truncate text-[14px] font-medium"
+                      style={{ color: "var(--brown-800)" }}
+                    >
                       {item.title}
                     </span>
                     {item.at && (
@@ -332,8 +373,10 @@ function NotificationsPage() {
                   </span>
                 </span>
 
-                <ChevronRight className="mt-1 h-4 w-4 shrink-0 transition-transform group-hover:translate-x-0.5"
-                  style={{ color: "var(--text-hint)" }} />
+                <ChevronRight
+                  className="mt-1 h-4 w-4 shrink-0 transition-transform group-hover:translate-x-0.5"
+                  style={{ color: "var(--text-hint)" }}
+                />
               </button>
             );
           })}

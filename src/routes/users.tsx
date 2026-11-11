@@ -8,13 +8,33 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogClose,
 } from "@/components/ui/dialog";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
-import { Plus, Upload, Search, Users as UsersIcon, ShieldCheck, UserCheck, UserX, CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import {
+  Plus,
+  Upload,
+  Search,
+  Users as UsersIcon,
+  ShieldCheck,
+  UserCheck,
+  UserX,
+  CheckCircle2,
+  XCircle,
+  Loader2,
+} from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 
 export const Route = createFileRoute("/users")({
@@ -63,7 +83,7 @@ function UsersPage() {
       u.email.toLowerCase().includes(q.toLowerCase()),
   );
 
-  const active = users.filter((u) => !(u as any).deactivatedAt).length;
+  const active = users.filter((u) => !u.deactivatedAt).length;
   const admins = users.filter((u) => u.role === "ADMIN").length;
 
   return (
@@ -75,7 +95,11 @@ function UsersPage() {
         actions={
           isManager ? (
             <div className="flex gap-2">
-              <Button variant="outline" className="h-[42px] rounded-[10px] px-4" onClick={() => setBulkImportOpen(true)}>
+              <Button
+                variant="outline"
+                className="h-[42px] rounded-[10px] px-4"
+                onClick={() => setBulkImportOpen(true)}
+              >
                 <Upload className="mr-2 h-4 w-4" /> Bulk import
               </Button>
               <Button className="h-[42px] rounded-[10px] px-4" onClick={() => setInviteOpen(true)}>
@@ -93,20 +117,35 @@ function UsersPage() {
         <StatTile label="Admins" value={admins} icon={ShieldCheck} tone={4} />
       </div>
 
-      <div className="mt-6 rounded-2xl border bg-white p-4" style={{ borderColor: "var(--border-subtle)", boxShadow: "var(--shadow-card)" }}>
+      <div
+        className="mt-6 rounded-2xl border bg-white p-4"
+        style={{ borderColor: "var(--border-subtle)", boxShadow: "var(--shadow-card)" }}
+      >
         <div className="mb-4 flex flex-wrap items-center gap-3">
           <div className="relative w-full max-w-sm">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" style={{ color: "var(--text-hint)" }} />
-            <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search users…" className="h-10 pl-9" />
+            <Search
+              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2"
+              style={{ color: "var(--text-hint)" }}
+            />
+            <Input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Search users…"
+              className="h-10 pl-9"
+            />
           </div>
         </div>
 
         {isLoading ? (
-          <div className="flex justify-center py-8"><Spinner size={24} /></div>
+          <div className="flex justify-center py-8">
+            <Spinner size={24} />
+          </div>
         ) : isError ? (
           <div className="flex flex-col items-center justify-center py-12 text-center">
             <ShieldCheck className="h-8 w-8 mb-2" style={{ color: "var(--text-hint)" }} />
-            <p className="text-[14px] font-medium" style={{ color: "var(--brown-800)" }}>Admin access required</p>
+            <p className="text-[14px] font-medium" style={{ color: "var(--brown-800)" }}>
+              Admin access required
+            </p>
             <p className="mt-1 text-[13px]" style={{ color: "var(--text-muted)" }}>
               {(error as Error)?.message?.includes("Forbidden")
                 ? "Only administrators can view and manage all user accounts."
@@ -114,43 +153,97 @@ function UsersPage() {
             </p>
           </div>
         ) : (
-          <div className="overflow-hidden rounded-xl border" style={{ borderColor: "var(--border-subtle)" }}>
+          <div
+            className="overflow-hidden rounded-xl border"
+            style={{ borderColor: "var(--border-subtle)" }}
+          >
             <table className="w-full text-sm">
               <thead style={{ backgroundColor: "var(--brown-50)" }}>
                 <tr>
-                  <th className="px-4 py-3 text-left text-[11px] uppercase tracking-wider font-medium" style={{ color: "var(--text-muted)" }}>User</th>
-                  <th className="px-4 py-3 text-left text-[11px] uppercase tracking-wider font-medium" style={{ color: "var(--text-muted)" }}>Role</th>
-                  <th className="px-4 py-3 text-left text-[11px] uppercase tracking-wider font-medium hidden md:table-cell" style={{ color: "var(--text-muted)" }}>Joined</th>
-                  <th className="px-4 py-3 text-right text-[11px] uppercase tracking-wider font-medium" style={{ color: "var(--text-muted)" }}>Actions</th>
+                  <th
+                    className="px-4 py-3 text-left text-[11px] uppercase tracking-wider font-medium"
+                    style={{ color: "var(--text-muted)" }}
+                  >
+                    User
+                  </th>
+                  <th
+                    className="px-4 py-3 text-left text-[11px] uppercase tracking-wider font-medium"
+                    style={{ color: "var(--text-muted)" }}
+                  >
+                    Role
+                  </th>
+                  <th
+                    className="px-4 py-3 text-left text-[11px] uppercase tracking-wider font-medium hidden md:table-cell"
+                    style={{ color: "var(--text-muted)" }}
+                  >
+                    Joined
+                  </th>
+                  <th
+                    className="px-4 py-3 text-right text-[11px] uppercase tracking-wider font-medium"
+                    style={{ color: "var(--text-muted)" }}
+                  >
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.map((u) => {
-                  const isDeactivated = !!(u as any).deactivatedAt;
+                  const isDeactivated = !!u.deactivatedAt;
                   return (
-                    <tr key={u.id} className="border-t transition-colors hover:bg-stone-50" style={{ borderColor: "var(--border-subtle)", opacity: isDeactivated ? 0.5 : 1 }}>
+                    <tr
+                      key={u.id}
+                      className="border-t transition-colors hover:bg-stone-50"
+                      style={{
+                        borderColor: "var(--border-subtle)",
+                        opacity: isDeactivated ? 0.5 : 1,
+                      }}
+                    >
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
-                          <div className="flex h-9 w-9 items-center justify-center rounded-full text-[11px] font-semibold" style={{ backgroundColor: "var(--brown-100)", color: "var(--brown-800)" }}>
+                          <div
+                            className="flex h-9 w-9 items-center justify-center rounded-full text-[11px] font-semibold"
+                            style={{
+                              backgroundColor: "var(--brown-100)",
+                              color: "var(--brown-800)",
+                            }}
+                          >
                             {getUserInitials(u)}
                           </div>
                           <div className="min-w-0">
-                            <p className="truncate text-[13px] font-medium" style={{ color: "var(--brown-800)" }}>
+                            <p
+                              className="truncate text-[13px] font-medium"
+                              style={{ color: "var(--brown-800)" }}
+                            >
                               {getUserDisplayName(u)}
-                              {isDeactivated && <span className="ml-2 text-[10px] text-muted-foreground">(deactivated)</span>}
+                              {isDeactivated && (
+                                <span className="ml-2 text-[10px] text-muted-foreground">
+                                  (deactivated)
+                                </span>
+                              )}
                             </p>
-                            <p className="truncate text-[12px]" style={{ color: "var(--text-muted)" }}>{u.email}</p>
+                            <p
+                              className="truncate text-[12px]"
+                              style={{ color: "var(--text-muted)" }}
+                            >
+                              {u.email}
+                            </p>
                           </div>
                         </div>
                       </td>
                       <td className="px-4 py-3">
                         {u.role && (
-                          <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium" style={ROLE_STYLE[u.role] ?? {}}>
+                          <span
+                            className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium"
+                            style={ROLE_STYLE[u.role] ?? {}}
+                          >
                             {ROLE_LABEL[u.role] ?? u.role}
                           </span>
                         )}
                       </td>
-                      <td className="px-4 py-3 hidden md:table-cell text-[12px]" style={{ color: "var(--text-muted)" }}>
+                      <td
+                        className="px-4 py-3 hidden md:table-cell text-[12px]"
+                        style={{ color: "var(--text-muted)" }}
+                      >
                         {u.createdAt ? new Date(u.createdAt).toLocaleDateString() : "—"}
                       </td>
                       <td className="px-4 py-3 text-right">
@@ -159,7 +252,14 @@ function UsersPage() {
                             variant="ghost"
                             size="sm"
                             className="text-[12px]"
-                            onClick={() => setManageModal({ id: u.id, name: getUserDisplayName(u), role: u.role ?? "", email: u.email })}
+                            onClick={() =>
+                              setManageModal({
+                                id: u.id,
+                                name: getUserDisplayName(u),
+                                role: u.role ?? "",
+                                email: u.email,
+                              })
+                            }
                           >
                             Manage
                           </Button>
@@ -171,18 +271,16 @@ function UsersPage() {
               </tbody>
             </table>
             {filtered.length === 0 && (
-              <div className="py-12 text-center text-[13px]" style={{ color: "var(--text-muted)" }}>No users found.</div>
+              <div className="py-12 text-center text-[13px]" style={{ color: "var(--text-muted)" }}>
+                No users found.
+              </div>
             )}
           </div>
         )}
       </div>
 
-      {manageModal && (
-        <ManageUserModal user={manageModal} onClose={() => setManageModal(null)} />
-      )}
-      {inviteOpen && (
-        <InviteUserModal onClose={() => setInviteOpen(false)} isAdmin={isAdmin} />
-      )}
+      {manageModal && <ManageUserModal user={manageModal} onClose={() => setManageModal(null)} />}
+      {inviteOpen && <InviteUserModal onClose={() => setInviteOpen(false)} isAdmin={isAdmin} />}
       {bulkImportOpen && (
         <BulkImportModal onClose={() => setBulkImportOpen(false)} isAdmin={isAdmin} />
       )}
@@ -190,53 +288,92 @@ function UsersPage() {
   );
 }
 
-function ManageUserModal({ user, onClose }: { user: { id: string; name: string; role: string; email: string }; onClose: () => void }) {
+function ManageUserModal({
+  user,
+  onClose,
+}: {
+  user: { id: string; name: string; role: string; email: string };
+  onClose: () => void;
+}) {
   const qc = useQueryClient();
   const [role, setRole] = React.useState(user.role);
   const [confirmDeactivate, setConfirmDeactivate] = React.useState(false);
 
   const roleMutation = useMutation({
     mutationFn: () => usersApi.changeRole(user.id, role),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["users"] }); onClose(); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["users"] });
+      onClose();
+    },
   });
 
   const deactivateMutation = useMutation({
     mutationFn: () => usersApi.deactivate(user.id),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["users"] }); onClose(); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["users"] });
+      onClose();
+    },
   });
 
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-w-sm">
-        <DialogHeader><DialogTitle>Manage — {user.name}</DialogTitle></DialogHeader>
+        <DialogHeader>
+          <DialogTitle>Manage — {user.name}</DialogTitle>
+        </DialogHeader>
         <div className="space-y-4">
-          <p className="text-[13px]" style={{ color: "var(--text-muted)" }}>{user.email}</p>
+          <p className="text-[13px]" style={{ color: "var(--text-muted)" }}>
+            {user.email}
+          </p>
 
           <div>
             <Label>Role</Label>
             <Select value={role} onValueChange={setRole}>
-              <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="mt-1.5">
+                <SelectValue />
+              </SelectTrigger>
               <SelectContent>
                 {["ADMIN", "AUDIT_MANAGER", "LEAD_AUDITOR", "AUDITOR"].map((r) => (
-                  <SelectItem key={r} value={r}>{ROLE_LABEL[r] ?? r}</SelectItem>
+                  <SelectItem key={r} value={r}>
+                    {ROLE_LABEL[r] ?? r}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
 
-          {roleMutation.isError && <p className="text-sm text-destructive">{(roleMutation.error as Error).message}</p>}
+          {roleMutation.isError && (
+            <p className="text-sm text-destructive">{(roleMutation.error as Error).message}</p>
+          )}
 
           <div className="border-t pt-4" style={{ borderColor: "var(--border-subtle)" }}>
             {!confirmDeactivate ? (
-              <Button variant="outline" className="w-full text-destructive border-destructive/30 hover:bg-red-50" onClick={() => setConfirmDeactivate(true)}>
+              <Button
+                variant="outline"
+                className="w-full text-destructive border-destructive/30 hover:bg-red-50"
+                onClick={() => setConfirmDeactivate(true)}
+              >
                 Deactivate user
               </Button>
             ) : (
               <div className="space-y-2">
-                <p className="text-[13px] text-destructive">Deactivating will lock this user out. Confirm?</p>
+                <p className="text-[13px] text-destructive">
+                  Deactivating will lock this user out. Confirm?
+                </p>
                 <div className="flex gap-2">
-                  <Button variant="outline" className="flex-1" onClick={() => setConfirmDeactivate(false)}>Cancel</Button>
-                  <Button variant="destructive" className="flex-1" onClick={() => deactivateMutation.mutate()} disabled={deactivateMutation.isPending}>
+                  <Button
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => setConfirmDeactivate(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    className="flex-1"
+                    onClick={() => deactivateMutation.mutate()}
+                    disabled={deactivateMutation.isPending}
+                  >
                     {deactivateMutation.isPending ? <Spinner size={14} invert /> : "Confirm"}
                   </Button>
                 </div>
@@ -245,8 +382,13 @@ function ManageUserModal({ user, onClose }: { user: { id: string; name: string; 
           </div>
         </div>
         <DialogFooter className="gap-2">
-          <DialogClose asChild><Button variant="outline">Cancel</Button></DialogClose>
-          <Button onClick={() => roleMutation.mutate()} disabled={roleMutation.isPending || role === user.role}>
+          <DialogClose asChild>
+            <Button variant="outline">Cancel</Button>
+          </DialogClose>
+          <Button
+            onClick={() => roleMutation.mutate()}
+            disabled={roleMutation.isPending || role === user.role}
+          >
             {roleMutation.isPending ? <Spinner size={14} invert /> : "Save role"}
           </Button>
         </DialogFooter>
@@ -275,7 +417,9 @@ function InviteUserModal({ onClose, isAdmin }: { onClose: () => void; isAdmin: b
     return (
       <Dialog open onOpenChange={(o) => !o && onClose()}>
         <DialogContent className="max-w-sm">
-          <DialogHeader><DialogTitle>Invitation sent</DialogTitle></DialogHeader>
+          <DialogHeader>
+            <DialogTitle>Invitation sent</DialogTitle>
+          </DialogHeader>
           <p className="text-sm text-muted-foreground">
             An invitation email has been sent to <strong>{email}</strong> to join as{" "}
             <strong>{ROLE_LABEL[role]}</strong>.
@@ -291,7 +435,9 @@ function InviteUserModal({ onClose, isAdmin }: { onClose: () => void; isAdmin: b
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-w-sm">
-        <DialogHeader><DialogTitle>Invite user</DialogTitle></DialogHeader>
+        <DialogHeader>
+          <DialogTitle>Invite user</DialogTitle>
+        </DialogHeader>
         <div className="space-y-4">
           <div>
             <Label>Email address</Label>
@@ -306,7 +452,9 @@ function InviteUserModal({ onClose, isAdmin }: { onClose: () => void; isAdmin: b
           <div>
             <Label>Role</Label>
             <Select value={role} onValueChange={setRole}>
-              <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="mt-1.5">
+                <SelectValue />
+              </SelectTrigger>
               <SelectContent>
                 {isAdmin && <SelectItem value="AUDIT_MANAGER">Audit Manager</SelectItem>}
                 <SelectItem value="LEAD_AUDITOR">Lead Auditor</SelectItem>
@@ -317,7 +465,9 @@ function InviteUserModal({ onClose, isAdmin }: { onClose: () => void; isAdmin: b
           {error && <p className="text-sm text-destructive">{(error as Error).message}</p>}
         </div>
         <DialogFooter className="gap-2">
-          <DialogClose asChild><Button variant="outline">Cancel</Button></DialogClose>
+          <DialogClose asChild>
+            <Button variant="outline">Cancel</Button>
+          </DialogClose>
           <Button onClick={() => mutate()} disabled={isPending || !email.trim()}>
             {isPending ? <Spinner size={14} invert /> : "Send invite"}
           </Button>
@@ -383,8 +533,10 @@ function BulkImportModal({ onClose, isAdmin }: { onClose: () => void; isAdmin: b
     const out: ImportResult[] = [];
     for (const { email, name, phone } of valid) {
       try {
-        if (role === "AUDIT_MANAGER") await inviteApi.inviteAuditManager(email, name || undefined, phone || undefined);
-        else if (role === "LEAD_AUDITOR") await inviteApi.inviteLeadAuditor(email, name || undefined, phone || undefined);
+        if (role === "AUDIT_MANAGER")
+          await inviteApi.inviteAuditManager(email, name || undefined, phone || undefined);
+        else if (role === "LEAD_AUDITOR")
+          await inviteApi.inviteLeadAuditor(email, name || undefined, phone || undefined);
         else await inviteApi.inviteAuditor(email, name || undefined, phone || undefined);
         out.push({ email, ok: true });
       } catch (err) {
@@ -415,21 +567,21 @@ function BulkImportModal({ onClose, isAdmin }: { onClose: () => void; isAdmin: b
                 Import as
               </p>
               <div className="grid grid-cols-2 gap-2">
-                {(["AUDIT_MANAGER", "AUDITOR"] as const).filter(
-                  (r) => r !== "AUDIT_MANAGER" || isAdmin,
-                ).map((r) => (
-                  <button
-                    key={r}
-                    onClick={() => setRole(r)}
-                    className={`rounded-xl border px-4 py-3 text-left text-[13px] font-medium transition-colors ${
-                      role === r
-                        ? "border-primary bg-primary/5 text-primary"
-                        : "border-border/60 bg-background text-foreground hover:bg-accent"
-                    }`}
-                  >
-                    {ROLE_LABEL[r]}
-                  </button>
-                ))}
+                {(["AUDIT_MANAGER", "AUDITOR"] as const)
+                  .filter((r) => r !== "AUDIT_MANAGER" || isAdmin)
+                  .map((r) => (
+                    <button
+                      key={r}
+                      onClick={() => setRole(r)}
+                      className={`rounded-xl border px-4 py-3 text-left text-[13px] font-medium transition-colors ${
+                        role === r
+                          ? "border-primary bg-primary/5 text-primary"
+                          : "border-border/60 bg-background text-foreground hover:bg-accent"
+                      }`}
+                    >
+                      {ROLE_LABEL[r]}
+                    </button>
+                  ))}
               </div>
             </div>
 
@@ -446,7 +598,9 @@ function BulkImportModal({ onClose, isAdmin }: { onClose: () => void; isAdmin: b
                 <p className="text-[13px] font-medium" style={{ color: "var(--brown-800)" }}>
                   Click to select file
                 </p>
-                <p className="text-[12px] text-muted-foreground">.xlsx or .csv · Col 1: No. · Col 2: Full name · Col 3: Email · Col 4: Phone</p>
+                <p className="text-[12px] text-muted-foreground">
+                  .xlsx or .csv · Col 1: No. · Col 2: Full name · Col 3: Email · Col 4: Phone
+                </p>
               </button>
               <input
                 ref={fileRef}
@@ -476,8 +630,12 @@ function BulkImportModal({ onClose, isAdmin }: { onClose: () => void; isAdmin: b
                     <th className="px-3 py-2 text-left font-medium text-muted-foreground w-8">#</th>
                     <th className="px-3 py-2 text-left font-medium text-muted-foreground">Name</th>
                     <th className="px-3 py-2 text-left font-medium text-muted-foreground">Email</th>
-                    <th className="px-3 py-2 text-left font-medium text-muted-foreground hidden sm:table-cell">Phone</th>
-                    <th className="px-3 py-2 text-right font-medium text-muted-foreground">Status</th>
+                    <th className="px-3 py-2 text-left font-medium text-muted-foreground hidden sm:table-cell">
+                      Phone
+                    </th>
+                    <th className="px-3 py-2 text-right font-medium text-muted-foreground">
+                      Status
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -503,7 +661,8 @@ function BulkImportModal({ onClose, isAdmin }: { onClose: () => void; isAdmin: b
             <p className="text-[12px] text-muted-foreground">
               Will send invitations to <strong>{validCount}</strong> address
               {validCount !== 1 ? "es" : ""} as <strong>{ROLE_LABEL[role]}</strong>.
-              {invalidCount > 0 && ` ${invalidCount} invalid row${invalidCount !== 1 ? "s" : ""} will be skipped.`}
+              {invalidCount > 0 &&
+                ` ${invalidCount} invalid row${invalidCount !== 1 ? "s" : ""} will be skipped.`}
             </p>
           </div>
         )}
@@ -517,31 +676,39 @@ function BulkImportModal({ onClose, isAdmin }: { onClose: () => void; isAdmin: b
                     <th className="px-3 py-2 text-left font-medium text-muted-foreground w-8">#</th>
                     <th className="px-3 py-2 text-left font-medium text-muted-foreground">Name</th>
                     <th className="px-3 py-2 text-left font-medium text-muted-foreground">Email</th>
-                    <th className="px-3 py-2 text-left font-medium text-muted-foreground hidden sm:table-cell">Phone</th>
-                    <th className="px-3 py-2 text-right font-medium text-muted-foreground">Result</th>
+                    <th className="px-3 py-2 text-left font-medium text-muted-foreground hidden sm:table-cell">
+                      Phone
+                    </th>
+                    <th className="px-3 py-2 text-right font-medium text-muted-foreground">
+                      Result
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
-                  {rows.filter((r) => r.valid).map(({ no, name, email, phone }, i) => {
-                    const res = results.find((r) => r.email === email);
-                    return (
-                      <tr key={i} className="border-t border-border/40">
-                        <td className="px-3 py-2 text-muted-foreground">{no || i + 1}</td>
-                        <td className="px-3 py-2">{name || "—"}</td>
-                        <td className="px-3 py-2 font-mono">{email}</td>
-                        <td className="px-3 py-2 hidden sm:table-cell">{phone || "—"}</td>
-                        <td className="px-3 py-2 text-right">
-                          {!res ? (
-                            <Loader2 className="ml-auto h-3 w-3 animate-spin text-muted-foreground" />
-                          ) : res.ok ? (
-                            <CheckCircle2 className="ml-auto h-3.5 w-3.5 text-emerald-600" />
-                          ) : (
-                            <span className="text-destructive" title={res.error}><XCircle className="ml-auto h-3.5 w-3.5" /></span>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
+                  {rows
+                    .filter((r) => r.valid)
+                    .map(({ no, name, email, phone }, i) => {
+                      const res = results.find((r) => r.email === email);
+                      return (
+                        <tr key={i} className="border-t border-border/40">
+                          <td className="px-3 py-2 text-muted-foreground">{no || i + 1}</td>
+                          <td className="px-3 py-2">{name || "—"}</td>
+                          <td className="px-3 py-2 font-mono">{email}</td>
+                          <td className="px-3 py-2 hidden sm:table-cell">{phone || "—"}</td>
+                          <td className="px-3 py-2 text-right">
+                            {!res ? (
+                              <Loader2 className="ml-auto h-3 w-3 animate-spin text-muted-foreground" />
+                            ) : res.ok ? (
+                              <CheckCircle2 className="ml-auto h-3.5 w-3.5 text-emerald-600" />
+                            ) : (
+                              <span className="text-destructive" title={res.error}>
+                                <XCircle className="ml-auto h-3.5 w-3.5" />
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
                 </tbody>
               </table>
             </div>
@@ -549,8 +716,11 @@ function BulkImportModal({ onClose, isAdmin }: { onClose: () => void; isAdmin: b
               <p className="text-[12px] text-muted-foreground">
                 Done — <span className="text-emerald-600 font-medium">{succeededCount} sent</span>
                 {failedCount > 0 && (
-                  <>, <span className="text-destructive font-medium">{failedCount} failed</span></>
-                )}.
+                  <>
+                    , <span className="text-destructive font-medium">{failedCount} failed</span>
+                  </>
+                )}
+                .
               </p>
             )}
           </div>
@@ -558,11 +728,19 @@ function BulkImportModal({ onClose, isAdmin }: { onClose: () => void; isAdmin: b
 
         <DialogFooter className="gap-2">
           {step === "upload" && (
-            <DialogClose asChild><Button variant="outline">Cancel</Button></DialogClose>
+            <DialogClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </DialogClose>
           )}
           {step === "preview" && (
             <>
-              <Button variant="outline" onClick={() => { setRows([]); setStep("upload"); }}>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setRows([]);
+                  setStep("upload");
+                }}
+              >
                 Back
               </Button>
               <Button onClick={handleImport} disabled={validCount === 0}>
@@ -575,9 +753,7 @@ function BulkImportModal({ onClose, isAdmin }: { onClose: () => void; isAdmin: b
               <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Importing…
             </Button>
           )}
-          {step === "done" && (
-            <Button onClick={onClose}>Done</Button>
-          )}
+          {step === "done" && <Button onClick={onClose}>Done</Button>}
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -2,23 +2,59 @@ import * as React from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
-  Activity, AlertOctagon, AlertTriangle, ArrowUpRight, Building2, CheckCircle2,
-  ClipboardList, FileBarChart, Info, ShieldAlert, UserPlus, Users, UsersRound,
+  Activity,
+  AlertOctagon,
+  AlertTriangle,
+  ArrowUpRight,
+  Building2,
+  CheckCircle2,
+  ClipboardList,
+  FileBarChart,
+  Info,
+  ShieldAlert,
+  UserPlus,
+  Users,
+  UsersRound,
 } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { Spinner } from "@/components/ui/spinner";
 import { useNeedsAuditors } from "@/components/invite-auditors";
 import {
-  ColumnChart, Empty, FactRow, FlowChart, Kpi, LegendChip, MeterList, Panel, RankedBars,
-  INK, ORDINAL, SEVERITY_COLOR, SERIES_1, SERIES_2, nf, ordinalScale, tally,
+  ColumnChart,
+  Empty,
+  FactRow,
+  FlowChart,
+  Kpi,
+  LegendChip,
+  MeterList,
+  Panel,
+  RankedBars,
+  INK,
+  ORDINAL,
+  SEVERITY_COLOR,
+  SERIES_1,
+  SERIES_2,
+  nf,
+  ordinalScale,
+  tally,
   type BarRow,
 } from "@/components/viz";
 import { useAuth, isPlatformOrganization } from "@/lib/auth-context";
 import {
-  auditsApi, findingsApi, reportsApi, teamsApi, usersApi,
-  AUDIT_STATUS_LABEL, FINDING_STATUS_LABEL, SEVERITY_LABEL,
-  getUserDisplayName, getUserInitials,
-  type ApiAudit, type ApiFinding, type ApiTeam, type ApiUser,
+  auditsApi,
+  findingsApi,
+  reportsApi,
+  teamsApi,
+  usersApi,
+  AUDIT_STATUS_LABEL,
+  FINDING_STATUS_LABEL,
+  SEVERITY_LABEL,
+  getUserDisplayName,
+  getUserInitials,
+  type ApiAudit,
+  type ApiFinding,
+  type ApiTeam,
+  type ApiUser,
 } from "@/lib/api";
 
 /* -------------------------------------------------------------------------- */
@@ -30,8 +66,14 @@ const SEVERITY_ORDER = ["CRITICAL", "HIGH", "MEDIUM", "LOW"];
 /** Workflow order, not alphabetical — the pipeline only reads if it is ordered. */
 const PIPELINE_ORDER = ["DRAFT", "PLANNING", "IN_PROGRESS", "UNDER_REVIEW", "COMPLETED", "CLOSED"];
 const LIFECYCLE_ORDER = [
-  "OPEN", "IN_REMEDIATION", "PENDING_VERIFICATION",
-  "PARTIALLY_RESOLVED", "REJECTED_REOPENED", "VERIFIED_CLOSED", "ACCEPTED_RISK", "CLOSED",
+  "OPEN",
+  "IN_REMEDIATION",
+  "PENDING_VERIFICATION",
+  "PARTIALLY_RESOLVED",
+  "REJECTED_REOPENED",
+  "VERIFIED_CLOSED",
+  "ACCEPTED_RISK",
+  "CLOSED",
 ];
 const ROLE_ORDER = ["ADMIN", "AUDIT_MANAGER", "LEAD_AUDITOR", "AUDITOR", "AUDITEE", "VIEWER"];
 
@@ -59,13 +101,16 @@ function monthBuckets(count: number) {
   });
 }
 
-
 function daysSince(iso: string) {
   return Math.floor((Date.now() - new Date(iso).getTime()) / DAY);
 }
 
 const OPEN_FINDING_STATES = new Set([
-  "OPEN", "IN_REMEDIATION", "PENDING_VERIFICATION", "PARTIALLY_RESOLVED", "REJECTED_REOPENED",
+  "OPEN",
+  "IN_REMEDIATION",
+  "PENDING_VERIFICATION",
+  "PARTIALLY_RESOLVED",
+  "REJECTED_REOPENED",
 ]);
 const SETTLED_FINDING_STATES = new Set(["VERIFIED_CLOSED", "CLOSED", "RESOLVED", "ACCEPTED_RISK"]);
 const CLOSED_AUDIT_STATES = new Set(["COMPLETED", "CLOSED"]);
@@ -75,7 +120,6 @@ function findingSettledAt(f: ApiFinding): string | null {
   if (!SETTLED_FINDING_STATES.has(f.status)) return null;
   return f.closedAt ?? f.verifiedAt ?? f.updatedAt ?? null;
 }
-
 
 /* -------------------------------------------------------------------------- */
 /* The dashboard                                                              */
@@ -130,7 +174,8 @@ export function AdminDashboard() {
 
   const openAudits = auditRows.filter((a) => !CLOSED_AUDIT_STATES.has(a.status));
   const overdueAudits = auditRows.filter(
-    (a) => a.dueDate && new Date(a.dueDate).getTime() < Date.now() && !CLOSED_AUDIT_STATES.has(a.status),
+    (a) =>
+      a.dueDate && new Date(a.dueDate).getTime() < Date.now() && !CLOSED_AUDIT_STATES.has(a.status),
   );
   const breachedFindings = openFindings.filter(
     (f) => f.deadline && new Date(f.deadline).getTime() < Date.now(),
@@ -457,7 +502,9 @@ export function AdminDashboard() {
           }
         >
           {!flowHasData ? (
-            <Empty>No findings have been recorded yet — the flow chart fills in as they are raised.</Empty>
+            <Empty>
+              No findings have been recorded yet — the flow chart fills in as they are raised.
+            </Empty>
           ) : (
             <FlowChart data={findingFlow} openedName="Raised" closedName="Settled" />
           )}
@@ -483,7 +530,11 @@ export function AdminDashboard() {
 
       {/* Distributions */}
       <div className="mt-4 grid gap-4 lg:grid-cols-3">
-        <Panel title="Audit pipeline" subtitle="Where every engagement sits" className="lg:col-span-2">
+        <Panel
+          title="Audit pipeline"
+          subtitle="Where every engagement sits"
+          className="lg:col-span-2"
+        >
           {pipeline.length === 0 ? (
             <Empty>No audits yet.</Empty>
           ) : (
@@ -563,9 +614,24 @@ export function AdminDashboard() {
 
         <Panel title="Governance output" subtitle="Artefacts the programme has produced">
           <dl className="space-y-3">
-            <FactRow icon={FileBarChart} label="Reports generated" value={reports.data?.total ?? 0} />
-            <FactRow icon={Activity} label="Audits completed" value={auditRows.filter((a) => CLOSED_AUDIT_STATES.has(a.status)).length} />
-            <FactRow icon={ShieldAlert} label="Findings verified &amp; closed" value={findingRows.filter((f) => f.status === "VERIFIED_CLOSED" || f.status === "CLOSED").length} />
+            <FactRow
+              icon={FileBarChart}
+              label="Reports generated"
+              value={reports.data?.total ?? 0}
+            />
+            <FactRow
+              icon={Activity}
+              label="Audits completed"
+              value={auditRows.filter((a) => CLOSED_AUDIT_STATES.has(a.status)).length}
+            />
+            <FactRow
+              icon={ShieldAlert}
+              label="Findings verified &amp; closed"
+              value={
+                findingRows.filter((f) => f.status === "VERIFIED_CLOSED" || f.status === "CLOSED")
+                  .length
+              }
+            />
             <FactRow icon={Building2} label="Teams operating" value={teamRows.length} />
           </dl>
         </Panel>
@@ -575,7 +641,11 @@ export function AdminDashboard() {
       <div className="mt-4 grid gap-4 lg:grid-cols-2">
         <Panel
           title="Attention required"
-          subtitle={attention.length ? `${attention.length} item${attention.length === 1 ? "" : "s"} an administrator should act on` : undefined}
+          subtitle={
+            attention.length
+              ? `${attention.length} item${attention.length === 1 ? "" : "s"} an administrator should act on`
+              : undefined
+          }
         >
           {attention.length === 0 ? (
             <div
@@ -600,22 +670,40 @@ export function AdminDashboard() {
                       style={{ backgroundColor: "var(--brown-50)" }}
                     >
                       {a.tone === "critical" ? (
-                        <AlertOctagon className="h-[14px] w-[14px]" style={{ color: "var(--viz-critical)" }} strokeWidth={1.9} />
+                        <AlertOctagon
+                          className="h-[14px] w-[14px]"
+                          style={{ color: "var(--viz-critical)" }}
+                          strokeWidth={1.9}
+                        />
                       ) : a.tone === "serious" ? (
-                        <AlertTriangle className="h-[14px] w-[14px]" style={{ color: "var(--viz-serious)" }} strokeWidth={1.9} />
+                        <AlertTriangle
+                          className="h-[14px] w-[14px]"
+                          style={{ color: "var(--viz-serious)" }}
+                          strokeWidth={1.9}
+                        />
                       ) : (
-                        <Info className="h-[14px] w-[14px]" style={{ color: "var(--text-muted)" }} strokeWidth={1.9} />
+                        <Info
+                          className="h-[14px] w-[14px]"
+                          style={{ color: "var(--text-muted)" }}
+                          strokeWidth={1.9}
+                        />
                       )}
                     </span>
                     <span className="min-w-0 flex-1">
-                      <span className="block text-[13px] font-medium" style={{ color: "var(--brown-800)" }}>
+                      <span
+                        className="block text-[13px] font-medium"
+                        style={{ color: "var(--brown-800)" }}
+                      >
                         {a.title}
                       </span>
                       <span className="block text-[12px]" style={{ color: "var(--text-muted)" }}>
                         {a.detail}
                       </span>
                     </span>
-                    <ArrowUpRight className="mt-0.5 h-3.5 w-3.5 shrink-0" style={{ color: "var(--text-hint)" }} />
+                    <ArrowUpRight
+                      className="mt-0.5 h-3.5 w-3.5 shrink-0"
+                      style={{ color: "var(--text-hint)" }}
+                    />
                   </Link>
                 </li>
               ))}
@@ -649,10 +737,16 @@ export function AdminDashboard() {
                     {getUserInitials(u)}
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-[13px] font-medium" style={{ color: "var(--brown-800)" }}>
+                    <span
+                      className="block truncate text-[13px] font-medium"
+                      style={{ color: "var(--brown-800)" }}
+                    >
                       {getUserDisplayName(u)}
                     </span>
-                    <span className="block truncate text-[12px]" style={{ color: "var(--text-muted)" }}>
+                    <span
+                      className="block truncate text-[12px]"
+                      style={{ color: "var(--text-muted)" }}
+                    >
                       {u.role ? u.role.replace(/_/g, " ").toLowerCase() : "no role"}
                     </span>
                   </span>
@@ -663,7 +757,11 @@ export function AdminDashboard() {
                   ) : (
                     <span
                       className="inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium"
-                      style={{ backgroundColor: "#FEF3E2", color: "#854F0B", border: "0.5px solid #F0C97A" }}
+                      style={{
+                        backgroundColor: "#FEF3E2",
+                        color: "#854F0B",
+                        border: "0.5px solid #F0C97A",
+                      }}
                     >
                       <AlertTriangle className="h-3 w-3" /> Unverified
                     </span>

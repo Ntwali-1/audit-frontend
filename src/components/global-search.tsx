@@ -1,18 +1,36 @@
+import type { LucideIcon } from "lucide-react";
 import * as React from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
-  AlertOctagon, Building2, ClipboardList, CornerDownLeft, Search, UserRound, UsersRound,
+  AlertOctagon,
+  Building2,
+  ClipboardList,
+  CornerDownLeft,
+  Search,
+  UserRound,
+  UsersRound,
 } from "lucide-react";
 import {
-  Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList,
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
 } from "@/components/ui/command";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useNavSections } from "@/components/orbital-sidebar";
 import { useAuth } from "@/lib/auth-context";
 import {
-  auditsApi, findingsApi, teamsApi, usersApi,
-  AUDIT_STATUS_LABEL, FINDING_STATUS_LABEL, SEVERITY_LABEL, getUserDisplayName,
+  auditsApi,
+  findingsApi,
+  teamsApi,
+  usersApi,
+  AUDIT_STATUS_LABEL,
+  FINDING_STATUS_LABEL,
+  SEVERITY_LABEL,
+  getUserDisplayName,
 } from "@/lib/api";
 import { ORG_TYPE_LABEL, platformApi } from "@/lib/api-portals";
 import { cn } from "@/lib/utils";
@@ -63,13 +81,17 @@ type Hit = {
   keywords: string;
   title: string;
   subtitle?: string;
-  icon: React.ComponentType<any>;
+  icon: LucideIcon;
   go: () => void;
 };
 
 function GlobalSearchDialog({
-  open, onOpenChange,
-}: { open: boolean; onOpenChange: (open: boolean) => void }) {
+  open,
+  onOpenChange,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
   const navigate = useNavigate();
   const { user, portal } = useAuth();
   const navSections = useNavSections();
@@ -77,7 +99,9 @@ function GlobalSearchDialog({
 
   /* A fresh query each time it opens — a palette that remembers is a palette
      that shows yesterday's results. */
-  React.useEffect(() => { if (open) setTerm(""); }, [open]);
+  React.useEffect(() => {
+    if (open) setTerm("");
+  }, [open]);
 
   const isAdmin = user?.role === "ADMIN";
   const isManager = isAdmin || user?.role === "AUDIT_MANAGER";
@@ -126,7 +150,13 @@ function GlobalSearchDialog({
   });
 
   const close = React.useCallback(() => onOpenChange(false), [onOpenChange]);
-  const run = React.useCallback((go: () => void) => { close(); go(); }, [close]);
+  const run = React.useCallback(
+    (go: () => void) => {
+      close();
+      go();
+    },
+    [close],
+  );
 
   /* ---- hits ------------------------------------------------------------- */
 
@@ -212,8 +242,11 @@ function GlobalSearchDialog({
   );
 
   const loading =
-    audits.isFetching || findings.isFetching || teams.isFetching ||
-    users.isFetching || organizations.isFetching;
+    audits.isFetching ||
+    findings.isFetching ||
+    teams.isFetching ||
+    users.isFetching ||
+    organizations.isFetching;
 
   const searching = term.trim().length > 0;
 
@@ -260,9 +293,7 @@ function GlobalSearchDialog({
             placeholder="Search audits, findings, people, teams…"
           />
           <CommandList className="max-h-[400px]">
-            <CommandEmpty>
-              {loading ? "Searching…" : "Nothing matches that."}
-            </CommandEmpty>
+            <CommandEmpty>{loading ? "Searching…" : "Nothing matches that."}</CommandEmpty>
 
             {groups.map((group) => (
               <CommandGroup key={group.heading} heading={group.heading}>
@@ -279,11 +310,17 @@ function GlobalSearchDialog({
                       style={{ color: "var(--text-hint)" }}
                     />
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-[13px]" style={{ color: "var(--brown-800)" }}>
+                      <span
+                        className="block truncate text-[13px]"
+                        style={{ color: "var(--brown-800)" }}
+                      >
                         {hit.title}
                       </span>
                       {hit.subtitle && (
-                        <span className="block truncate text-[11px]" style={{ color: "var(--text-muted)" }}>
+                        <span
+                          className="block truncate text-[11px]"
+                          style={{ color: "var(--text-muted)" }}
+                        >
                           {hit.subtitle}
                         </span>
                       )}
@@ -360,7 +397,10 @@ export function SearchIconButton({ className }: { className?: string }) {
   return (
     <button
       onClick={open}
-      className={cn("flex h-9 w-9 items-center justify-center rounded-lg border bg-white", className)}
+      className={cn(
+        "flex h-9 w-9 items-center justify-center rounded-lg border bg-white",
+        className,
+      )}
       style={{ borderColor: "var(--border-subtle)", color: "var(--brown-600)" }}
       aria-label="Search"
     >

@@ -4,10 +4,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { UserPlus, Mail, Plus, X, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
@@ -57,9 +65,9 @@ export function InviteAuditorsForm({
   compact?: boolean;
 }) {
   const qc = useQueryClient();
-  const [rows, setRows] = React.useState<Array<{ email: string; fullName: string; role: InviteRole }>>([
-    { email: "", fullName: "", role: "LEAD_AUDITOR" },
-  ]);
+  const [rows, setRows] = React.useState<
+    Array<{ email: string; fullName: string; role: InviteRole }>
+  >([{ email: "", fullName: "", role: "LEAD_AUDITOR" }]);
   const [sent, setSent] = React.useState<string[]>([]);
 
   const update = (i: number, patch: Partial<(typeof rows)[number]>) =>
@@ -104,38 +112,59 @@ export function InviteAuditorsForm({
     <div className="space-y-3">
       {rows.map((row, i) => (
         <div key={i} className="grid gap-2 sm:grid-cols-[1.3fr_1fr_auto_auto]">
-          <Input placeholder="auditor@institution.rw" value={row.email}
-            onChange={(e) => update(i, { email: e.target.value })} />
+          <Input
+            placeholder="auditor@institution.rw"
+            value={row.email}
+            onChange={(e) => update(i, { email: e.target.value })}
+          />
           {!compact && (
-            <Input placeholder="Full name (optional)" value={row.fullName}
-              onChange={(e) => update(i, { fullName: e.target.value })} />
+            <Input
+              placeholder="Full name (optional)"
+              value={row.fullName}
+              onChange={(e) => update(i, { fullName: e.target.value })}
+            />
           )}
           <Select value={row.role} onValueChange={(v) => update(i, { role: v as InviteRole })}>
-            <SelectTrigger className="min-w-[9.5rem]"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="min-w-[9.5rem]">
+              <SelectValue />
+            </SelectTrigger>
             <SelectContent>
               <SelectItem value="LEAD_AUDITOR">Lead Auditor</SelectItem>
               <SelectItem value="AUDITOR">Auditor</SelectItem>
             </SelectContent>
           </Select>
           {rows.length > 1 ? (
-            <button onClick={() => setRows(rows.filter((_, idx) => idx !== i))}
+            <button
+              onClick={() => setRows(rows.filter((_, idx) => idx !== i))}
               className="flex h-9 w-9 items-center justify-center self-center rounded-lg hover:bg-red-50"
-              style={{ color: "var(--text-muted)" }}>
+              style={{ color: "var(--text-muted)" }}
+            >
               <X className="h-4 w-4" />
             </button>
-          ) : <span />}
+          ) : (
+            <span />
+          )}
         </div>
       ))}
 
       <div className="flex flex-wrap items-center gap-2">
-        <Button variant="outline" size="sm"
-          onClick={() => setRows([...rows, { email: "", fullName: "", role: "AUDITOR" }])}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setRows([...rows, { email: "", fullName: "", role: "AUDITOR" }])}
+        >
           <Plus className="mr-1.5 h-3.5 w-3.5" /> Add another
         </Button>
         <Button size="sm" onClick={() => invite.mutate()} disabled={!anyEmail || invite.isPending}>
-          {invite.isPending
-            ? <><Spinner size={14} invert /> <span className="ml-2">Sending…</span></>
-            : <><Mail className="mr-1.5 h-3.5 w-3.5" /> Send invitations</>}
+          {invite.isPending ? (
+            <>
+              <Spinner size={14} invert /> <span className="ml-2">Sending…</span>
+            </>
+          ) : (
+            <>
+              <Mail className="mr-1.5 h-3.5 w-3.5" /> Send invitations
+            </>
+          )}
         </Button>
       </div>
 
@@ -181,8 +210,10 @@ export function NoAuditorsPrompt() {
           style={{ borderColor: "#F0C97A", backgroundColor: "#FEF3E2" }}
         >
           <div className="flex items-start gap-3">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
-              style={{ backgroundColor: "#FDE8C4" }}>
+            <span
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
+              style={{ backgroundColor: "#FDE8C4" }}
+            >
               <AlertTriangle className="h-4 w-4" style={{ color: "#854F0B" }} />
             </span>
             <div className="min-w-0 flex-1">
@@ -197,8 +228,16 @@ export function NoAuditorsPrompt() {
                 <Button size="sm" onClick={() => setDialogOpen(true)}>
                   <UserPlus className="mr-1.5 h-3.5 w-3.5" /> Invite auditors
                 </Button>
-                <Button size="sm" variant="outline" onClick={() => setDismissedBanner(true)}
-                  style={{ borderColor: "#E8C98A", color: "#854F0B", backgroundColor: "transparent" }}>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setDismissedBanner(true)}
+                  style={{
+                    borderColor: "#E8C98A",
+                    color: "#854F0B",
+                    backgroundColor: "transparent",
+                  }}
+                >
                   Not now
                 </Button>
               </div>
@@ -213,18 +252,20 @@ export function NoAuditorsPrompt() {
             <DialogTitle>Invite your audit team</DialogTitle>
           </DialogHeader>
 
-          <div className="flex items-start gap-2 rounded-xl border px-3 py-2 text-[13px]"
-            style={{ borderColor: "#F0C97A", backgroundColor: "#FEF3E2", color: "#854F0B" }}>
+          <div
+            className="flex items-start gap-2 rounded-xl border px-3 py-2 text-[13px]"
+            style={{ borderColor: "#F0C97A", backgroundColor: "#FEF3E2", color: "#854F0B" }}
+          >
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
             <span>
-              There are no auditors in your institution yet, so nothing can be assigned
-              and no audit will reach anyone's queue.
+              There are no auditors in your institution yet, so nothing can be assigned and no audit
+              will reach anyone's queue.
             </span>
           </div>
 
           <p className="text-[13px]" style={{ color: "var(--text-muted)" }}>
-            Start with a lead auditor — they can head a team — then add auditors.
-            Everyone gets an email invitation and sets their own password.
+            Start with a lead auditor — they can head a team — then add auditors. Everyone gets an
+            email invitation and sets their own password.
           </p>
 
           <InviteAuditorsForm onInvited={() => setDialogOpen(false)} />

@@ -4,24 +4,47 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AppShell } from "@/components/app-shell";
 import { PageHeader, StatTile } from "@/components/page-header";
 import {
-  findingsApi, findingsApi2, FINDING_STATUS_LABEL, SEVERITY_LABEL,
-  FINDING_TRANSITIONS, getUserDisplayName,
+  findingsApi,
+  findingsApi2,
+  FINDING_STATUS_LABEL,
+  SEVERITY_LABEL,
+  FINDING_TRANSITIONS,
+  getUserDisplayName,
 } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogClose,
 } from "@/components/ui/dialog";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
 import { AuditeeFindings } from "@/components/auditee-findings";
-import { AlertOctagon, AlertTriangle, ShieldAlert, CheckCircle2, Pencil, Trash2, ChevronRight, ShieldCheck, Upload } from "lucide-react";
+import {
+  AlertOctagon,
+  AlertTriangle,
+  ShieldAlert,
+  CheckCircle2,
+  Pencil,
+  Trash2,
+  ChevronRight,
+  ShieldCheck,
+  Upload,
+} from "lucide-react";
 import type { ApiFinding } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
@@ -38,11 +61,7 @@ export const Route = createFileRoute("/findings")({
  */
 function FindingsRoute() {
   const { user } = useAuth();
-  return (
-    <AppShell>
-      {user?.role === "AUDITEE" ? <AuditeeFindings /> : <FindingsPage />}
-    </AppShell>
-  );
+  return <AppShell>{user?.role === "AUDITEE" ? <AuditeeFindings /> : <FindingsPage />}</AppShell>;
 }
 
 const SEV_TONE: Record<string, string> = {
@@ -55,10 +74,22 @@ const SEV_TONE: Record<string, string> = {
 const STATUS_TONE: Record<string, React.CSSProperties> = {
   OPEN: { backgroundColor: "#FEE2E2", color: "#991B1B", border: "0.5px solid #FECACA" },
   IN_REMEDIATION: { backgroundColor: "#FEF3E2", color: "#854F0B", border: "0.5px solid #F0C97A" },
-  PENDING_VERIFICATION: { backgroundColor: "#EEF2FF", color: "#3730A3", border: "0.5px solid #C7D2FE" },
+  PENDING_VERIFICATION: {
+    backgroundColor: "#EEF2FF",
+    color: "#3730A3",
+    border: "0.5px solid #C7D2FE",
+  },
   VERIFIED_CLOSED: { backgroundColor: "#E6F4ED", color: "#1A6638", border: "0.5px solid #A8D5BA" },
-  PARTIALLY_RESOLVED: { backgroundColor: "#FEF3E2", color: "#854F0B", border: "0.5px solid #F0C97A" },
-  REJECTED_REOPENED: { backgroundColor: "#FEE2E2", color: "#991B1B", border: "0.5px solid #FECACA" },
+  PARTIALLY_RESOLVED: {
+    backgroundColor: "#FEF3E2",
+    color: "#854F0B",
+    border: "0.5px solid #F0C97A",
+  },
+  REJECTED_REOPENED: {
+    backgroundColor: "#FEE2E2",
+    color: "#991B1B",
+    border: "0.5px solid #FECACA",
+  },
   RESOLVED: { backgroundColor: "#E6F4ED", color: "#1A6638", border: "0.5px solid #A8D5BA" },
   ACCEPTED_RISK: { backgroundColor: "#F5EDE0", color: "#A0652A", border: "0.5px solid #E8D5B7" },
   CLOSED: { backgroundColor: "#F4F4F5", color: "#27272A", border: "0.5px solid #D4D4D8" },
@@ -68,12 +99,23 @@ const STATUS_TONE: Record<string, React.CSSProperties> = {
 const VERIFY_OUTCOMES = ["VERIFIED_CLOSED", "PARTIALLY_RESOLVED", "REJECTED_REOPENED"];
 
 const STATUS_TABS = [
-  "ALL", "OPEN", "IN_REMEDIATION", "PENDING_VERIFICATION",
-  "VERIFIED_CLOSED", "ACCEPTED_RISK", "CLOSED",
+  "ALL",
+  "OPEN",
+  "IN_REMEDIATION",
+  "PENDING_VERIFICATION",
+  "VERIFIED_CLOSED",
+  "ACCEPTED_RISK",
+  "CLOSED",
 ] as const;
 const SEV_FILTERS = ["ALL", "CRITICAL", "HIGH", "MEDIUM", "LOW"] as const;
 
-type EditModal = { id: string; title: string; description: string; severity: string; deadline: string } | null;
+type EditModal = {
+  id: string;
+  title: string;
+  description: string;
+  severity: string;
+  deadline: string;
+} | null;
 
 function FindingsPage() {
   const qc = useQueryClient();
@@ -133,18 +175,23 @@ function FindingsPage() {
 
       {/* Filters */}
       <div className="mt-6 flex flex-wrap items-center gap-3">
-        <div className="flex flex-wrap gap-1 rounded-xl border bg-white p-1" style={{ borderColor: "var(--border-subtle)" }}>
+        <div
+          className="flex flex-wrap gap-1 rounded-xl border bg-white p-1"
+          style={{ borderColor: "var(--border-subtle)" }}
+        >
           {STATUS_TABS.map((s) => (
             <button
               key={s}
               onClick={() => setStatusTab(s)}
               className={cn(
                 "rounded-lg px-3 py-1.5 text-[12px] font-medium transition-colors",
-                statusTab === s
-                  ? "text-white"
-                  : "hover:bg-stone-100"
+                statusTab === s ? "text-white" : "hover:bg-stone-100",
               )}
-              style={statusTab === s ? { backgroundColor: "var(--brown-700)", color: "#fff" } : { color: "var(--text-muted)" }}
+              style={
+                statusTab === s
+                  ? { backgroundColor: "var(--brown-700)", color: "#fff" }
+                  : { color: "var(--text-muted)" }
+              }
             >
               {s === "ALL" ? "All" : (FINDING_STATUS_LABEL[s] ?? s)}
             </button>
@@ -156,7 +203,9 @@ function FindingsPage() {
           </SelectTrigger>
           <SelectContent>
             {SEV_FILTERS.map((s) => (
-              <SelectItem key={s} value={s}>{s === "ALL" ? "All severities" : (SEVERITY_LABEL[s] ?? s)}</SelectItem>
+              <SelectItem key={s} value={s}>
+                {s === "ALL" ? "All severities" : (SEVERITY_LABEL[s] ?? s)}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -166,12 +215,21 @@ function FindingsPage() {
       </div>
 
       {isLoading ? (
-        <div className="mt-4 flex justify-center py-16"><Spinner size={24} /></div>
+        <div className="mt-4 flex justify-center py-16">
+          <Spinner size={24} />
+        </div>
       ) : isError ? (
-        <div className="mt-4 flex flex-col items-center justify-center rounded-2xl border bg-white px-6 py-16 text-center" style={{ borderColor: "var(--border-subtle)" }}>
+        <div
+          className="mt-4 flex flex-col items-center justify-center rounded-2xl border bg-white px-6 py-16 text-center"
+          style={{ borderColor: "var(--border-subtle)" }}
+        >
           <AlertOctagon className="h-8 w-8 mb-2" style={{ color: "var(--text-hint)" }} />
-          <p className="text-[14px] font-medium" style={{ color: "var(--brown-800)" }}>Failed to load findings</p>
-          <p className="mt-1 text-[13px]" style={{ color: "var(--text-muted)" }}>{(error as Error)?.message}</p>
+          <p className="text-[14px] font-medium" style={{ color: "var(--brown-800)" }}>
+            Failed to load findings
+          </p>
+          <p className="mt-1 text-[13px]" style={{ color: "var(--text-muted)" }}>
+            {(error as Error)?.message}
+          </p>
         </div>
       ) : (
         <div className="mt-4 space-y-3">
@@ -186,21 +244,51 @@ function FindingsPage() {
                 <div className="flex items-start gap-4">
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className={cn("rounded-full border px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider", SEV_TONE[f.severity])}>
+                      <span
+                        className={cn(
+                          "rounded-full border px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider",
+                          SEV_TONE[f.severity],
+                        )}
+                      >
                         {SEVERITY_LABEL[f.severity] ?? f.severity}
                       </span>
-                      <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium" style={STATUS_TONE[f.status] ?? {}}>
+                      <span
+                        className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium"
+                        style={STATUS_TONE[f.status] ?? {}}
+                      >
                         {FINDING_STATUS_LABEL[f.status] ?? f.status}
                       </span>
                     </div>
-                    <p className="mt-1.5 text-[14px] font-medium" style={{ color: "var(--brown-800)" }}>{f.title}</p>
+                    <p
+                      className="mt-1.5 text-[14px] font-medium"
+                      style={{ color: "var(--brown-800)" }}
+                    >
+                      {f.title}
+                    </p>
                     {f.description && (
-                      <p className="mt-0.5 text-[13px]" style={{ color: "var(--text-muted)" }}>{f.description}</p>
+                      <p className="mt-0.5 text-[13px]" style={{ color: "var(--text-muted)" }}>
+                        {f.description}
+                      </p>
                     )}
-                    <div className="mt-2 flex flex-wrap items-center gap-2 text-[12px]" style={{ color: "var(--text-muted)" }}>
-                      {f.assignee && <span>Assigned to <strong style={{ color: "var(--brown-700)" }}>{getUserDisplayName(f.assignee)}</strong></span>}
+                    <div
+                      className="mt-2 flex flex-wrap items-center gap-2 text-[12px]"
+                      style={{ color: "var(--text-muted)" }}
+                    >
+                      {f.assignee && (
+                        <span>
+                          Assigned to{" "}
+                          <strong style={{ color: "var(--brown-700)" }}>
+                            {getUserDisplayName(f.assignee)}
+                          </strong>
+                        </span>
+                      )}
                       {f.deadline && <span>· Due {new Date(f.deadline).toLocaleDateString()}</span>}
-                      <Link to="/audits/$id" params={{ id: f.auditId }} className="flex items-center gap-0.5 hover:underline" style={{ color: "var(--brown-600)" }}>
+                      <Link
+                        to="/audits/$id"
+                        params={{ id: f.auditId }}
+                        className="flex items-center gap-0.5 hover:underline"
+                        style={{ color: "var(--brown-600)" }}
+                      >
                         View audit <ChevronRight className="h-3 w-3" />
                       </Link>
                     </div>
@@ -209,7 +297,17 @@ function FindingsPage() {
                   <div className="flex shrink-0 flex-col items-end gap-2">
                     <div className="flex gap-1">
                       <button
-                        onClick={() => setEditModal({ id: f.id, title: f.title, description: f.description ?? "", severity: f.severity, deadline: f.deadline ? new Date(f.deadline).toISOString().slice(0, 10) : "" })}
+                        onClick={() =>
+                          setEditModal({
+                            id: f.id,
+                            title: f.title,
+                            description: f.description ?? "",
+                            severity: f.severity,
+                            deadline: f.deadline
+                              ? new Date(f.deadline).toISOString().slice(0, 10)
+                              : "",
+                          })
+                        }
                         className="flex h-7 w-7 items-center justify-center rounded-lg hover:bg-stone-100"
                         style={{ color: "var(--text-muted)" }}
                         title="Edit finding"
@@ -244,7 +342,8 @@ function FindingsPage() {
                         </button>
                       ) : (
                         transitions.map((next) =>
-                          VERIFY_OUTCOMES.includes(next) ? null : next === "PENDING_VERIFICATION" ? (
+                          VERIFY_OUTCOMES.includes(next) ? null : next ===
+                            "PENDING_VERIFICATION" ? (
                             <button
                               key={next}
                               onClick={() => setResolveFinding(f)}
@@ -278,25 +377,41 @@ function FindingsPage() {
             );
           })}
           {filtered.length === 0 && (
-            <div className="flex flex-col items-center justify-center rounded-2xl border bg-white px-6 py-16 text-center" style={{ borderColor: "var(--border-subtle)" }}>
-              <p className="text-[14px] font-medium" style={{ color: "var(--brown-800)" }}>No findings match your filters</p>
-              <p className="mt-1 text-[13px]" style={{ color: "var(--text-muted)" }}>Try adjusting the status or severity filter.</p>
+            <div
+              className="flex flex-col items-center justify-center rounded-2xl border bg-white px-6 py-16 text-center"
+              style={{ borderColor: "var(--border-subtle)" }}
+            >
+              <p className="text-[14px] font-medium" style={{ color: "var(--brown-800)" }}>
+                No findings match your filters
+              </p>
+              <p className="mt-1 text-[13px]" style={{ color: "var(--text-muted)" }}>
+                Try adjusting the status or severity filter.
+              </p>
             </div>
           )}
         </div>
       )}
 
-      {editModal && (
-        <EditFindingModal finding={editModal} onClose={() => setEditModal(null)} />
-      )}
+      {editModal && <EditFindingModal finding={editModal} onClose={() => setEditModal(null)} />}
       {deleteId && (
         <Dialog open onOpenChange={(o) => !o && setDeleteId(null)}>
           <DialogContent className="max-w-sm">
-            <DialogHeader><DialogTitle>Delete finding</DialogTitle></DialogHeader>
-            <p className="text-sm text-muted-foreground">This finding will be permanently deleted. Only OPEN findings can be deleted, by the auditor who reported it or an audit manager.</p>
+            <DialogHeader>
+              <DialogTitle>Delete finding</DialogTitle>
+            </DialogHeader>
+            <p className="text-sm text-muted-foreground">
+              This finding will be permanently deleted. Only OPEN findings can be deleted, by the
+              auditor who reported it or an audit manager.
+            </p>
             <DialogFooter className="gap-2">
-              <DialogClose asChild><Button variant="outline">Cancel</Button></DialogClose>
-              <Button variant="destructive" onClick={() => deleteMutation.mutate(deleteId!)} disabled={deleteMutation.isPending}>
+              <DialogClose asChild>
+                <Button variant="outline">Cancel</Button>
+              </DialogClose>
+              <Button
+                variant="destructive"
+                onClick={() => deleteMutation.mutate(deleteId!)}
+                disabled={deleteMutation.isPending}
+              >
                 {deleteMutation.isPending ? <Spinner size={14} invert /> : "Delete"}
               </Button>
             </DialogFooter>
@@ -335,22 +450,36 @@ function SubmitFixModal({ finding, onClose }: { finding: ApiFinding; onClose: ()
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-w-md">
-        <DialogHeader><DialogTitle>Submit fix for verification</DialogTitle></DialogHeader>
+        <DialogHeader>
+          <DialogTitle>Submit fix for verification</DialogTitle>
+        </DialogHeader>
         <div className="space-y-3">
-          <p className="text-[13px]" style={{ color: "var(--text-muted)" }}>{finding.title}</p>
+          <p className="text-[13px]" style={{ color: "var(--text-muted)" }}>
+            {finding.title}
+          </p>
           <div>
             <Label>What was done</Label>
-            <Textarea className="mt-1.5" rows={4} value={note} onChange={(e) => setNote(e.target.value)}
-              placeholder="Corrected procurement file uploaded; threshold approval now on record." />
+            <Textarea
+              className="mt-1.5"
+              rows={4}
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder="Corrected procurement file uploaded; threshold approval now on record."
+            />
           </div>
-          <p className="rounded-lg border px-3 py-2 text-[12px]"
-            style={{ borderColor: "var(--border-subtle)", color: "var(--text-muted)" }}>
-            This moves the finding to <strong>Pending Verification</strong>. An auditor decides whether it closes.
+          <p
+            className="rounded-lg border px-3 py-2 text-[12px]"
+            style={{ borderColor: "var(--border-subtle)", color: "var(--text-muted)" }}
+          >
+            This moves the finding to <strong>Pending Verification</strong>. An auditor decides
+            whether it closes.
           </p>
           {error && <p className="text-sm text-destructive">{(error as Error).message}</p>}
         </div>
         <DialogFooter className="gap-2">
-          <DialogClose asChild><Button variant="outline">Cancel</Button></DialogClose>
+          <DialogClose asChild>
+            <Button variant="outline">Cancel</Button>
+          </DialogClose>
           <Button onClick={() => mutate()} disabled={isPending}>
             {isPending ? <Spinner size={14} invert /> : "Submit for verification"}
           </Button>
@@ -382,31 +511,42 @@ function VerifyModal({ finding, onClose }: { finding: ApiFinding; onClose: () =>
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-w-md">
-        <DialogHeader><DialogTitle>Review the evidence</DialogTitle></DialogHeader>
+        <DialogHeader>
+          <DialogTitle>Review the evidence</DialogTitle>
+        </DialogHeader>
         <div className="space-y-3">
-          <p className="text-[13px] font-medium" style={{ color: "var(--brown-800)" }}>{finding.title}</p>
+          <p className="text-[13px] font-medium" style={{ color: "var(--brown-800)" }}>
+            {finding.title}
+          </p>
           {finding.resolutionNote && (
             <div>
               <Label>What the institution says it did</Label>
-              <p className="mt-1.5 whitespace-pre-wrap rounded-lg border p-3 text-[13px]"
-                style={{ borderColor: "var(--border-subtle)", color: "var(--text-muted)" }}>
+              <p
+                className="mt-1.5 whitespace-pre-wrap rounded-lg border p-3 text-[13px]"
+                style={{ borderColor: "var(--border-subtle)", color: "var(--text-muted)" }}
+              >
                 {finding.resolutionNote}
               </p>
             </div>
           )}
 
           {remediatedByMe ? (
-            <p className="flex items-start gap-2 rounded-lg border px-3 py-2 text-[12px]"
-              style={{ borderColor: "#F0C97A", backgroundColor: "#FEF3E2", color: "#854F0B" }}>
+            <p
+              className="flex items-start gap-2 rounded-lg border px-3 py-2 text-[12px]"
+              style={{ borderColor: "#F0C97A", backgroundColor: "#FEF3E2", color: "#854F0B" }}
+            >
               <ShieldAlert className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-              You remediated this finding, so you cannot verify it. Another auditor must review the evidence.
+              You remediated this finding, so you cannot verify it. Another auditor must review the
+              evidence.
             </p>
           ) : (
             <>
               <div>
                 <Label>Outcome</Label>
                 <Select value={status} onValueChange={setStatus}>
-                  <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="mt-1.5">
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="VERIFIED_CLOSED">Verified and closed</SelectItem>
                     <SelectItem value="PARTIALLY_RESOLVED">Partially resolved</SelectItem>
@@ -416,15 +556,22 @@ function VerifyModal({ finding, onClose }: { finding: ApiFinding; onClose: () =>
               </div>
               <div>
                 <Label>Note</Label>
-                <Textarea className="mt-1.5" rows={3} value={note} onChange={(e) => setNote(e.target.value)}
-                  placeholder="Evidence reviewed against the original exception." />
+                <Textarea
+                  className="mt-1.5"
+                  rows={3}
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  placeholder="Evidence reviewed against the original exception."
+                />
               </div>
             </>
           )}
           {error && <p className="text-sm text-destructive">{(error as Error).message}</p>}
         </div>
         <DialogFooter className="gap-2">
-          <DialogClose asChild><Button variant="outline">Cancel</Button></DialogClose>
+          <DialogClose asChild>
+            <Button variant="outline">Cancel</Button>
+          </DialogClose>
           {!remediatedByMe && (
             <Button onClick={() => mutate()} disabled={isPending}>
               {isPending ? <Spinner size={14} invert /> : "Record decision"}
@@ -436,7 +583,10 @@ function VerifyModal({ finding, onClose }: { finding: ApiFinding; onClose: () =>
   );
 }
 
-function EditFindingModal({ finding, onClose }: {
+function EditFindingModal({
+  finding,
+  onClose,
+}: {
   finding: { id: string; title: string; description: string; severity: string; deadline: string };
   onClose: () => void;
 }) {
@@ -447,19 +597,25 @@ function EditFindingModal({ finding, onClose }: {
   const [deadline, setDeadline] = React.useState(finding.deadline);
 
   const { mutate, isPending, error } = useMutation({
-    mutationFn: () => findingsApi2.update(finding.id, {
-      title,
-      description: description || undefined,
-      severity,
-      deadline: deadline || undefined,
-    }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["findings"] }); onClose(); },
+    mutationFn: () =>
+      findingsApi2.update(finding.id, {
+        title,
+        description: description || undefined,
+        severity,
+        deadline: deadline || undefined,
+      }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["findings"] });
+      onClose();
+    },
   });
 
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-w-md">
-        <DialogHeader><DialogTitle>Edit finding</DialogTitle></DialogHeader>
+        <DialogHeader>
+          <DialogTitle>Edit finding</DialogTitle>
+        </DialogHeader>
         <div className="space-y-4">
           <div>
             <Label>Title</Label>
@@ -467,27 +623,42 @@ function EditFindingModal({ finding, onClose }: {
           </div>
           <div>
             <Label>Description</Label>
-            <Input value={description} onChange={(e) => setDescription(e.target.value)} className="mt-1.5" />
+            <Input
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="mt-1.5"
+            />
           </div>
           <div>
             <Label>Severity</Label>
             <Select value={severity} onValueChange={setSeverity}>
-              <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="mt-1.5">
+                <SelectValue />
+              </SelectTrigger>
               <SelectContent>
                 {["CRITICAL", "HIGH", "MEDIUM", "LOW"].map((s) => (
-                  <SelectItem key={s} value={s}>{SEVERITY_LABEL[s] ?? s}</SelectItem>
+                  <SelectItem key={s} value={s}>
+                    {SEVERITY_LABEL[s] ?? s}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
           <div>
             <Label>Deadline</Label>
-            <Input type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)} className="mt-1.5" />
+            <Input
+              type="date"
+              value={deadline}
+              onChange={(e) => setDeadline(e.target.value)}
+              className="mt-1.5"
+            />
           </div>
           {error && <p className="text-sm text-destructive">{(error as Error).message}</p>}
         </div>
         <DialogFooter className="gap-2">
-          <DialogClose asChild><Button variant="outline">Cancel</Button></DialogClose>
+          <DialogClose asChild>
+            <Button variant="outline">Cancel</Button>
+          </DialogClose>
           <Button onClick={() => mutate()} disabled={isPending || !title.trim()}>
             {isPending ? <Spinner size={14} invert /> : "Save changes"}
           </Button>

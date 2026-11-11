@@ -3,11 +3,7 @@ import * as React from "react";
 export type PortalType = "INSTITUTION" | "OAG" | "OCIA";
 
 export type OrganizationType =
-  | "GOVERNMENT_DISTRICT"
-  | "GOVERNMENT_INSTITUTION"
-  | "PRIVATE_COMPANY"
-  | "OAG"
-  | "OCIA";
+  "GOVERNMENT_DISTRICT" | "GOVERNMENT_INSTITUTION" | "PRIVATE_COMPANY" | "OAG" | "OCIA";
 
 export interface AuthUser {
   id: string;

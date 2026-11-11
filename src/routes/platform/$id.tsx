@@ -1,10 +1,27 @@
+import type { LucideIcon } from "lucide-react";
 import * as React from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  AlertOctagon, AlertTriangle, ArrowLeft, Building2, Calendar, Check,
-  ClipboardList, Clock, Lock, Mail, MapPin, Phone, RotateCcw, ShieldCheck, ShieldOff,
-  UserCheck, Users, UsersRound, X,
+  AlertOctagon,
+  AlertTriangle,
+  ArrowLeft,
+  Building2,
+  Calendar,
+  Check,
+  ClipboardList,
+  Clock,
+  Lock,
+  Mail,
+  MapPin,
+  Phone,
+  RotateCcw,
+  ShieldCheck,
+  ShieldOff,
+  UserCheck,
+  Users,
+  UsersRound,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/app-shell";
@@ -13,18 +30,39 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Spinner } from "@/components/ui/spinner";
 import {
-  Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle,
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  ColumnChart, Empty, FactRow, Kpi, MeterList, Panel, RankedBars,
-  INK, SEVERITY_COLOR, nf, orderedBars,
+  ColumnChart,
+  Empty,
+  FactRow,
+  Kpi,
+  MeterList,
+  Panel,
+  RankedBars,
+  INK,
+  SEVERITY_COLOR,
+  nf,
+  orderedBars,
 } from "@/components/viz";
 import { useAuth } from "@/lib/auth-context";
 import {
-  AUDIT_STATUS_LABEL, FINDING_STATUS_LABEL, SEVERITY_LABEL, getUserDisplayName, getUserInitials,
+  AUDIT_STATUS_LABEL,
+  FINDING_STATUS_LABEL,
+  SEVERITY_LABEL,
+  getUserDisplayName,
+  getUserInitials,
 } from "@/lib/api";
 import {
-  ORG_STATUS_LABEL, ORG_TYPE_LABEL, platformApi, type OrganizationDetail,
+  ORG_STATUS_LABEL,
+  ORG_TYPE_LABEL,
+  platformApi,
+  type OrganizationDetail,
 } from "@/lib/api-portals";
 
 export const Route = createFileRoute("/platform/$id")({
@@ -35,8 +73,14 @@ export const Route = createFileRoute("/platform/$id")({
 const SEVERITY_ORDER = ["CRITICAL", "HIGH", "MEDIUM", "LOW"];
 const PIPELINE_ORDER = ["DRAFT", "PLANNING", "IN_PROGRESS", "UNDER_REVIEW", "COMPLETED", "CLOSED"];
 const LIFECYCLE_ORDER = [
-  "OPEN", "IN_REMEDIATION", "PENDING_VERIFICATION",
-  "PARTIALLY_RESOLVED", "REJECTED_REOPENED", "VERIFIED_CLOSED", "ACCEPTED_RISK", "CLOSED",
+  "OPEN",
+  "IN_REMEDIATION",
+  "PENDING_VERIFICATION",
+  "PARTIALLY_RESOLVED",
+  "REJECTED_REOPENED",
+  "VERIFIED_CLOSED",
+  "ACCEPTED_RISK",
+  "CLOSED",
 ];
 const ROLE_ORDER = ["ADMIN", "AUDIT_MANAGER", "LEAD_AUDITOR", "AUDITOR", "AUDITEE", "VIEWER"];
 
@@ -94,7 +138,9 @@ function InstitutionDetail() {
       </Link>
 
       {isLoading ? (
-        <div className="flex h-64 items-center justify-center"><Spinner size={28} /></div>
+        <div className="flex h-64 items-center justify-center">
+          <Spinner size={28} />
+        </div>
       ) : isError || !data ? (
         <div
           className="flex flex-col items-center rounded-2xl border bg-white px-6 py-16 text-center"
@@ -119,22 +165,30 @@ function Detail({ detail }: { detail: OrganizationDetail }) {
   const { organization: org, users, teams, pendingInvitations, recentAudits, stats } = detail;
   const tone = STATUS_TONE[org.status] ?? STATUS_TONE.REJECTED;
 
-  const pipeline = orderedBars(stats.auditsByStatus, PIPELINE_ORDER, (k) => AUDIT_STATUS_LABEL[k] ?? k);
-  const lifecycle = orderedBars(stats.findingsByStatus, LIFECYCLE_ORDER, (k) => FINDING_STATUS_LABEL[k] ?? k);
+  const pipeline = orderedBars(
+    stats.auditsByStatus,
+    PIPELINE_ORDER,
+    (k) => AUDIT_STATUS_LABEL[k] ?? k,
+  );
+  const lifecycle = orderedBars(
+    stats.findingsByStatus,
+    LIFECYCLE_ORDER,
+    (k) => FINDING_STATUS_LABEL[k] ?? k,
+  );
 
   /* Severity is state, so it keeps the reserved status colours rather than the ramp. */
-  const severity = SEVERITY_ORDER
-    .filter((s) => stats.findingsBySeverity[s])
-    .map((s) => ({
-      label: SEVERITY_LABEL[s] ?? s,
-      value: stats.findingsBySeverity[s],
-      color: SEVERITY_COLOR[s],
-    }));
+  const severity = SEVERITY_ORDER.filter((s) => stats.findingsBySeverity[s]).map((s) => ({
+    label: SEVERITY_LABEL[s] ?? s,
+    value: stats.findingsBySeverity[s],
+    color: SEVERITY_COLOR[s],
+  }));
 
   /* Roles are nominal — one colour for every bar, length carries the value. */
-  const roles = ROLE_ORDER
-    .filter((r) => stats.usersByRole[r])
-    .map((r) => ({ label: prettyRole(r), value: stats.usersByRole[r], color: INK }));
+  const roles = ROLE_ORDER.filter((r) => stats.usersByRole[r]).map((r) => ({
+    label: prettyRole(r),
+    value: stats.usersByRole[r],
+    color: INK,
+  }));
 
   const teamsWithoutLead = teams.filter((t) => !t.teamLeadId).length;
   const heldInvitations = pendingInvitations.filter((i) => !i.sentAt).length;
@@ -165,8 +219,11 @@ function Detail({ detail }: { detail: OrganizationDetail }) {
       )}
       {org.status === "PENDING_APPROVAL" && (
         <Banner tone="warning" icon={Clock}>
-          Waiting for review. {users.length} account{users.length === 1 ? "" : "s"} cannot sign in yet
-          {heldInvitations > 0 && `, and ${heldInvitations} team invitation${heldInvitations === 1 ? " is" : "s are"} held until approval`}.
+          Waiting for review. {users.length} account{users.length === 1 ? "" : "s"} cannot sign in
+          yet
+          {heldInvitations > 0 &&
+            `, and ${heldInvitations} team invitation${heldInvitations === 1 ? " is" : "s are"} held until approval`}
+          .
         </Banner>
       )}
       {org.status === "REJECTED" && (
@@ -177,17 +234,52 @@ function Detail({ detail }: { detail: OrganizationDetail }) {
 
       {/* Snapshot */}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-        <Kpi label="People" value={nf.format(org._count.users)} hint={`${stats.unverifiedUsers} unverified`} icon={Users} />
-        <Kpi label="Audits" value={nf.format(org._count.audits)} hint={`${stats.overdueAudits} overdue`} icon={ClipboardList} tone={stats.overdueAudits > 0 ? "critical" : undefined} />
-        <Kpi label="Open findings" value={nf.format(stats.findingsOpen)} hint={`${stats.findingsTotal} on record`} icon={AlertOctagon} />
-        <Kpi label="Teams" value={nf.format(org._count.teams)} hint={`${teamsWithoutLead} without a lead`} icon={UsersRound} />
-        <Kpi label="Invitations" value={nf.format(pendingInvitations.length)} hint="not yet accepted" icon={Mail} />
-        <Kpi label="Filings" value={nf.format(org._count.submissions)} hint={`${org._count.engagements} external engagements`} icon={ShieldCheck} />
+        <Kpi
+          label="People"
+          value={nf.format(org._count.users)}
+          hint={`${stats.unverifiedUsers} unverified`}
+          icon={Users}
+        />
+        <Kpi
+          label="Audits"
+          value={nf.format(org._count.audits)}
+          hint={`${stats.overdueAudits} overdue`}
+          icon={ClipboardList}
+          tone={stats.overdueAudits > 0 ? "critical" : undefined}
+        />
+        <Kpi
+          label="Open findings"
+          value={nf.format(stats.findingsOpen)}
+          hint={`${stats.findingsTotal} on record`}
+          icon={AlertOctagon}
+        />
+        <Kpi
+          label="Teams"
+          value={nf.format(org._count.teams)}
+          hint={`${teamsWithoutLead} without a lead`}
+          icon={UsersRound}
+        />
+        <Kpi
+          label="Invitations"
+          value={nf.format(pendingInvitations.length)}
+          hint="not yet accepted"
+          icon={Mail}
+        />
+        <Kpi
+          label="Filings"
+          value={nf.format(org._count.submissions)}
+          hint={`${org._count.engagements} external engagements`}
+          icon={ShieldCheck}
+        />
       </div>
 
       {/* Profile and review trail */}
       <div className="mt-4 grid gap-4 lg:grid-cols-3">
-        <Panel title="Profile" subtitle="What was captured at registration" className="lg:col-span-2">
+        <Panel
+          title="Profile"
+          subtitle="What was captured at registration"
+          className="lg:col-span-2"
+        >
           <dl className="grid gap-x-6 gap-y-3 sm:grid-cols-2">
             <Field icon={Building2} label="Type" value={ORG_TYPE_LABEL[org.type] ?? org.type} />
             <Field icon={MapPin} label="District" value={org.district} />
@@ -207,12 +299,20 @@ function Detail({ detail }: { detail: OrganizationDetail }) {
         <Panel title="Review trail" subtitle="Who decided, and why">
           {org.reviewedAt ? (
             <dl className="space-y-3">
-              <FactRow icon={UserCheck} label="Reviewed by" value={
-                <span className="text-[13px] font-medium">{getUserDisplayName(org.reviewedBy)}</span>
-              } />
-              <FactRow icon={Calendar} label="Reviewed on" value={
-                <span className="text-[13px] font-medium">{date(org.reviewedAt)}</span>
-              } />
+              <FactRow
+                icon={UserCheck}
+                label="Reviewed by"
+                value={
+                  <span className="text-[13px] font-medium">
+                    {getUserDisplayName(org.reviewedBy)}
+                  </span>
+                }
+              />
+              <FactRow
+                icon={Calendar}
+                label="Reviewed on"
+                value={<span className="text-[13px] font-medium">{date(org.reviewedAt)}</span>}
+              />
               {org.reviewNote && (
                 <p
                   className="rounded-xl border p-3 text-[12px]"
@@ -223,14 +323,20 @@ function Detail({ detail }: { detail: OrganizationDetail }) {
               )}
             </dl>
           ) : (
-            <Empty>Never reviewed — this organization has not been through the approval queue.</Empty>
+            <Empty>
+              Never reviewed — this organization has not been through the approval queue.
+            </Empty>
           )}
         </Panel>
       </div>
 
       {/* Activity */}
       <div className="mt-4 grid gap-4 lg:grid-cols-3">
-        <Panel title="Audit pipeline" subtitle="Where its engagements sit" className="lg:col-span-2">
+        <Panel
+          title="Audit pipeline"
+          subtitle="Where its engagements sit"
+          className="lg:col-span-2"
+        >
           {pipeline.length === 0 ? <Empty>No audits yet.</Empty> : <RankedBars data={pipeline} />}
         </Panel>
         <Panel title="Findings by severity" subtitle="All findings on record">
@@ -239,21 +345,39 @@ function Detail({ detail }: { detail: OrganizationDetail }) {
       </div>
 
       <div className="mt-4 grid gap-4 lg:grid-cols-3">
-        <Panel title="Remediation lifecycle" subtitle="Findings by workflow stage" className="lg:col-span-2">
-          {lifecycle.length === 0 ? <Empty>No findings yet.</Empty> : <RankedBars data={lifecycle} />}
+        <Panel
+          title="Remediation lifecycle"
+          subtitle="Findings by workflow stage"
+          className="lg:col-span-2"
+        >
+          {lifecycle.length === 0 ? (
+            <Empty>No findings yet.</Empty>
+          ) : (
+            <RankedBars data={lifecycle} />
+          )}
         </Panel>
         <Panel title="Workforce" subtitle="Accounts by role">
-          {roles.length === 0 ? <Empty>Nobody in the directory.</Empty> : <ColumnChart data={roles} />}
+          {roles.length === 0 ? (
+            <Empty>Nobody in the directory.</Empty>
+          ) : (
+            <ColumnChart data={roles} />
+          )}
         </Panel>
       </div>
 
       {/* Directory */}
       <div className="mt-4 grid gap-4 lg:grid-cols-2">
-        <Panel title="Staff directory" subtitle={`${users.length} active account${users.length === 1 ? "" : "s"}`}>
+        <Panel
+          title="Staff directory"
+          subtitle={`${users.length} active account${users.length === 1 ? "" : "s"}`}
+        >
           {users.length === 0 ? (
             <Empty>Nobody has an account here yet.</Empty>
           ) : (
-            <ul className="max-h-[380px] divide-y overflow-y-auto scrollbar-thin" style={{ borderColor: "var(--border-subtle)" }}>
+            <ul
+              className="max-h-[380px] divide-y overflow-y-auto scrollbar-thin"
+              style={{ borderColor: "var(--border-subtle)" }}
+            >
               {users.map((u) => (
                 <li key={u.id} className="flex items-center gap-3 py-2.5 first:pt-0">
                   <span
@@ -264,7 +388,10 @@ function Detail({ detail }: { detail: OrganizationDetail }) {
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="flex items-center gap-1.5">
-                      <span className="truncate text-[13px] font-medium" style={{ color: "var(--brown-800)" }}>
+                      <span
+                        className="truncate text-[13px] font-medium"
+                        style={{ color: "var(--brown-800)" }}
+                      >
                         {getUserDisplayName(u)}
                       </span>
                       {u.isPlatformAdmin && (
@@ -276,7 +403,10 @@ function Detail({ detail }: { detail: OrganizationDetail }) {
                         </span>
                       )}
                     </span>
-                    <span className="block truncate text-[12px]" style={{ color: "var(--text-muted)" }}>
+                    <span
+                      className="block truncate text-[12px]"
+                      style={{ color: "var(--text-muted)" }}
+                    >
                       {u.email}
                     </span>
                   </span>
@@ -289,7 +419,10 @@ function Detail({ detail }: { detail: OrganizationDetail }) {
                         joined {date(u.createdAt)}
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 text-[11px]" style={{ color: "#854F0B" }}>
+                      <span
+                        className="inline-flex items-center gap-1 text-[11px]"
+                        style={{ color: "#854F0B" }}
+                      >
                         <AlertTriangle className="h-3 w-3" /> unverified
                       </span>
                     )}
@@ -301,7 +434,14 @@ function Detail({ detail }: { detail: OrganizationDetail }) {
         </Panel>
 
         <div className="space-y-4">
-          <Panel title="Teams" subtitle={teamsWithoutLead ? `${teamsWithoutLead} without a lead auditor` : "Every team has a lead"}>
+          <Panel
+            title="Teams"
+            subtitle={
+              teamsWithoutLead
+                ? `${teamsWithoutLead} without a lead auditor`
+                : "Every team has a lead"
+            }
+          >
             {teams.length === 0 ? (
               <Empty>No teams have been formed.</Empty>
             ) : (
@@ -320,15 +460,28 @@ function Detail({ detail }: { detail: OrganizationDetail }) {
                 {pendingInvitations.map((inv) => {
                   const expired = new Date(inv.expiresAt).getTime() < Date.now();
                   return (
-                    <li key={inv.id} className="flex items-center gap-3 py-2.5 first:pt-0 last:pb-0">
-                      <Mail className="h-3.5 w-3.5 shrink-0" style={{ color: "var(--text-hint)" }} />
+                    <li
+                      key={inv.id}
+                      className="flex items-center gap-3 py-2.5 first:pt-0 last:pb-0"
+                    >
+                      <Mail
+                        className="h-3.5 w-3.5 shrink-0"
+                        style={{ color: "var(--text-hint)" }}
+                      />
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate text-[13px]" style={{ color: "var(--brown-800)" }}>
+                        <span
+                          className="block truncate text-[13px]"
+                          style={{ color: "var(--brown-800)" }}
+                        >
                           {inv.email}
                         </span>
                         <span className="block text-[11px]" style={{ color: "var(--text-muted)" }}>
                           {prettyRole(inv.role)} ·{" "}
-                          {!inv.sentAt ? "held, not sent" : expired ? "expired" : `expires ${date(inv.expiresAt)}`}
+                          {!inv.sentAt
+                            ? "held, not sent"
+                            : expired
+                              ? "expired"
+                              : `expires ${date(inv.expiresAt)}`}
                         </span>
                       </span>
                     </li>
@@ -350,12 +503,20 @@ function Detail({ detail }: { detail: OrganizationDetail }) {
             <ul className="divide-y" style={{ borderColor: "var(--border-subtle)" }}>
               {recentAudits.map((a) => {
                 const overdue =
-                  a.dueDate && new Date(a.dueDate).getTime() < Date.now() &&
-                  a.status !== "COMPLETED" && a.status !== "CLOSED";
+                  a.dueDate &&
+                  new Date(a.dueDate).getTime() < Date.now() &&
+                  a.status !== "COMPLETED" &&
+                  a.status !== "CLOSED";
                 return (
-                  <li key={a.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 py-3 first:pt-0 last:pb-0">
+                  <li
+                    key={a.id}
+                    className="flex flex-wrap items-center gap-x-3 gap-y-1 py-3 first:pt-0 last:pb-0"
+                  >
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-[13px] font-medium" style={{ color: "var(--brown-800)" }}>
+                      <span
+                        className="block truncate text-[13px] font-medium"
+                        style={{ color: "var(--brown-800)" }}
+                      >
                         {a.title}
                       </span>
                       <span className="block text-[12px]" style={{ color: "var(--text-muted)" }}>
@@ -363,7 +524,10 @@ function Detail({ detail }: { detail: OrganizationDetail }) {
                       </span>
                     </span>
                     {overdue && (
-                      <span className="inline-flex items-center gap-1 text-[11px]" style={{ color: "var(--viz-critical)" }}>
+                      <span
+                        className="inline-flex items-center gap-1 text-[11px]"
+                        style={{ color: "var(--viz-critical)" }}
+                      >
                         <AlertTriangle className="h-3 w-3" /> overdue
                       </span>
                     )}
@@ -430,7 +594,13 @@ function StatusActions({ org }: { org: OrganizationDetail["organization"] }) {
       {org.status === "PENDING_APPROVAL" && (
         <>
           <Button size="sm" onClick={() => approve.mutate()} disabled={approve.isPending}>
-            {approve.isPending ? <Spinner size={14} invert /> : <><Check className="mr-1.5 h-3.5 w-3.5" /> Approve</>}
+            {approve.isPending ? (
+              <Spinner size={14} invert />
+            ) : (
+              <>
+                <Check className="mr-1.5 h-3.5 w-3.5" /> Approve
+              </>
+            )}
           </Button>
           <Button size="sm" variant="outline" onClick={() => setRejecting(true)}>
             <X className="mr-1.5 h-3.5 w-3.5" /> Reject
@@ -438,12 +608,22 @@ function StatusActions({ org }: { org: OrganizationDetail["organization"] }) {
         </>
       )}
       {org.status === "ACTIVE" && (
-        <Button size="sm" variant="outline" onClick={() => suspend.mutate()} disabled={suspend.isPending}>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => suspend.mutate()}
+          disabled={suspend.isPending}
+        >
           <ShieldOff className="mr-1.5 h-3.5 w-3.5" /> Suspend
         </Button>
       )}
       {org.status === "SUSPENDED" && (
-        <Button size="sm" variant="outline" onClick={() => reinstate.mutate()} disabled={reinstate.isPending}>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => reinstate.mutate()}
+          disabled={reinstate.isPending}
+        >
           <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Reinstate
         </Button>
       )}
@@ -461,7 +641,10 @@ function StatusActions({ org }: { org: OrganizationDetail["organization"] }) {
 }
 
 function RejectDialog({
-  name, pending, onCancel, onConfirm,
+  name,
+  pending,
+  onCancel,
+  onConfirm,
 }: {
   name: string;
   pending: boolean;
@@ -472,10 +655,12 @@ function RejectDialog({
   return (
     <Dialog open onOpenChange={(o) => !o && onCancel()}>
       <DialogContent className="max-w-md">
-        <DialogHeader><DialogTitle>Reject {name}</DialogTitle></DialogHeader>
+        <DialogHeader>
+          <DialogTitle>Reject {name}</DialogTitle>
+        </DialogHeader>
         <p className="text-[13px]" style={{ color: "var(--text-muted)" }}>
-          The applicant will not be able to sign in. Say why — it is recorded on the application
-          and sent to them.
+          The applicant will not be able to sign in. Say why — it is recorded on the application and
+          sent to them.
         </p>
         <Textarea
           rows={3}
@@ -484,7 +669,9 @@ function RejectDialog({
           placeholder="Could not verify this institution against public records."
         />
         <DialogFooter className="gap-2">
-          <DialogClose asChild><Button variant="outline">Cancel</Button></DialogClose>
+          <DialogClose asChild>
+            <Button variant="outline">Cancel</Button>
+          </DialogClose>
           <Button variant="destructive" onClick={() => onConfirm(note)} disabled={!note || pending}>
             {pending ? <Spinner size={14} invert /> : "Reject"}
           </Button>
@@ -499,10 +686,12 @@ function RejectDialog({
 /* -------------------------------------------------------------------------- */
 
 function Banner({
-  tone, icon: Icon, children,
+  tone,
+  icon: Icon,
+  children,
 }: {
   tone: "warning" | "critical";
-  icon: React.ComponentType<any>;
+  icon: LucideIcon;
   children: React.ReactNode;
 }) {
   const skin =
@@ -510,7 +699,10 @@ function Banner({
       ? { borderColor: "#F5B5B5", backgroundColor: "#FDECEC", color: "#9B2C2C" }
       : { borderColor: "#F0C97A", backgroundColor: "#FEF3E2", color: "#854F0B" };
   return (
-    <div className="mb-4 flex items-start gap-2.5 rounded-xl border px-4 py-3 text-[13px]" style={skin}>
+    <div
+      className="mb-4 flex items-start gap-2.5 rounded-xl border px-4 py-3 text-[13px]"
+      style={skin}
+    >
       <Icon className="mt-0.5 h-4 w-4 shrink-0" />
       <span>{children}</span>
     </div>
@@ -518,14 +710,23 @@ function Banner({
 }
 
 function Field({
-  icon: Icon, label, value,
-}: { icon: React.ComponentType<any>; label: string; value?: string | null }) {
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value?: string | null;
+}) {
   return (
     <div className="flex items-start gap-2.5">
       <Icon className="mt-0.5 h-3.5 w-3.5 shrink-0" style={{ color: "var(--text-hint)" }} />
       <div className="min-w-0">
         <dt className="data-label">{label}</dt>
-        <dd className="mt-0.5 break-words text-[13px]" style={{ color: value ? "var(--brown-800)" : "var(--text-hint)" }}>
+        <dd
+          className="mt-0.5 break-words text-[13px]"
+          style={{ color: value ? "var(--brown-800)" : "var(--text-hint)" }}
+        >
           {value || "Not provided"}
         </dd>
       </div>

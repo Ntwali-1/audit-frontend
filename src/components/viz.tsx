@@ -1,3 +1,5 @@
+import type { TooltipProps } from "recharts";
+import type { LucideIcon } from "lucide-react";
 /**
  * Shared chart vocabulary.
  *
@@ -15,8 +17,17 @@
  */
 import * as React from "react";
 import {
-  Bar, BarChart, CartesianGrid, Cell, LabelList, Line, LineChart,
-  ResponsiveContainer, Tooltip as RTooltip, XAxis, YAxis,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  LabelList,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip as RTooltip,
+  XAxis,
+  YAxis,
 } from "recharts";
 
 export const SERIES_1 = "var(--viz-series-1)";
@@ -43,8 +54,9 @@ export const nf = new Intl.NumberFormat();
  */
 export function ordinalScale(count: number) {
   if (count <= 1) return [ORDINAL[0]];
-  return Array.from({ length: count }, (_, i) =>
-    ORDINAL[Math.round((i * (ORDINAL.length - 1)) / (count - 1))],
+  return Array.from(
+    { length: count },
+    (_, i) => ORDINAL[Math.round((i * (ORDINAL.length - 1)) / (count - 1))],
   );
 }
 
@@ -74,7 +86,11 @@ export function orderedBars(
 /* -------------------------------------------------------------------------- */
 
 export function Panel({
-  title, subtitle, className = "", action, children,
+  title,
+  subtitle,
+  className = "",
+  action,
+  children,
 }: {
   title: string;
   subtitle?: string;
@@ -117,7 +133,7 @@ export function Empty({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function VizTooltip({ active, payload, label }: any) {
+export function VizTooltip({ active, payload, label }: TooltipProps<number, string>) {
   if (!active || !payload?.length) return null;
   return (
     <div
@@ -127,8 +143,8 @@ export function VizTooltip({ active, payload, label }: any) {
       <div className="mb-1 font-medium" style={{ color: "var(--brown-800)" }}>
         {payload[0]?.payload?.fullLabel ?? label}
       </div>
-      {payload.map((p: any) => (
-        <div key={p.dataKey} className="flex items-center gap-2 tabular-nums">
+      {payload.map((p) => (
+        <div key={String(p.dataKey)} className="flex items-center gap-2 tabular-nums">
           <span
             aria-hidden
             className="h-2 w-2 shrink-0 rounded-full"
@@ -149,9 +165,20 @@ export function VizTooltip({ active, payload, label }: any) {
  * series name, and the endpoint value is direct-labelled here so the latest
  * reading is available without hovering.
  */
-export function LegendChip({ color, label, value }: { color: string; label: string; value?: number }) {
+export function LegendChip({
+  color,
+  label,
+  value,
+}: {
+  color: string;
+  label: string;
+  value?: number;
+}) {
   return (
-    <span className="inline-flex items-center gap-1.5 text-[11px]" style={{ color: "var(--text-muted)" }}>
+    <span
+      className="inline-flex items-center gap-1.5 text-[11px]"
+      style={{ color: "var(--text-muted)" }}
+    >
       <span aria-hidden className="h-2 w-2 rounded-full" style={{ backgroundColor: color }} />
       {label}
       {value != null && (
@@ -172,22 +199,50 @@ export type BarRow = { label: string; value: number; color: string; fullLabel?: 
 
 /** Two comparable series over time. One y-axis — never two. */
 export function FlowChart({
-  data, openedName, closedName,
-}: { data: FlowPoint[]; openedName: string; closedName: string }) {
+  data,
+  openedName,
+  closedName,
+}: {
+  data: FlowPoint[];
+  openedName: string;
+  closedName: string;
+}) {
   return (
     <ResponsiveContainer width="100%" height={220}>
       <LineChart data={data} margin={{ top: 8, right: 12, bottom: 0, left: -18 }}>
         <CartesianGrid stroke={GRID} strokeWidth={1} vertical={false} />
-        <XAxis dataKey="label" tick={AXIS_TICK} tickLine={false} axisLine={{ stroke: GRID }} interval="preserveStartEnd" />
-        <YAxis tick={AXIS_TICK} tickLine={false} axisLine={false} allowDecimals={false} width={40} />
+        <XAxis
+          dataKey="label"
+          tick={AXIS_TICK}
+          tickLine={false}
+          axisLine={{ stroke: GRID }}
+          interval="preserveStartEnd"
+        />
+        <YAxis
+          tick={AXIS_TICK}
+          tickLine={false}
+          axisLine={false}
+          allowDecimals={false}
+          width={40}
+        />
         <RTooltip content={<VizTooltip />} cursor={{ stroke: AXIS, strokeWidth: 1 }} />
         <Line
-          type="monotone" dataKey="opened" name={openedName} stroke={SERIES_1} strokeWidth={2}
-          dot={{ r: 0 }} activeDot={{ r: 4, strokeWidth: 2, stroke: "var(--viz-surface)" }}
+          type="monotone"
+          dataKey="opened"
+          name={openedName}
+          stroke={SERIES_1}
+          strokeWidth={2}
+          dot={{ r: 0 }}
+          activeDot={{ r: 4, strokeWidth: 2, stroke: "var(--viz-surface)" }}
         />
         <Line
-          type="monotone" dataKey="closed" name={closedName} stroke={SERIES_2} strokeWidth={2}
-          dot={{ r: 0 }} activeDot={{ r: 4, strokeWidth: 2, stroke: "var(--viz-surface)" }}
+          type="monotone"
+          dataKey="closed"
+          name={closedName}
+          stroke={SERIES_2}
+          strokeWidth={2}
+          dot={{ r: 0 }}
+          activeDot={{ r: 4, strokeWidth: 2, stroke: "var(--viz-surface)" }}
         />
       </LineChart>
     </ResponsiveContainer>
@@ -203,18 +258,40 @@ export function RankedBars({ data, height }: { data: BarRow[]; height?: number }
     <ResponsiveContainer width="100%" height={height ?? data.length * 34 + 24}>
       {/* No gridlines: the x-axis is hidden, so rules would be noise with
           nothing to read them against. Every bar is direct-labelled instead. */}
-      <BarChart data={data} layout="vertical" margin={{ top: 0, right: 36, bottom: 0, left: 0 }} barCategoryGap={8}>
+      <BarChart
+        data={data}
+        layout="vertical"
+        margin={{ top: 0, right: 36, bottom: 0, left: 0 }}
+        barCategoryGap={8}
+      >
         <XAxis type="number" hide allowDecimals={false} />
         <YAxis
-          type="category" dataKey="label" width={132}
-          tick={{ fontSize: 12, fill: "var(--text-muted)" }} tickLine={false} axisLine={false}
+          type="category"
+          dataKey="label"
+          width={132}
+          tick={{ fontSize: 12, fill: "var(--text-muted)" }}
+          tickLine={false}
+          axisLine={false}
         />
         <RTooltip content={<VizTooltip />} cursor={{ fill: "var(--brown-50)" }} />
-        <Bar dataKey="value" name="Count" radius={[0, 4, 4, 0]} barSize={14} isAnimationActive={false}>
+        <Bar
+          dataKey="value"
+          name="Count"
+          radius={[0, 4, 4, 0]}
+          barSize={14}
+          isAnimationActive={false}
+        >
           {data.map((d) => (
             <Cell key={d.label} fill={d.color} />
           ))}
-          <LabelList dataKey="value" position="right" offset={8} fontSize={11} fontWeight={600} fill="var(--brown-800)" />
+          <LabelList
+            dataKey="value"
+            position="right"
+            offset={8}
+            fontSize={11}
+            fontWeight={600}
+            fill="var(--brown-800)"
+          />
         </Bar>
       </BarChart>
     </ResponsiveContainer>
@@ -228,14 +305,25 @@ export function RankedBars({ data, height }: { data: BarRow[]; height?: number }
  */
 export function SoleCategory({ row }: { row: BarRow }) {
   return (
-    <div className="flex items-center gap-3 rounded-xl border p-4" style={{ borderColor: "var(--border-subtle)" }}>
-      <span aria-hidden className="h-8 w-1 shrink-0 rounded-full" style={{ backgroundColor: row.color }} />
+    <div
+      className="flex items-center gap-3 rounded-xl border p-4"
+      style={{ borderColor: "var(--border-subtle)" }}
+    >
+      <span
+        aria-hidden
+        className="h-8 w-1 shrink-0 rounded-full"
+        style={{ backgroundColor: row.color }}
+      />
       <div className="min-w-0">
-        <div className="text-[24px] font-semibold leading-none" style={{ color: "var(--brown-800)" }}>
+        <div
+          className="text-[24px] font-semibold leading-none"
+          style={{ color: "var(--brown-800)" }}
+        >
           {nf.format(row.value)}
         </div>
         <div className="mt-1 text-[12px]" style={{ color: "var(--text-muted)" }}>
-          all of them at <span style={{ color: "var(--brown-600)" }}>{row.label}</span> — nothing else to compare yet
+          all of them at <span style={{ color: "var(--brown-600)" }}>{row.label}</span> — nothing
+          else to compare yet
         </div>
       </div>
     </div>
@@ -246,19 +334,45 @@ export function SoleCategory({ row }: { row: BarRow }) {
 export function ColumnChart({ data, height = 200 }: { data: BarRow[]; height?: number }) {
   return (
     <ResponsiveContainer width="100%" height={height}>
-      <BarChart data={data} margin={{ top: 16, right: 4, bottom: 0, left: -24 }} barCategoryGap={10}>
+      <BarChart
+        data={data}
+        margin={{ top: 16, right: 4, bottom: 0, left: -24 }}
+        barCategoryGap={10}
+      >
         <CartesianGrid stroke={GRID} strokeWidth={1} vertical={false} />
         <XAxis
-          dataKey="label" tick={{ fontSize: 11, fill: AXIS }} tickLine={false}
-          axisLine={{ stroke: GRID }} interval={0}
+          dataKey="label"
+          tick={{ fontSize: 11, fill: AXIS }}
+          tickLine={false}
+          axisLine={{ stroke: GRID }}
+          interval={0}
         />
-        <YAxis tick={AXIS_TICK} tickLine={false} axisLine={false} allowDecimals={false} width={40} />
+        <YAxis
+          tick={AXIS_TICK}
+          tickLine={false}
+          axisLine={false}
+          allowDecimals={false}
+          width={40}
+        />
         <RTooltip content={<VizTooltip />} cursor={{ fill: "var(--brown-50)" }} />
-        <Bar dataKey="value" name="Count" radius={[4, 4, 0, 0]} maxBarSize={38} isAnimationActive={false}>
+        <Bar
+          dataKey="value"
+          name="Count"
+          radius={[4, 4, 0, 0]}
+          maxBarSize={38}
+          isAnimationActive={false}
+        >
           {data.map((d) => (
             <Cell key={d.label} fill={d.color} />
           ))}
-          <LabelList dataKey="value" position="top" offset={6} fontSize={11} fontWeight={600} fill="var(--brown-800)" />
+          <LabelList
+            dataKey="value"
+            position="top"
+            offset={6}
+            fontSize={11}
+            fontWeight={600}
+            fill="var(--brown-800)"
+          />
         </Bar>
       </BarChart>
     </ResponsiveContainer>
@@ -273,12 +387,20 @@ export function MeterList({ rows }: { rows: Array<{ label: string; value: number
       {rows.map((r) => (
         <li key={r.label}>
           <div className="flex items-baseline justify-between gap-3 text-[12px]">
-            <span className="truncate" style={{ color: "var(--brown-600)" }}>{r.label}</span>
-            <span className="shrink-0 font-medium tabular-nums" style={{ color: "var(--brown-800)" }}>
+            <span className="truncate" style={{ color: "var(--brown-600)" }}>
+              {r.label}
+            </span>
+            <span
+              className="shrink-0 font-medium tabular-nums"
+              style={{ color: "var(--brown-800)" }}
+            >
               {nf.format(r.value)}
             </span>
           </div>
-          <div className="mt-1.5 h-1.5 overflow-hidden rounded-full" style={{ backgroundColor: "var(--brown-50)" }}>
+          <div
+            className="mt-1.5 h-1.5 overflow-hidden rounded-full"
+            style={{ backgroundColor: "var(--brown-50)" }}
+          >
             <div
               className="h-full rounded-full"
               style={{ width: `${(r.value / max) * 100}%`, backgroundColor: INK }}
@@ -292,12 +414,16 @@ export function MeterList({ rows }: { rows: Array<{ label: string; value: number
 
 /** A compact labelled number, for facts that do not deserve an axis. */
 export function Kpi({
-  label, value, hint, icon: Icon, tone,
+  label,
+  value,
+  hint,
+  icon: Icon,
+  tone,
 }: {
   label: string;
   value: React.ReactNode;
   hint?: string;
-  icon: React.ComponentType<any>;
+  icon: LucideIcon;
   tone?: "critical" | "good";
 }) {
   const toneColor =
@@ -309,7 +435,11 @@ export function Kpi({
       style={{ borderColor: "var(--border-subtle)", boxShadow: "var(--shadow-card)" }}
     >
       <div className="flex items-center gap-2">
-        <Icon className="h-[14px] w-[14px]" strokeWidth={1.75} style={{ color: "var(--text-hint)" }} />
+        <Icon
+          className="h-[14px] w-[14px]"
+          strokeWidth={1.75}
+          style={{ color: "var(--text-hint)" }}
+        />
         <span className="data-label">{label}</span>
       </div>
       <div
@@ -328,8 +458,14 @@ export function Kpi({
 }
 
 export function FactRow({
-  icon: Icon, label, value,
-}: { icon: React.ComponentType<any>; label: string; value: React.ReactNode }) {
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: React.ReactNode;
+}) {
   return (
     <div className="flex items-center gap-3">
       <span

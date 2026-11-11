@@ -1,10 +1,28 @@
+import type { LucideIcon } from "lucide-react";
 import * as React from "react";
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
-  LayoutDashboard, ClipboardList, ClipboardCheck, FileBarChart, Settings, LogOut, ShieldCheck,
-  Users, UsersRound, Building2, AlertOctagon, Sparkles, Bell, ChartPie,
-  ChevronsLeft, ChevronsRight, ChevronDown,
-  Send, Briefcase, Inbox, Globe2,
+  LayoutDashboard,
+  ClipboardList,
+  ClipboardCheck,
+  FileBarChart,
+  Settings,
+  LogOut,
+  ShieldCheck,
+  Users,
+  UsersRound,
+  Building2,
+  AlertOctagon,
+  Sparkles,
+  Bell,
+  ChartPie,
+  ChevronsLeft,
+  ChevronsRight,
+  ChevronDown,
+  Send,
+  Briefcase,
+  Inbox,
+  Globe2,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
@@ -14,7 +32,7 @@ import { findingsApi, getUserInitials, getUserDisplayName } from "@/lib/api";
 export type NavItem = {
   to: string;
   label: string;
-  icon: React.ComponentType<any>;
+  icon: LucideIcon;
   badge?: string | number;
   adminOnly?: boolean;
   managerOnly?: boolean;
@@ -137,7 +155,9 @@ function persistSeen(ids: string[]) {
   try {
     localStorage.setItem(SEEN_KEY, JSON.stringify(ids));
     window.dispatchEvent(new Event(SEEN_EVENT));
-  } catch {}
+  } catch {
+    // Storage may be unavailable; retain the in-memory UI state.
+  }
 }
 
 export function markAllSeen(ids: string[]) {
@@ -198,27 +218,29 @@ export function useNavSections(): NavSection[] {
     })).filter((s) => s.items.length > 0);
   }
 
-  return NAV_SECTIONS
-    // Portal first: OAG and OCIA are different applications, not different
-    // permission levels, so they never see the institution's audit navigation.
-    .filter((s) => {
-      // Platform operations sit outside the portals entirely.
-      if (s.id === "platform") return isPlatformAdmin;
-      if (SHARED_SECTIONS.has(s.id)) return true;
-      if (s.publicOnly && user?.organizationType === "PRIVATE_COMPANY") return false;
-      const portals = s.portals ?? ["INSTITUTION"];
-      return portals.includes(portal);
-    })
-    .map((s) => ({
-      ...s,
-      items: s.items.filter((i) => {
-        if (i.adminOnly && !isAdmin) return false;
-        if (i.managerOnly && !isManager) return false;
-        if (i.auditorOnly && !isAuditor) return false;
-        return true;
-      }),
-    }))
-    .filter((s) => s.items.length > 0);
+  return (
+    NAV_SECTIONS
+      // Portal first: OAG and OCIA are different applications, not different
+      // permission levels, so they never see the institution's audit navigation.
+      .filter((s) => {
+        // Platform operations sit outside the portals entirely.
+        if (s.id === "platform") return isPlatformAdmin;
+        if (SHARED_SECTIONS.has(s.id)) return true;
+        if (s.publicOnly && user?.organizationType === "PRIVATE_COMPANY") return false;
+        const portals = s.portals ?? ["INSTITUTION"];
+        return portals.includes(portal);
+      })
+      .map((s) => ({
+        ...s,
+        items: s.items.filter((i) => {
+          if (i.adminOnly && !isAdmin) return false;
+          if (i.managerOnly && !isManager) return false;
+          if (i.auditorOnly && !isAuditor) return false;
+          return true;
+        }),
+      }))
+      .filter((s) => s.items.length > 0)
+  );
 }
 
 const STORAGE_KEY = "auditly:sidebar:collapsed";
@@ -226,10 +248,18 @@ const STORAGE_KEY = "auditly:sidebar:collapsed";
 export function useSidebarState() {
   const [collapsed, setCollapsed] = React.useState<boolean>(false);
   React.useEffect(() => {
-    try { if (window.localStorage.getItem(STORAGE_KEY) === "1") setCollapsed(true); } catch {}
+    try {
+      if (window.localStorage.getItem(STORAGE_KEY) === "1") setCollapsed(true);
+    } catch {
+      // Storage may be unavailable; retain the in-memory UI state.
+    }
   }, []);
   React.useEffect(() => {
-    try { window.localStorage.setItem(STORAGE_KEY, collapsed ? "1" : "0"); } catch {}
+    try {
+      window.localStorage.setItem(STORAGE_KEY, collapsed ? "1" : "0");
+    } catch {
+      // Storage may be unavailable; retain the in-memory UI state.
+    }
   }, [collapsed]);
   return { collapsed, toggle: () => setCollapsed((c) => !c), setCollapsed };
 }
@@ -237,7 +267,10 @@ export function useSidebarState() {
 export function OrbitalSidebar({
   collapsed,
   onToggle,
-}: { collapsed: boolean; onToggle: () => void }) {
+}: {
+  collapsed: boolean;
+  onToggle: () => void;
+}) {
   const { location } = useRouterState();
   const navigate = useNavigate();
   const { user, clearAuth, isLoading } = useAuth();
@@ -316,8 +349,10 @@ export function OrbitalSidebar({
                 Auditly
               </span>
               {organizationName && (
-                <span className="block truncate text-[11px] leading-tight"
-                  style={{ color: "rgba(255,255,255,0.45)" }}>
+                <span
+                  className="block truncate text-[11px] leading-tight"
+                  style={{ color: "rgba(255,255,255,0.45)" }}
+                >
                   {organizationName}
                 </span>
               )}
@@ -340,7 +375,8 @@ export function OrbitalSidebar({
             )}
             <ul className="space-y-0.5">
               {section.items.map((item) => {
-                const isActive = location.pathname === item.to || location.pathname.startsWith(item.to + "/");
+                const isActive =
+                  location.pathname === item.to || location.pathname.startsWith(item.to + "/");
                 const Icon = item.icon;
                 const badge = badgeFor(item.to);
                 return (
@@ -364,14 +400,20 @@ export function OrbitalSidebar({
                           style={{ backgroundColor: "var(--brown-200)" }}
                         />
                       )}
-                      <Icon className={cn("h-[18px] w-[18px] shrink-0", !collapsed && "mr-3")} strokeWidth={1.75} />
+                      <Icon
+                        className={cn("h-[18px] w-[18px] shrink-0", !collapsed && "mr-3")}
+                        strokeWidth={1.75}
+                      />
                       {!collapsed && (
                         <>
                           <span className="flex-1 truncate">{item.label}</span>
                           {badge != null && (
                             <span
                               className="ml-2 flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[10px] font-semibold"
-                              style={{ backgroundColor: "var(--brown-200)", color: "var(--brown-800)" }}
+                              style={{
+                                backgroundColor: "var(--brown-200)",
+                                color: "var(--brown-800)",
+                              }}
                             >
                               {badge > 99 ? "99+" : badge}
                             </span>

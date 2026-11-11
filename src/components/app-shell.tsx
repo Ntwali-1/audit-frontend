@@ -1,7 +1,26 @@
 import * as React from "react";
 import { useRouterState, Link, useNavigate } from "@tanstack/react-router";
-import { Bell, AlertOctagon, ClipboardList, FileBarChart, Settings as SettingsIcon, User, LogOut, UserCircle2, ChevronRight, Menu } from "lucide-react";
-import { OrbitalSidebar, NAV_SECTIONS, useSidebarState, useNavBadges, useNavSections, markAllSeen, markOneSeen } from "@/components/orbital-sidebar";
+import {
+  Bell,
+  AlertOctagon,
+  ClipboardList,
+  FileBarChart,
+  Settings as SettingsIcon,
+  User,
+  LogOut,
+  UserCircle2,
+  ChevronRight,
+  Menu,
+} from "lucide-react";
+import {
+  OrbitalSidebar,
+  NAV_SECTIONS,
+  useSidebarState,
+  useNavBadges,
+  useNavSections,
+  markAllSeen,
+  markOneSeen,
+} from "@/components/orbital-sidebar";
 import { GlobalSearchProvider, SearchIconButton, SearchTrigger } from "@/components/global-search";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
@@ -69,10 +88,17 @@ function NotificationsPopover() {
         className="w-[380px] p-0 overflow-hidden"
         style={{ borderColor: "var(--border-subtle)", boxShadow: "var(--shadow-modal)" }}
       >
-        <div className="flex items-center justify-between border-b px-4 py-3" style={{ borderColor: "var(--border-subtle)" }}>
+        <div
+          className="flex items-center justify-between border-b px-4 py-3"
+          style={{ borderColor: "var(--border-subtle)" }}
+        >
           <div>
-            <p className="font-display text-sm font-semibold" style={{ color: "var(--brown-800)" }}>Notifications</p>
-            <p className="text-[11px]" style={{ color: "var(--text-muted)" }}>{unread} unread</p>
+            <p className="font-display text-sm font-semibold" style={{ color: "var(--brown-800)" }}>
+              Notifications
+            </p>
+            <p className="text-[11px]" style={{ color: "var(--text-muted)" }}>
+              {unread} unread
+            </p>
           </div>
           <button
             onClick={handleMarkAllRead}
@@ -84,7 +110,10 @@ function NotificationsPopover() {
         </div>
         <div className="max-h-[360px] overflow-y-auto scrollbar-thin">
           {displayFindings.length === 0 && (
-            <div className="px-4 py-6 text-center text-[13px]" style={{ color: "var(--text-muted)" }}>
+            <div
+              className="px-4 py-6 text-center text-[13px]"
+              style={{ color: "var(--text-muted)" }}
+            >
               No open findings right now.
             </div>
           )}
@@ -109,12 +138,23 @@ function NotificationsPopover() {
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-2">
-                    <p className="truncate text-[13px] font-medium" style={{ color: "var(--brown-800)" }}>
+                    <p
+                      className="truncate text-[13px] font-medium"
+                      style={{ color: "var(--brown-800)" }}
+                    >
                       {f.title}
                     </p>
-                    {isUnread && <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: "var(--brown-800)" }} />}
+                    {isUnread && (
+                      <span
+                        className="h-1.5 w-1.5 shrink-0 rounded-full"
+                        style={{ backgroundColor: "var(--brown-800)" }}
+                      />
+                    )}
                   </div>
-                  <p className="mt-0.5 line-clamp-2 text-[12px]" style={{ color: "var(--text-muted)" }}>
+                  <p
+                    className="mt-0.5 line-clamp-2 text-[12px]"
+                    style={{ color: "var(--text-muted)" }}
+                  >
                     {f.severity} severity · {f.status.replace(/_/g, " ")}
                   </p>
                   <p className="mt-1 text-[10px]" style={{ color: "var(--text-hint)" }}>
@@ -156,7 +196,11 @@ function UserPopover() {
       <PopoverTrigger asChild>
         <button
           className="flex h-9 w-9 items-center justify-center rounded-full text-[12px] font-semibold transition-shadow hover:shadow-md focus:outline-none focus:ring-2"
-          style={{ backgroundColor: "var(--brown-800)", color: "#fff", boxShadow: "0 0 0 2px var(--cream)" }}
+          style={{
+            backgroundColor: "var(--brown-800)",
+            color: "#fff",
+            boxShadow: "0 0 0 2px var(--cream)",
+          }}
           aria-label="Account"
         >
           {initials}
@@ -168,7 +212,10 @@ function UserPopover() {
         className="w-[260px] p-0 overflow-hidden"
         style={{ borderColor: "var(--border-subtle)", boxShadow: "var(--shadow-modal)" }}
       >
-        <div className="flex items-center gap-3 border-b px-4 py-3" style={{ borderColor: "var(--border-subtle)" }}>
+        <div
+          className="flex items-center gap-3 border-b px-4 py-3"
+          style={{ borderColor: "var(--border-subtle)" }}
+        >
           <div
             className="flex h-10 w-10 items-center justify-center rounded-full text-[13px] font-semibold"
             style={{ backgroundColor: "var(--brown-800)", color: "#fff" }}
@@ -176,8 +223,15 @@ function UserPopover() {
             {initials}
           </div>
           <div className="min-w-0">
-            <p className="truncate font-display text-sm font-semibold" style={{ color: "var(--brown-800)" }}>{displayName}</p>
-            <p className="truncate text-[11px]" style={{ color: "var(--text-muted)" }}>{email}</p>
+            <p
+              className="truncate font-display text-sm font-semibold"
+              style={{ color: "var(--brown-800)" }}
+            >
+              {displayName}
+            </p>
+            <p className="truncate text-[11px]" style={{ color: "var(--text-muted)" }}>
+              {email}
+            </p>
           </div>
         </div>
         <div className="py-1.5">
@@ -222,57 +276,66 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     /* The palette lives at the shell level so ⌘K works from any page, and so
        the header button and the shortcut share one piece of state. */
     <GlobalSearchProvider>
-    <div className="flex min-h-screen bg-[color:var(--cream)] text-foreground">
-      <OrbitalSidebar collapsed={collapsed} onToggle={toggle} />
+      <div className="flex min-h-screen bg-[color:var(--cream)] text-foreground">
+        <OrbitalSidebar collapsed={collapsed} onToggle={toggle} />
 
-      <main className="flex min-w-0 flex-1 flex-col">
-        <header
-          className="sticky top-0 z-20 flex h-14 items-center justify-between gap-3 border-b bg-white/90 px-4 backdrop-blur md:px-6"
-          style={{ borderColor: "var(--border-subtle)" }}
-        >
-          <div className="flex min-w-0 items-center gap-2">
-            {/* Mobile menu */}
-            <Sheet>
-              <SheetTrigger asChild>
-                <button
-                  className="flex h-9 w-9 items-center justify-center rounded-lg border bg-white md:hidden"
-                  style={{ borderColor: "var(--border-subtle)", color: "var(--brown-600)" }}
-                  aria-label="Open menu"
+        <main className="flex min-w-0 flex-1 flex-col">
+          <header
+            className="sticky top-0 z-20 flex h-14 items-center justify-between gap-3 border-b bg-white/90 px-4 backdrop-blur md:px-6"
+            style={{ borderColor: "var(--border-subtle)" }}
+          >
+            <div className="flex min-w-0 items-center gap-2">
+              {/* Mobile menu */}
+              <Sheet>
+                <SheetTrigger asChild>
+                  <button
+                    className="flex h-9 w-9 items-center justify-center rounded-lg border bg-white md:hidden"
+                    style={{ borderColor: "var(--border-subtle)", color: "var(--brown-600)" }}
+                    aria-label="Open menu"
+                  >
+                    <Menu className="h-[16px] w-[16px]" strokeWidth={1.75} />
+                  </button>
+                </SheetTrigger>
+                <SheetContent
+                  side="left"
+                  className="w-[280px] p-0 border-0"
+                  style={{ backgroundColor: "var(--brown-800)" }}
                 >
-                  <Menu className="h-[16px] w-[16px]" strokeWidth={1.75} />
-                </button>
-              </SheetTrigger>
-              <SheetContent side="left" className="w-[280px] p-0 border-0" style={{ backgroundColor: "var(--brown-800)" }}>
-                <SheetTitle className="sr-only">Navigation</SheetTitle>
-                <MobileNav pathname={location.pathname} />
-              </SheetContent>
-            </Sheet>
+                  <SheetTitle className="sr-only">Navigation</SheetTitle>
+                  <MobileNav pathname={location.pathname} />
+                </SheetContent>
+              </Sheet>
 
-            <div className="hidden min-w-0 items-center gap-2 text-[13px] sm:flex">
-              <span style={{ color: "var(--text-muted)" }}>{active?.section.label ?? "Auditly"}</span>
-              <span style={{ color: "var(--text-hint)" }}>/</span>
-              <span className="font-medium truncate" style={{ color: "var(--brown-800)" }}>
+              <div className="hidden min-w-0 items-center gap-2 text-[13px] sm:flex">
+                <span style={{ color: "var(--text-muted)" }}>
+                  {active?.section.label ?? "Auditly"}
+                </span>
+                <span style={{ color: "var(--text-hint)" }}>/</span>
+                <span className="font-medium truncate" style={{ color: "var(--brown-800)" }}>
+                  {active?.item.label ?? "Overview"}
+                </span>
+              </div>
+              <span
+                className="font-medium text-[13px] truncate sm:hidden"
+                style={{ color: "var(--brown-800)" }}
+              >
                 {active?.item.label ?? "Overview"}
               </span>
             </div>
-            <span className="font-medium text-[13px] truncate sm:hidden" style={{ color: "var(--brown-800)" }}>
-              {active?.item.label ?? "Overview"}
-            </span>
-          </div>
 
-          <div className="flex items-center gap-2 md:gap-3">
-            <SearchTrigger className="hidden w-72 lg:flex" />
-            <SearchIconButton className="lg:hidden" />
-            <NotificationsPopover />
-            <UserPopover />
-          </div>
-        </header>
+            <div className="flex items-center gap-2 md:gap-3">
+              <SearchTrigger className="hidden w-72 lg:flex" />
+              <SearchIconButton className="lg:hidden" />
+              <NotificationsPopover />
+              <UserPopover />
+            </div>
+          </header>
 
-        <div className="flex-1 bg-dot-grid">
-          <div className="mx-auto max-w-[1280px] p-4 md:p-6 fade-in">{children}</div>
-        </div>
-      </main>
-    </div>
+          <div className="flex-1 bg-dot-grid">
+            <div className="mx-auto max-w-[1280px] p-4 md:p-6 fade-in">{children}</div>
+          </div>
+        </main>
+      </div>
     </GlobalSearchProvider>
   );
 }
@@ -289,10 +352,15 @@ function MobileNav({ pathname }: { pathname: string }) {
 
   return (
     <nav className="scrollbar-thin flex h-full flex-col overflow-y-auto bg-linen px-3 py-4">
-      <div className="px-3 pb-4 text-[15px] font-semibold tracking-tight text-white font-display">Auditly</div>
+      <div className="px-3 pb-4 text-[15px] font-semibold tracking-tight text-white font-display">
+        Auditly
+      </div>
       {navSections.map((section, idx) => (
         <div key={section.id} className={cn(idx > 0 && "mt-4")}>
-          <div className="px-3 pb-2 pt-1 text-[10px] font-medium uppercase" style={{ letterSpacing: "0.12em", color: "rgba(255,255,255,0.35)" }}>
+          <div
+            className="px-3 pb-2 pt-1 text-[10px] font-medium uppercase"
+            style={{ letterSpacing: "0.12em", color: "rgba(255,255,255,0.35)" }}
+          >
             {section.label}
           </div>
           <ul className="space-y-0.5">
@@ -306,7 +374,9 @@ function MobileNav({ pathname }: { pathname: string }) {
                     to={item.to}
                     className={cn(
                       "flex h-11 items-center gap-3 rounded-lg px-3 text-[14px] font-medium transition-colors",
-                      isActive ? "text-white" : "text-white/65 hover:bg-white/[0.08] hover:text-white",
+                      isActive
+                        ? "text-white"
+                        : "text-white/65 hover:bg-white/[0.08] hover:text-white",
                     )}
                     style={isActive ? { backgroundColor: "var(--brown-600)" } : undefined}
                   >

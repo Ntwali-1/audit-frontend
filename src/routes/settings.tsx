@@ -47,10 +47,16 @@ function Settings() {
 
   return (
     <AppShell>
-      <PageHeader eyebrow="Intelligence" title="Settings" description="Manage your profile and preferences." />
+      <PageHeader
+        eyebrow="Intelligence"
+        title="Settings"
+        description="Manage your profile and preferences."
+      />
       <div className="max-w-2xl space-y-4">
         <Card className="bg-card/80 backdrop-blur">
-          <CardHeader><CardTitle className="text-base">Profile</CardTitle></CardHeader>
+          <CardHeader>
+            <CardTitle className="text-base">Profile</CardTitle>
+          </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
@@ -87,9 +93,7 @@ function Settings() {
               <Label htmlFor="role">Role</Label>
               <Input id="role" value={roleLabel} disabled className="mt-1.5 opacity-60" />
             </div>
-            {isSuccess && (
-              <p className="text-sm text-green-600">Profile updated successfully.</p>
-            )}
+            {isSuccess && <p className="text-sm text-green-600">Profile updated successfully.</p>}
             {isError && (
               <p className="text-sm text-destructive">
                 {error instanceof Error ? error.message : "Failed to update profile."}
@@ -102,7 +106,9 @@ function Settings() {
         </Card>
 
         <Card className="bg-card/80 backdrop-blur">
-          <CardHeader><CardTitle className="text-base">Account info</CardTitle></CardHeader>
+          <CardHeader>
+            <CardTitle className="text-base">Account info</CardTitle>
+          </CardHeader>
           <CardContent className="space-y-2 text-sm">
             <div className="flex justify-between">
               <span className="text-muted-foreground">User ID</span>

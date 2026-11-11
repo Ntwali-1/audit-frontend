@@ -1,3 +1,4 @@
+import type { LucideIcon } from "lucide-react";
 import * as React from "react";
 import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
 import { useMutation } from "@tanstack/react-query";
@@ -55,36 +56,63 @@ function VerifyEmail() {
   return (
     <Shell>
       {!token ? (
-        <State icon={XCircle} tone="bad" title="No verification token"
-          body="This link is missing its token. Open the link from your email exactly as it was sent." />
+        <State
+          icon={XCircle}
+          tone="bad"
+          title="No verification token"
+          body="This link is missing its token. Open the link from your email exactly as it was sent."
+        />
       ) : verify.isPending ? (
         <div className="py-6 text-center">
           <Spinner size={28} />
-          <p className="mt-3 text-[14px]" style={{ color: "var(--text-muted)" }}>Verifying…</p>
+          <p className="mt-3 text-[14px]" style={{ color: "var(--text-muted)" }}>
+            Verifying…
+          </p>
         </div>
       ) : done ? (
         <>
-          <State icon={CheckCircle2} tone="good" title="Email verified"
-            body="Your address is confirmed. You can sign in now." />
-          <Link to="/"><Button className="mt-5 w-full">Go to sign in</Button></Link>
+          <State
+            icon={CheckCircle2}
+            tone="good"
+            title="Email verified"
+            body="Your address is confirmed. You can sign in now."
+          />
+          <Link to="/">
+            <Button className="mt-5 w-full">Go to sign in</Button>
+          </Link>
         </>
       ) : (
         <>
-          <State icon={XCircle} tone="bad" title="That link did not work"
-            body={(verify.error as Error)?.message ?? "The link may have expired or already been used."} />
+          <State
+            icon={XCircle}
+            tone="bad"
+            title="That link did not work"
+            body={
+              (verify.error as Error)?.message ?? "The link may have expired or already been used."
+            }
+          />
           <div className="mt-5 space-y-2 text-left">
             <Label>Send a new link</Label>
             <div className="flex gap-2">
-              <Input type="email" placeholder="you@institution.gov" value={resendTo}
-                onChange={(e) => setResendTo(e.target.value)} />
-              <Button variant="outline" onClick={() => resend.mutate()}
-                disabled={!resendTo || resend.isPending}>
+              <Input
+                type="email"
+                placeholder="you@institution.gov"
+                value={resendTo}
+                onChange={(e) => setResendTo(e.target.value)}
+              />
+              <Button
+                variant="outline"
+                onClick={() => resend.mutate()}
+                disabled={!resendTo || resend.isPending}
+              >
                 {resend.isPending ? <Spinner size={14} /> : <Mail className="h-4 w-4" />}
               </Button>
             </div>
           </div>
           <Link to="/">
-            <Button variant="outline" className="mt-4 w-full">Back to sign in</Button>
+            <Button variant="outline" className="mt-4 w-full">
+              Back to sign in
+            </Button>
           </Link>
         </>
       )}
@@ -95,11 +123,15 @@ function VerifyEmail() {
 export function Shell({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-[color:var(--cream)] bg-dot-grid px-5">
-      <div className="w-full max-w-sm rounded-2xl border bg-white p-8 text-center"
-        style={{ borderColor: "var(--border-subtle)", boxShadow: "var(--shadow-card)" }}>
+      <div
+        className="w-full max-w-sm rounded-2xl border bg-white p-8 text-center"
+        style={{ borderColor: "var(--border-subtle)", boxShadow: "var(--shadow-card)" }}
+      >
         <div className="mb-6 flex items-center justify-center gap-2">
           <img src={PRODUCT_LOGO} alt="Auditly" className="h-6 w-6 object-contain" />
-          <span className="text-[15px] font-semibold" style={{ color: "var(--brown-800)" }}>Auditly</span>
+          <span className="text-[15px] font-semibold" style={{ color: "var(--brown-800)" }}>
+            Auditly
+          </span>
         </div>
         {children}
       </div>
@@ -108,9 +140,12 @@ export function Shell({ children }: { children: React.ReactNode }) {
 }
 
 export function State({
-  icon: Icon, tone, title, body,
+  icon: Icon,
+  tone,
+  title,
+  body,
 }: {
-  icon: React.ComponentType<any>;
+  icon: LucideIcon;
   tone: "good" | "bad";
   title: string;
   body: string;
@@ -119,11 +154,18 @@ export function State({
   const fg = tone === "good" ? "#1A6638" : "#9B2C2C";
   return (
     <>
-      <span className="mx-auto flex h-11 w-11 items-center justify-center rounded-2xl" style={{ backgroundColor: bg }}>
+      <span
+        className="mx-auto flex h-11 w-11 items-center justify-center rounded-2xl"
+        style={{ backgroundColor: bg }}
+      >
         <Icon className="h-5 w-5" style={{ color: fg }} />
       </span>
-      <h1 className="mt-3 text-[18px] font-semibold" style={{ color: "var(--brown-800)" }}>{title}</h1>
-      <p className="mt-1.5 text-[13px]" style={{ color: "var(--text-muted)" }}>{body}</p>
+      <h1 className="mt-3 text-[18px] font-semibold" style={{ color: "var(--brown-800)" }}>
+        {title}
+      </h1>
+      <p className="mt-1.5 text-[13px]" style={{ color: "var(--text-muted)" }}>
+        {body}
+      </p>
     </>
   );
 }

@@ -1,3 +1,4 @@
+import type { LucideIcon } from "lucide-react";
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
@@ -36,19 +37,21 @@ export function PageHeader({
 }
 
 export function StatTile({
-  label, value, hint, icon: Icon, trend,
+  label,
+  value,
+  hint,
+  icon: Icon,
+  trend,
 }: {
   label: string;
   value: React.ReactNode;
   hint?: string;
-  icon: React.ComponentType<any>;
+  icon: LucideIcon;
   trend?: { value: string; positive?: boolean };
   tone?: number;
 }) {
   return (
-    <div
-      className="group card-elevated overflow-hidden p-5"
-    >
+    <div className="group card-elevated overflow-hidden p-5">
       {/* subtle radial glow on hover */}
       <span
         aria-hidden
@@ -60,7 +63,8 @@ export function StatTile({
         aria-hidden
         className="absolute inset-y-0 right-0 w-[3px]"
         style={{
-          background: "linear-gradient(180deg, transparent, var(--brown-800) 30%, var(--brown-800) 70%, transparent)",
+          background:
+            "linear-gradient(180deg, transparent, var(--brown-800) 30%, var(--brown-800) 70%, transparent)",
           opacity: 0.85,
         }}
       />

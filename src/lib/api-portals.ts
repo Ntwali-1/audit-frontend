@@ -6,36 +6,25 @@
  * where it was. Shared plumbing (auth headers, refresh, error shaping) comes
  * from there.
  */
-import {
-  apiFetch,
-  doFetch,
-  getToken,
-  type ApiAudit,
-  type ApiFinding,
-  type ApiUser,
-} from './api';
+import { apiFetch, doFetch, getToken, type ApiAudit, type ApiFinding, type ApiUser } from "./api";
 
-export type PortalType = 'INSTITUTION' | 'OAG' | 'OCIA';
+export type PortalType = "INSTITUTION" | "OAG" | "OCIA";
 
 export type OrganizationType =
-  | 'GOVERNMENT_DISTRICT'
-  | 'GOVERNMENT_INSTITUTION'
-  | 'PRIVATE_COMPANY'
-  | 'OAG'
-  | 'OCIA';
+  "GOVERNMENT_DISTRICT" | "GOVERNMENT_INSTITUTION" | "PRIVATE_COMPANY" | "OAG" | "OCIA";
 
 /** Types that owe yearly reports to OAG/OCIA. Private bodies owe nothing. */
 export const PUBLIC_ORG_TYPES: OrganizationType[] = [
-  'GOVERNMENT_DISTRICT',
-  'GOVERNMENT_INSTITUTION',
+  "GOVERNMENT_DISTRICT",
+  "GOVERNMENT_INSTITUTION",
 ];
 
 export const ORG_TYPE_LABEL: Record<string, string> = {
-  GOVERNMENT_DISTRICT: 'District',
-  GOVERNMENT_INSTITUTION: 'Government institution',
-  PRIVATE_COMPANY: 'Private company',
-  OAG: 'Auditor General',
-  OCIA: 'Chief Internal Auditor',
+  GOVERNMENT_DISTRICT: "District",
+  GOVERNMENT_INSTITUTION: "Government institution",
+  PRIVATE_COMPANY: "Private company",
+  OAG: "Auditor General",
+  OCIA: "Chief Internal Auditor",
 };
 
 export interface ApiOrganization {
@@ -50,7 +39,7 @@ export interface ApiOrganization {
 export interface ApiEngagementMember {
   id: string;
   userId: string;
-  role: 'LEAD' | 'MEMBER';
+  role: "LEAD" | "MEMBER";
   user: ApiUser;
 }
 
@@ -61,7 +50,7 @@ export interface ApiEngagement {
   oagAuditorId: string;
   oagAuditor: ApiUser;
   year: number;
-  status: 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+  status: "SCHEDULED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
   accessStartsAt: string;
   accessEndsAt: string;
   revokedAt: string | null;
@@ -108,8 +97,8 @@ export interface ApiTimelineEvent {
   createdAt: string;
 }
 
-export type SubmissionRecipient = 'OAG' | 'OCIA' | 'BOTH';
-export type SubmissionStatus = 'DRAFT' | 'SUBMITTED' | 'UNDER_REVIEW' | 'ACCEPTED' | 'RETURNED';
+export type SubmissionRecipient = "OAG" | "OCIA" | "BOTH";
+export type SubmissionStatus = "DRAFT" | "SUBMITTED" | "UNDER_REVIEW" | "ACCEPTED" | "RETURNED";
 
 export interface ApiSubmissionCycle {
   id: string;
@@ -166,13 +155,13 @@ export interface ApiObligation {
 
 // -- Institution registration and platform review ---------------------------
 
-export type OrganizationStatus = 'PENDING_APPROVAL' | 'ACTIVE' | 'SUSPENDED' | 'REJECTED';
+export type OrganizationStatus = "PENDING_APPROVAL" | "ACTIVE" | "SUSPENDED" | "REJECTED";
 
 export const ORG_STATUS_LABEL: Record<string, string> = {
-  PENDING_APPROVAL: 'Awaiting approval',
-  ACTIVE: 'Active',
-  SUSPENDED: 'Suspended',
-  REJECTED: 'Rejected',
+  PENDING_APPROVAL: "Awaiting approval",
+  ACTIVE: "Active",
+  SUSPENDED: "Suspended",
+  REJECTED: "Rejected",
 };
 
 export interface RegisterInstitutionPayload {
@@ -192,10 +181,10 @@ export interface RegisterInstitutionPayload {
     jobTitle?: string;
     phone?: string;
   };
-  team?: Array<{ email: string; fullName?: string; role: 'AUDITOR' | 'LEAD_AUDITOR' }>;
+  team?: Array<{ email: string; fullName?: string; role: "AUDITOR" | "LEAD_AUDITOR" }>;
 }
 
-export interface PendingOrganization extends Omit<ApiOrganization, '_count'> {
+export interface PendingOrganization extends Omit<ApiOrganization, "_count"> {
   status: OrganizationStatus;
   district: string | null;
   contactEmail: string | null;
@@ -229,7 +218,12 @@ export interface OrganizationDetail {
     };
   };
   users: Array<ApiUser & { isPlatformAdmin: boolean; createdAt: string }>;
-  teams: Array<{ id: string; name: string; teamLeadId: string | null; _count: { members: number } }>;
+  teams: Array<{
+    id: string;
+    name: string;
+    teamLeadId: string | null;
+    _count: { members: number };
+  }>;
   pendingInvitations: Array<{
     id: string;
     email: string;
@@ -268,50 +262,50 @@ export const registrationApi = {
       status: OrganizationStatus;
       teamInvitesQueued: number;
       message: string;
-    }>('/registration/institutions', { method: 'POST', body: JSON.stringify(payload) }),
+    }>("/registration/institutions", { method: "POST", body: JSON.stringify(payload) }),
 };
 
 export const platformApi = {
   organizations: (params?: { status?: OrganizationStatus; type?: OrganizationType }) => {
     const qs = new URLSearchParams();
-    if (params?.status) qs.set('status', params.status);
-    if (params?.type) qs.set('type', params.type);
+    if (params?.status) qs.set("status", params.status);
+    if (params?.type) qs.set("type", params.type);
     const q = qs.toString();
-    return apiFetch<PendingOrganization[]>(`/platform/organizations${q ? `?${q}` : ''}`);
+    return apiFetch<PendingOrganization[]>(`/platform/organizations${q ? `?${q}` : ""}`);
   },
-  pending: () => apiFetch<PendingOrganization[]>('/platform/organizations/pending'),
+  pending: () => apiFetch<PendingOrganization[]>("/platform/organizations/pending"),
   organization: (id: string) => apiFetch<OrganizationDetail>(`/platform/organizations/${id}`),
   approve: (id: string, note?: string) =>
     apiFetch<{ message: string; invitationsSent?: number }>(
       `/platform/organizations/${id}/approve`,
-      { method: 'POST', body: JSON.stringify({ ...(note ? { note } : {}) }) },
+      { method: "POST", body: JSON.stringify({ ...(note ? { note } : {}) }) },
     ),
   reject: (id: string, note: string) =>
     apiFetch<{ message: string }>(`/platform/organizations/${id}/reject`, {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify({ note }),
     }),
   suspend: (id: string, note?: string) =>
     apiFetch<{ message: string }>(`/platform/organizations/${id}/suspend`, {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify({ ...(note ? { note } : {}) }),
     }),
   reinstate: (id: string) =>
-    apiFetch<{ message: string }>(`/platform/organizations/${id}/reinstate`, { method: 'POST' }),
+    apiFetch<{ message: string }>(`/platform/organizations/${id}/reinstate`, { method: "POST" }),
 };
 
 export const organizationsApi = {
   getAll: (type?: OrganizationType) =>
-    apiFetch<ApiOrganization[]>(`/organizations${type ? `?type=${type}` : ''}`),
+    apiFetch<ApiOrganization[]>(`/organizations${type ? `?type=${type}` : ""}`),
   getById: (id: string) => apiFetch<ApiOrganization>(`/organizations/${id}`),
   create: (data: { name: string; type: OrganizationType; requireFindingSegregation?: boolean }) =>
-    apiFetch<ApiOrganization>('/organizations', { method: 'POST', body: JSON.stringify(data) }),
+    apiFetch<ApiOrganization>("/organizations", { method: "POST", body: JSON.stringify(data) }),
   update: (
     id: string,
     data: { name?: string; type?: OrganizationType; requireFindingSegregation?: boolean },
   ) =>
     apiFetch<ApiOrganization>(`/organizations/${id}`, {
-      method: 'PATCH',
+      method: "PATCH",
       body: JSON.stringify(data),
     }),
 };
@@ -319,10 +313,10 @@ export const organizationsApi = {
 export const engagementsApi = {
   getAll: (params?: { status?: string; year?: string }) => {
     const qs = new URLSearchParams();
-    if (params?.status) qs.set('status', params.status);
-    if (params?.year) qs.set('year', params.year);
+    if (params?.status) qs.set("status", params.status);
+    if (params?.year) qs.set("year", params.year);
     const q = qs.toString();
-    return apiFetch<ApiEngagement[]>(`/oag/engagements${q ? `?${q}` : ''}`);
+    return apiFetch<ApiEngagement[]>(`/oag/engagements${q ? `?${q}` : ""}`);
   },
   getById: (id: string) => apiFetch<ApiEngagement>(`/oag/engagements/${id}`),
   create: (data: {
@@ -330,18 +324,21 @@ export const engagementsApi = {
     year: number;
     accessStartsAt: string;
     accessEndsAt: string;
-  }) => apiFetch<ApiEngagement>('/oag/engagements', { method: 'POST', body: JSON.stringify(data) }),
+  }) => apiFetch<ApiEngagement>("/oag/engagements", { method: "POST", body: JSON.stringify(data) }),
   update: (id: string, data: { status?: string; accessStartsAt?: string; accessEndsAt?: string }) =>
-    apiFetch<ApiEngagement>(`/oag/engagements/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+    apiFetch<ApiEngagement>(`/oag/engagements/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }),
   revoke: (id: string) =>
-    apiFetch<{ message: string }>(`/oag/engagements/${id}/revoke`, { method: 'POST' }),
-  addMember: (id: string, userId: string, role?: 'LEAD' | 'MEMBER') =>
+    apiFetch<{ message: string }>(`/oag/engagements/${id}/revoke`, { method: "POST" }),
+  addMember: (id: string, userId: string, role?: "LEAD" | "MEMBER") =>
     apiFetch<ApiEngagement>(`/oag/engagements/${id}/members`, {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify({ userId, ...(role ? { role } : {}) }),
     }),
   removeMember: (id: string, userId: string) =>
-    apiFetch<{ message: string }>(`/oag/engagements/${id}/members/${userId}`, { method: 'DELETE' }),
+    apiFetch<{ message: string }>(`/oag/engagements/${id}/members/${userId}`, { method: "DELETE" }),
   timeline: (id: string) => apiFetch<ApiTimelineEvent[]>(`/oag/engagements/${id}/timeline`),
   institutionAudits: (id: string) => apiFetch<ApiAudit[]>(`/oag/engagements/${id}/audits`),
   institutionAudit: (id: string, auditId: string) =>
@@ -351,10 +348,10 @@ export const engagementsApi = {
 };
 
 export const externalFindingsApi = {
-  mine: () => apiFetch<ApiExternalFinding[]>('/external-findings/my'),
+  mine: () => apiFetch<ApiExternalFinding[]>("/external-findings/my"),
   forEngagement: (engagementId: string, status?: string) =>
     apiFetch<ApiExternalFinding[]>(
-      `/external-findings/engagement/${engagementId}${status ? `?status=${status}` : ''}`,
+      `/external-findings/engagement/${engagementId}${status ? `?status=${status}` : ""}`,
     ),
   getById: (id: string) => apiFetch<ApiExternalFinding>(`/external-findings/${id}`),
   timeline: (id: string) => apiFetch<ApiTimelineEvent[]>(`/external-findings/${id}/timeline`),
@@ -369,22 +366,22 @@ export const externalFindingsApi = {
     },
   ) =>
     apiFetch<ApiExternalFinding>(`/external-findings/engagement/${engagementId}`, {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify(data),
     }),
   update: (id: string, data: Record<string, unknown>) =>
     apiFetch<ApiExternalFinding>(`/external-findings/${id}`, {
-      method: 'PATCH',
+      method: "PATCH",
       body: JSON.stringify(data),
     }),
   resolve: (id: string, note?: string) =>
     apiFetch<ApiExternalFinding>(`/external-findings/${id}/resolve`, {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify({ ...(note ? { note } : {}) }),
     }),
   verify: (id: string, status: string, note?: string) =>
     apiFetch<ApiExternalFinding>(`/external-findings/${id}/verify`, {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify({ status, ...(note ? { note } : {}) }),
     }),
 };
@@ -441,9 +438,10 @@ export interface OciaComplianceCycle {
 }
 
 export const ociaApi = {
-  overview: (year?: number) => apiFetch<OciaOverview>(`/ocia/overview${year ? `?year=${year}` : ''}`),
+  overview: (year?: number) =>
+    apiFetch<OciaOverview>(`/ocia/overview${year ? `?year=${year}` : ""}`),
   institutions: (year?: number) =>
-    apiFetch<OciaInstitutionRow[]>(`/ocia/institutions${year ? `?year=${year}` : ''}`),
+    apiFetch<OciaInstitutionRow[]>(`/ocia/institutions${year ? `?year=${year}` : ""}`),
   trend: (months = 12) =>
     apiFetch<Array<{ month: string; raised: number; closed: number }>>(
       `/ocia/trend?months=${months}`,
@@ -453,14 +451,14 @@ export const ociaApi = {
       cycleYear: number;
       engagementsByStatus: Record<string, number>;
       externalFindings: { total: number; closed: number; overdue: number };
-    }>(`/ocia/engagements${year ? `?year=${year}` : ''}`),
+    }>(`/ocia/engagements${year ? `?year=${year}` : ""}`),
   compliance: (year?: number) =>
-    apiFetch<OciaComplianceCycle[]>(`/ocia/compliance${year ? `?year=${year}` : ''}`),
+    apiFetch<OciaComplianceCycle[]>(`/ocia/compliance${year ? `?year=${year}` : ""}`),
 };
 
 export const cyclesApi = {
   getAll: (year?: number) =>
-    apiFetch<ApiSubmissionCycle[]>(`/submission-cycles${year ? `?year=${year}` : ''}`),
+    apiFetch<ApiSubmissionCycle[]>(`/submission-cycles${year ? `?year=${year}` : ""}`),
   create: (data: {
     title: string;
     description?: string;
@@ -469,8 +467,8 @@ export const cyclesApi = {
     recipient: SubmissionRecipient;
     appliesTo: OrganizationType[];
   }) =>
-    apiFetch<ApiSubmissionCycle>('/submission-cycles', {
-      method: 'POST',
+    apiFetch<ApiSubmissionCycle>("/submission-cycles", {
+      method: "POST",
       body: JSON.stringify(data),
     }),
   update: (
@@ -478,19 +476,19 @@ export const cyclesApi = {
     data: { title?: string; description?: string; dueDate?: string; closedAt?: string },
   ) =>
     apiFetch<ApiSubmissionCycle>(`/submission-cycles/${id}`, {
-      method: 'PATCH',
+      method: "PATCH",
       body: JSON.stringify(data),
     }),
 };
 
 export const submissionsApi = {
-  obligations: () => apiFetch<ApiObligation[]>('/submissions/obligations'),
+  obligations: () => apiFetch<ApiObligation[]>("/submissions/obligations"),
   getAll: (params?: { status?: SubmissionStatus; year?: string }) => {
     const qs = new URLSearchParams();
-    if (params?.status) qs.set('status', params.status);
-    if (params?.year) qs.set('year', params.year);
+    if (params?.status) qs.set("status", params.status);
+    if (params?.year) qs.set("year", params.year);
     const q = qs.toString();
-    return apiFetch<ApiSubmission[]>(`/submissions${q ? `?${q}` : ''}`);
+    return apiFetch<ApiSubmission[]>(`/submissions${q ? `?${q}` : ""}`);
   },
   getById: (id: string) => apiFetch<ApiSubmission>(`/submissions/${id}`),
   create: (data: {
@@ -499,20 +497,20 @@ export const submissionsApi = {
     narrative?: string;
     year?: number;
     recipient?: SubmissionRecipient;
-  }) => apiFetch<ApiSubmission>('/submissions', { method: 'POST', body: JSON.stringify(data) }),
+  }) => apiFetch<ApiSubmission>("/submissions", { method: "POST", body: JSON.stringify(data) }),
   update: (id: string, data: { title?: string; narrative?: string }) =>
-    apiFetch<ApiSubmission>(`/submissions/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+    apiFetch<ApiSubmission>(`/submissions/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
   attachReports: (id: string, reportIds: string[]) =>
     apiFetch<ApiSubmission>(`/submissions/${id}/reports`, {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify({ reportIds }),
     }),
   detachReport: (id: string, reportId: string) =>
-    apiFetch<ApiSubmission>(`/submissions/${id}/reports/${reportId}`, { method: 'DELETE' }),
-  submit: (id: string) => apiFetch<ApiSubmission>(`/submissions/${id}/submit`, { method: 'POST' }),
+    apiFetch<ApiSubmission>(`/submissions/${id}/reports/${reportId}`, { method: "DELETE" }),
+  submit: (id: string) => apiFetch<ApiSubmission>(`/submissions/${id}/submit`, { method: "POST" }),
   review: (id: string, status: SubmissionStatus, note?: string) =>
     apiFetch<ApiSubmission>(`/submissions/${id}/review`, {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify({ status, ...(note ? { note } : {}) }),
     }),
 };
@@ -520,31 +518,31 @@ export const submissionsApi = {
 // --- Display helpers -------------------------------------------------------
 
 export const SUBMISSION_STATUS_LABEL: Record<string, string> = {
-  DRAFT: 'Draft',
-  SUBMITTED: 'Submitted',
-  UNDER_REVIEW: 'Under review',
-  ACCEPTED: 'Accepted',
-  RETURNED: 'Returned for correction',
-  NOT_STARTED: 'Not started',
+  DRAFT: "Draft",
+  SUBMITTED: "Submitted",
+  UNDER_REVIEW: "Under review",
+  ACCEPTED: "Accepted",
+  RETURNED: "Returned for correction",
+  NOT_STARTED: "Not started",
 };
 
 export const ENGAGEMENT_STATUS_LABEL: Record<string, string> = {
-  SCHEDULED: 'Scheduled',
-  IN_PROGRESS: 'In progress',
-  COMPLETED: 'Completed',
-  CANCELLED: 'Cancelled',
+  SCHEDULED: "Scheduled",
+  IN_PROGRESS: "In progress",
+  COMPLETED: "Completed",
+  CANCELLED: "Cancelled",
 };
 
 /** Outcomes only an auditor may set. */
 export const VERIFICATION_OUTCOMES = [
-  { value: 'VERIFIED_CLOSED', label: 'Verified and closed' },
-  { value: 'PARTIALLY_RESOLVED', label: 'Partially resolved' },
-  { value: 'REJECTED_REOPENED', label: 'Rejected, reopen' },
+  { value: "VERIFIED_CLOSED", label: "Verified and closed" },
+  { value: "PARTIALLY_RESOLVED", label: "Partially resolved" },
+  { value: "REJECTED_REOPENED", label: "Rejected, reopen" },
 ] as const;
 
 /** True while an engagement's read window into the institution is open. */
 export function isEngagementActive(e: ApiEngagement): boolean {
-  if (e.revokedAt || e.status === 'CANCELLED') return false;
+  if (e.revokedAt || e.status === "CANCELLED") return false;
   const now = Date.now();
   return new Date(e.accessStartsAt).getTime() <= now && new Date(e.accessEndsAt).getTime() >= now;
 }
@@ -558,7 +556,7 @@ export async function downloadReport(id: string, fileName?: string): Promise<voi
   }
   const blob = await res.blob();
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
+  const a = document.createElement("a");
   a.href = url;
   a.download = fileName ?? `report-${id}.pdf`;
   document.body.appendChild(a);
