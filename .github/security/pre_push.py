@@ -1,4 +1,5 @@
 """Optional local pre-push checks. Editable hooks are not server enforcement."""
+
 from __future__ import annotations
 
 import json
@@ -6,13 +7,13 @@ import subprocess
 import sys
 from pathlib import Path
 
-
 POLICY = Path(__file__).resolve().parent
 sys.path.insert(0, str(POLICY))
-from check_repository import git_command, scan_repository  # noqa: E402
 
 
 def main() -> int:
+    from check_repository import git_command, scan_repository
+
     repository = POLICY.parent.parent
     policy = json.loads((POLICY / "campaign-fingerprints.json").read_text())
     fingerprints = set(policy["git_blob_sha1"])
@@ -30,7 +31,7 @@ def main() -> int:
                 git_command(repository, ["cat-file", "-e", remote_sha + "^{commit}"])
                 git_command(repository, ["merge-base", "--is-ancestor", remote_sha, local_sha])
             except subprocess.CalledProcessError:
-                print("Push blocked: non-fast-forward or unavailable remote commit. Fetch and review first.")
+                print("Push blocked: fetch and review first; force updates are refused.")
                 return 1
             arguments = ["rev-list", local_sha, "^" + remote_sha]
         else:
@@ -56,4 +57,4 @@ if __name__ == "__main__":
         raise SystemExit(main())
     except (OSError, ValueError, KeyError, subprocess.CalledProcessError):
         print("Pre-push inspection failed; no push was approved.", file=sys.stderr)
-        raise SystemExit(2)
+        raise SystemExit(2) from None

@@ -144,7 +144,9 @@ def scan_blob(
         match = pattern.search(text)
         if match:
             add(code, "Possible credential material; remove it and review rotation.")
-    if name == ".gitignore" and re.search(r"^\s*/?config\.bat\s*$", text, re.I | re.M):
+    if name == ".gitignore" and re.search(
+        r"^\s*/?config\.bat\s*$", text, re.IGNORECASE | re.MULTILINE
+    ):
         add("CONCEALED_BATCH_FILE", "Remove the campaign-associated batch-file concealment rule.")
     if name in {"package.json", "package-lock.json"}:
         try:
