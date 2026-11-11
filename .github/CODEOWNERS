@@ -1,0 +1,7 @@
+# Review notifications; mandatory approval requires an independent trusted reviewer.
+/.github/ @Ntwali-1
+/.githooks/ @Ntwali-1
+/package.json @Ntwali-1
+/package-lock.json @Ntwali-1
+/pyproject.toml @Ntwali-1
+/uv.lock @Ntwali-1
